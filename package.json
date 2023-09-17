@@ -31,11 +31,12 @@
   "author": "Peter Ferguson <peterferguson95@gmail.com> (https://github.com/peterferguson)",
   "license": "MIT",
   "homepage": "https://github.com/peterferguson/expo-passkeys#readme",
-  "dependencies": {},
   "devDependencies": {
+    "@biomejs/biome": "1.2.2",
     "@types/react": "^18.0.25",
     "expo-module-scripts": "^3.0.11",
-    "expo-modules-core": "^1.5.7"
+    "expo-modules-core": "^1.5.7",
+    "typescript": "^5.2.2"
   },
   "peerDependencies": {
     "expo": "*",
