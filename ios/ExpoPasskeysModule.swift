@@ -5,7 +5,7 @@ public class ExpoPasskeysModule: Module {
   public func definition() -> ModuleDefinition {
     Name("ExpoPasskeys")
 
-    Function("isSupported") { 
+    Function("isSupported") { () -> Bool in
       if #available(iOS 15.0, *) {
         return true
       } else {
@@ -13,7 +13,7 @@ public class ExpoPasskeysModule: Module {
       }
     }
 
-    Function("isAutoFillAvailable") {
+    Function("isAutoFillAvailable") { () -> Bool in
       return false
     }
 
@@ -22,64 +22,111 @@ public class ExpoPasskeysModule: Module {
     AsyncFunction("create", createPasskey)
 
   }
+}
 
-  private func getPasskey(request: PublicKeyCredentialCreationOptions) -> PublicKeyCredentialCreationResponse {
-      if !self.isSupported {
-        throw NotSupportedException()
-      }
+private func prepareCrossPlatformAuthorizationRequest(challenge: Data,
+                                                 userId: Data,
+                                                 request: PublicKeyCredentialCreationOptions) -> ASAuthorizationSecurityKeyPublicKeyCredentialAssertionRequest {
 
-      guard let challengeData: Data = Data(base64URLEncoded: request.challenge!) else {
-        throw InvalidChallengeException()
-      }
-
-      guard let userId: Data = Data(base64URLEncoded: request.user.id!) else {
-        throw InvalidUserIdException()
-      }
+  let securityKeyCredentialProvider = ASAuthorizationSecurityKeyPublicKeyCredentialProvider(relyingPartyIdentifier: rpId!)
 
 
-      return "get world! 👋"
+  let securityKeyRegistrationRequest =
+      securityKeyCredentialProvider.createCredentialRegistrationRequest(challenge: challenge!,
+                                                                        displayName: displayName!,
+                                                                        name: username!,
+                                                                        userID: userId!)
+
+  // Set request options to the Security Key provider
+  securityKeyRegistrationRequest.credentialParameters = request.pubKeyCredParams
+
+  if let residentCredPref = self.attestationOptionsResponse?.publicKey.authenticatorSelection?.residentKey {
+      securityKeyRegistrationRequest.residentKeyPreference = residentKeyPreference(residentCredPref)
   }
 
-  // ! adapted from https://github.com/f-23/react-native-passkey/blob/fdcf7cf297debb247ada6317337767072158629c/ios/Passkey.swift#L138C55-L138C55
-  // Handles ASAuthorization error codes
-  func handleErrorCode(error: Error) -> PassKeyError {
-    let errorCode = (error as NSError).code;
-    switch errorCode {
-      case 1001:
-        return PassKeyError.cancelled;
-      case 1004:
-        return PassKeyError.requestFailed;
-      case 4004:
-        return PassKeyError.notConfigured;
-      default:
-        return PassKeyError.unknown;
+  if let userVerificationPref = self.attestationOptionsResponse?.publicKey.authenticatorSelection?.userVerification {
+      securityKeyRegistrationRequest.userVerificationPreference = userVerificationPreference(userVerificationPref)
+  }
+
+  if let rpAttestationPref = self.attestationOptionsResponse?.publicKey.attestation {
+      securityKeyRegistrationRequest.attestationPreference = attestationStatementPreference(rpAttestationPref)
+  }
+
+  if let excludedCredentials = self.attestationOptionsResponse?.publicKey.excludeCredentials {
+      if(!excludedCredentials.isEmpty){
+          securityKeyRegistrationRequest.excludedCredentials = credentialAttestationDescriptor(credentials: excludedCredentials)!
+      }
+  }
+
+
+  return securityKeyRegistrationRequest
+
+}
+
+
+private func createPasskey(request: PublicKeyCredentialCreationOptions) -> PublicKeyCredentialCreationResponse {
+    if !self.isSupported {
+      throw NotSupportedException()
     }
+
+    guard let challengeData: Data = Data(base64URLEncoded: request.challenge!) else {
+      throw InvalidChallengeException()
+    }
+
+    if !request.user.id.isEmpty {
+      throw MissingUserIdException()
+    }
+
+    guard let userId: Data = Data(base64URLEncoded: request.user.id!) else {
+      throw InvalidUserIdException()
+    }
+
+    let authController: ASAuthorizationController;
+    let securityKeyRegistrationRequest: ASAuthorizationSecurityKeyPublicKeyCredentialAssertionRequest? 
+    let platformKeyRegistrationRequest: ASAuthorizationPlatformPublicKeyCredentialAssertionRequest?
+
+    // - AuthenticatorAttachment.crossPlatform indicates that a security key should be used
+    if let isSecurityKey: Bool = request.authenticatorSelection.authenticatorAttachment == AuthenticatorAttachment.crossPlatform {
+      // todo: create security key auth request
+      securityKeyRegistrationRequest = prepareCrossPlatformAuthorizationRequest(challenge: challengeData,
+                                                                                userId: userId,
+                                                                                request: request
+      )
+    } else {
+      // todo: create platform key auth request
+    }
+
+    let authController = ASAuthorizationController(authorizationRequests: [ securityKeyRegistrationRequest ] )
+    authController.delegate = self
+    authController.presentationContextProvider = self
+    authController.performRequests()
+    // TODO: notify the client of the auth modal being shown
+    // isPerformingModalRequest = true
+
+    return "get world! 👋"
+}
+
+private func getPasskey(request: PublicKeyCredentialRequestOptions) -> PublicKeyCredentialRequestResponse {
+
+
+}
+
+// ! adapted from https://github.com/f-23/react-native-passkey/blob/fdcf7cf297debb247ada6317337767072158629c/ios/Passkey.swift#L138C55-L138C55
+// Handles ASAuthorization error codes
+func handleErrorCode(error: Error) -> PassKeyError {
+  let errorCode = (error as NSError).code;
+  switch errorCode {
+    case 1001:
+      return PassKeyError.cancelled;
+    case 1004:
+      return PassKeyError.requestFailed;
+    case 4004:
+      return PassKeyError.notConfigured;
+    default:
+      return PassKeyError.unknown;
   }
 }
 
-private class NotSupportedException: Exception {
-  override var reason: String {
-    "Paskeys are not supported on this iOS version. Please use iOS 15 or above"
-  }
-}
-
-private class UserCancelledException: Exception {
-  override var reason: String {
-    "User cancelled the passkey interaction"
-  }
-}
-
-private class InvalidChallengeException: Exception {
-  override var reason: String {
-    "The provided challenge was invalid"
-  }
-}
-
-private class InvalidUserIdException: Exception {
-  override var reason: String {
-    "The provided userId was invalid"
-  }
-}
 
 // enum PassKeyError: String, Error {
 //   case requestFailed = "RequestFailed"

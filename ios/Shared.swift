@@ -30,6 +30,24 @@ internal enum UserVerificationRequirement: String, EnumArgument {
     case required = "required"
 }
 
+internal enum AuthenticatorSelectionCriteria: String, EnumArgument {
+    case platform = "platform"
+    case crossPlatform = "cross-platform"
+
+    // - cross-platform marks that the user wants to select a security key
+    var isSecurityKey: Bool {
+        switch self {
+            case .platform:
+                return false
+            case .crossPlatform:
+                return true
+        }
+    }
+
+}
+
+
+
 
 // - Structs
 

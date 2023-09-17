@@ -1,7 +1,38 @@
 import ExpoModulesCore
 
+// - Enums
+
+internal enum AttestationConveyancePreference: String {
+    case direct
+    case enterprise
+    case indirect
+    case none
+}
+
+// - Structs
+
+struct PublicKeyCredentialRpEntity {
+    let name: String
+    let id: String?
+}
+
+struct PublicKeyCredentialEntity {
+    let name: String
+}
+
+struct PublicKeyCredentialUserEntity {
+    let name: String
+    let displayName: String
+    let id: BufferSource
+}
+
+struct PublicKeyCredentialParameters {
+    let alg: COSEAlgorithmIdentifier
+    let type: PublicKeyCredentialType
+}
+
 // - navigator.credentials.create request options
-internal struct PublicKeyCredentialCreationResponse {
+internal struct PublicKeyCredentialCreationOptions {
 
     @Field
     var rp: PublicKeyCredentialRpEntity
