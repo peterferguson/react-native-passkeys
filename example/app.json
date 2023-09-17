@@ -4,6 +4,7 @@
     "slug": "expo-passkeys-example",
     "version": "1.0.0",
     "orientation": "portrait",
+    "scheme": "expo.modules.passkeys.example",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
@@ -26,7 +27,11 @@
       "package": "expo.modules.passkeys.example"
     },
     "web": {
+      "bundler": "metro",
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-router"
+    ]
   }
 }

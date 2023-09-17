@@ -17,6 +17,9 @@
   },
   "keywords": [
     "react-native",
+    "auth",
+    "webauthn",
+    "passkeys",
     "expo",
     "expo-passkeys",
     "ExpoPasskeys"
