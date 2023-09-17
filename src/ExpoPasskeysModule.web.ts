@@ -6,6 +6,9 @@ import { NotSupportedError } from "./errors";
 import { base64URLStringToBuffer } from "./utils/base64";
 
 export default {
+	get name(): string {
+		return "ExpoPasskeys";
+	},
 	isAutoFillAvalilable(): Promise<boolean> {
 		const globalPublicKeyCredential = window.PublicKeyCredential;
 

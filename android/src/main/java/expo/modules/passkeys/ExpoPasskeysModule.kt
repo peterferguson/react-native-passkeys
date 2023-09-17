@@ -7,8 +7,17 @@ class ExpoPasskeysModule : Module() {
   override fun definition() = ModuleDefinition {
     Name("ExpoPasskeys")
 
-    Function("hello") {
-      "Hello world! 👋"
+    Function("isSupported") {
+      "get world! 👋"
+    }
+
+
+    Function("get") {
+      "get world! 👋"
+    }
+
+    Function("create") {
+      "create world! 👋"
     }
   }
 }
