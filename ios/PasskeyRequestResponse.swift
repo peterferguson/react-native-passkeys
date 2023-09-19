@@ -1,9 +1,8 @@
 import ExpoModulesCore
 
-// - navigator.credentials.create request options
-internal struct PublicKeyCredentialCreationResponse {
+// - navigator.credentials.get request options
+internal struct PublicKeyCredentialRequestResponse {
 
-    // TODO: figure out why I am forced to make these optional or get a 'No exact matches in call to initializer' error
     @Field
     var rp: PublicKeyCredentialRpEntity?
 

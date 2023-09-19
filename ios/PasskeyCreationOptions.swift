@@ -11,20 +11,10 @@ internal enum AttestationConveyancePreference: String {
 
 // - Structs
 
-struct PublicKeyCredentialRpEntity {
-    let name: String
-    let id: String?
-}
-
 struct PublicKeyCredentialEntity {
     let name: String
 }
 
-struct PublicKeyCredentialUserEntity {
-    let name: String
-    let displayName: String
-    let id: BufferSource
-}
 
 struct PublicKeyCredentialParameters {
     let alg: COSEAlgorithmIdentifier
@@ -32,13 +22,14 @@ struct PublicKeyCredentialParameters {
 }
 
 // - navigator.credentials.create request options
-internal struct PublicKeyCredentialCreationOptions {
+internal struct PublicKeyCredentialCreationOptions: Record {
+
+    // TODO: figure out why I am forced to make these optional or get a 'No exact matches in call to initializer' error
+    @Field
+    var rp: PublicKeyCredentialRpEntity?
 
     @Field
-    var rp: PublicKeyCredentialRpEntity
-
-    @Field
-    var user: PublicKeyCredentialUserEntity
+    var user: PublicKeyCredentialUserEntity?
 
     @Field
     var challenge: Base64URLString

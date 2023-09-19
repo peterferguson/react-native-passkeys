@@ -1,7 +1,7 @@
 import ExpoModulesCore
 
 // - navigator.credentials.get request options
-internal struct PasskeyRequestOptions: Record {
+internal struct PublicKeyCredentialRequestOptions {
     @Field
     var challenge: Base64URLString 
 

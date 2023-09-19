@@ -2,18 +2,18 @@
 import Foundation
 import AuthenticationServices
 
-struct PassKeyResult {
-  var registrationResult: PassKeyRegistrationResult?
-  var assertionResult: PassKeyAssertionResult?
+struct PasskeyResult {
+  var registrationResult: PasskeyRegistrationResult?
+  var assertionResult: PasskeyAssertionResult?
 }
 
-struct PassKeyRegistrationResult {
+struct PasskeyRegistrationResult {
   var credentialID: Data
   var rawAttestationObject: Data
   var rawClientDataJSON: Data
 }
 
-struct PassKeyAssertionResult {
+struct PasskeyAssertionResult {
   var credentialID: Data
   var rawAuthenticatorData: Data
   var rawClientDataJSON: Data
@@ -22,10 +22,10 @@ struct PassKeyAssertionResult {
 }
 
 class PasskeyDelegate: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
-    private var _completion: (_ error: Error?, _ result: PassKeyResult?) -> Void;
+    private var _completion: (_ error: Error?, _ result: PasskeyResult?) throws -> Void;
   
     // Initializes delegate with a completion handler (callback function)
-    init(completionHandler: @escaping (_ error: Error?, _ result: PassKeyResult?) -> Void) {
+    init(completionHandler: @escaping (_ error: Error?, _ result: PasskeyResult?) throws -> Void) {
         self._completion = completionHandler;
     }
 
@@ -44,30 +44,50 @@ class PasskeyDelegate: NSObject, ASAuthorizationControllerDelegate, ASAuthorizat
 
     @available(iOS 13.0, *)
     func authorizationController(controller: ASAuthorizationController,
-                                        didCompleteWithAuthorization authorization: ASAuthorization) {
+                                        didCompleteWithAuthorization authorization: ASAuthorization) throws -> PasskeyResult {
         // Check if Passkeys are supported on this OS version
         if #unavailable(iOS 15.0) {
             throw NotSupportedException()
         }
 
         switch (authorization.credential) {
-        case is ASAuthorizationPlatformPublicKeyCredentialRegistration, is ASAuthorizationSecurityKeyPublicKeyCredentialRegistration: 
-            if !authorization.credential.rawAttestationObject {
-                throw AuthorizationFailedException()
+        case let credential as ASAuthorizationPlatformPublicKeyCredentialRegistration:
+            // , is ASAuthorizationSecurityKeyPublicKeyCredentialRegistration:
+            if credential.rawAttestationObject == nil {
+                throw PasskeyAuthorizationFailedException()
             }
-            let registrationResult = PassKeyRegistrationResult(credentialID: authorization.credential.credentialID,
-                                                                rawAttestationObject: authorization.credential.rawAttestationObject,
-                                                                rawClientDataJSON: authorization.credential.rawClientDataJSON)
-            return PassKeyResult(registrationResult: registrationResult)
-        case is ASAuthorizationPlatformPublicKeyCredentialAssertion, is ASAuthorizationSecurityKeyPublicKeyCredentialAssertion:
-            let assertionResult = PassKeyAssertionResult(credentialID: authorization.credential.credentialID,
-                                                            rawAuthenticatorData: authorization.credential.rawAuthenticatorData,
-                                                            rawClientDataJSON: authorization.credential.rawClientDataJSON,
-                                                            signature: authorization.credential.signature,
-                                                            userID: authorization.credential.userID);
-            return PassKeyResult(assertionResult: assertionResult)
+            let registrationResult = PasskeyRegistrationResult(credentialID: credential.credentialID,
+                                                                rawAttestationObject: credential.rawAttestationObject!,
+                                                                rawClientDataJSON: credential.rawClientDataJSON)
+            return PasskeyResult(registrationResult: registrationResult)
+            
+        case let credential as ASAuthorizationSecurityKeyPublicKeyCredentialRegistration:
+            if credential.rawAttestationObject == nil {
+                throw PasskeyAuthorizationFailedException()
+            }
+            let registrationResult = PasskeyRegistrationResult(credentialID: credential.credentialID,
+                                                                rawAttestationObject: credential.rawAttestationObject!,
+                                                                rawClientDataJSON: credential.rawClientDataJSON)
+            return PasskeyResult(registrationResult: registrationResult)
+            
+        case let credential as ASAuthorizationPlatformPublicKeyCredentialAssertion:
+            let assertionResult = PasskeyAssertionResult(credentialID: credential.credentialID,
+                                                            rawAuthenticatorData: credential.rawAuthenticatorData,
+                                                            rawClientDataJSON: credential.rawClientDataJSON,
+                                                            signature: credential.signature,
+                                                            userID: credential.userID);
+            return PasskeyResult(assertionResult: assertionResult)
+            
+        case let credential as ASAuthorizationSecurityKeyPublicKeyCredentialAssertion:
+            let assertionResult = PasskeyAssertionResult(credentialID: credential.credentialID,
+                                                            rawAuthenticatorData: credential.rawAuthenticatorData,
+                                                            rawClientDataJSON: credential.rawClientDataJSON,
+                                                            signature: credential.signature,
+                                                            userID: credential.userID);
+            return PasskeyResult(assertionResult: assertionResult)
+            
         default:
-            throw AuthorizationFailedException()
+            throw PasskeyAuthorizationFailedException()
         }
     }
 }
