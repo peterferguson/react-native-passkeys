@@ -3,7 +3,7 @@ import AuthenticationServices
 
 // - Enums 
 
-internal enum AuthenticatorTransport: String {
+internal enum AuthenticatorTransport: String, Enumerable {
     case ble = "ble"
     case hybrid = "hybrid"
     case internalTransport = "internal"
@@ -12,27 +12,27 @@ internal enum AuthenticatorTransport: String {
 }
 
 
-internal enum AuthenticatorAttachment: String {
+internal enum AuthenticatorAttachment: String, Enumerable {
     case platform = "platform"
     case crossPlatform = "cross-platform"
 }
 
-internal enum PublicKeyCredentialType: String {
+internal enum PublicKeyCredentialType: String, Enumerable {
     case publicKey = "public-key"
 }
 
-internal enum UserVerificationRequirement: String {
+internal enum UserVerificationRequirement: String, Enumerable {
     case discouraged = "discouraged"
     case preferred = "preferred"
     case required = "required"
 }
 
-internal enum LargeBlobSupport: String {
+internal enum LargeBlobSupport: String, Enumerable {
     case preferred = "preferred"
     case required = "required"
 }
 
-internal enum AuthenticatorSelectionCriteria: String {
+internal enum AuthenticatorSelectionCriteria: String, Enumerable {
     case platform = "platform"
     case crossPlatform = "cross-platform"
 
@@ -51,23 +51,31 @@ internal enum AuthenticatorSelectionCriteria: String {
 
 // - Structs
 
-internal struct PublicKeyCredentialRpEntity {
-    let name: String
-    let id: String?
+internal struct PublicKeyCredentialRpEntity: Record {
+    @Field
+    var name: String
+    @Field
+    var id: String?
 }
 
-internal struct PublicKeyCredentialUserEntity {
-    let name: String
-    let displayName: String
-    let id: Base64URLString
+internal struct PublicKeyCredentialUserEntity: Record {
+    @Field
+    var name: String
+    @Field
+    var displayName: String
+    @Field
+    var id: Base64URLString
 }
 
 
 
-internal struct PublicKeyCredentialDescriptor {
-    let id: Base64URLString
-    let transports: [AuthenticatorTransport]?
-    let type: PublicKeyCredentialType
+internal struct PublicKeyCredentialDescriptor: Record {
+    @Field
+    var id: Base64URLString
+    @Field
+    var transports: [AuthenticatorTransport]?
+    @Field
+    var type: PublicKeyCredentialType = .publicKey
 }
 
 

@@ -33,11 +33,11 @@ public class ExpoPasskeysModule: Module {
               throw InvalidChallengeException()
           }
           
-          if !request.user!.id.isEmpty {
+          if !request.user.id.isEmpty {
               throw MissingUserIdException()
           }
           
-          guard let userId: Data = Data(base64URLEncoded: request.user!.id) else {
+          guard let userId: Data = Data(base64URLEncoded: request.user.id) else {
               throw InvalidUserIdException()
           }
           
@@ -117,12 +117,12 @@ public class ExpoPasskeysModule: Module {
 private func preparePlatformAuthorizationRequest(challenge: Data,
                                                  userId: Data,
                                                  request: PublicKeyCredentialCreationOptions) -> ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest {
-  let platformKeyCredentialProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier:  request.rp!.id!)
+  let platformKeyCredentialProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier:  request.rp.id!)
 
   let platformKeyRegistrationRequest =
       platformKeyCredentialProvider.createCredentialRegistrationRequest(challenge: challenge,
 //                                                                        displayName: request.user!.displayName,
-                                                                        name: request.user!.name,
+                                                                        name: request.user.name,
                                                                         userID: userId)
 
   return platformKeyRegistrationRequest
