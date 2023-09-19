@@ -1,5 +1,11 @@
 import ExpoModulesCore
 
+internal class NotConfiguredException: Exception {
+  override var reason: String {
+    "Your Apple app site association is not properly configured."
+  }
+}
+
 internal class NotSupportedException: Exception {
   override var reason: String {
     "Paskeys are not supported on this iOS version. Please use iOS 15 or above"
@@ -33,5 +39,11 @@ internal class InvalidUserIdException: Exception {
 internal class PasskeyRequestFailedException: Exception {
   override var reason: String {
     "The passkey request request failed"
+  }
+}
+
+internal class UnknownException: Exception {
+  override var reason: String {
+    "An unknown exception occured"
   }
 }

@@ -25,10 +25,10 @@ public class ExpoPasskeysModule: Module {
 }
 
 private func prepareCrossPlatformAuthorizationRequest(challenge: Data,
-                                                 userId: Data,
-                                                 request: PublicKeyCredentialCreationOptions) -> ASAuthorizationSecurityKeyPublicKeyCredentialAssertionRequest {
+                                                      userId: Data,
+                                                      request: PublicKeyCredentialCreationOptions) -> ASAuthorizationSecurityKeyPublicKeyCredentialAssertionRequest {
 
-  let securityKeyCredentialProvider = ASAuthorizationSecurityKeyPublicKeyCredentialProvider(relyingPartyIdentifier: rpId!)
+  let securityKeyCredentialProvider = ASAuthorizationSecurityKeyPublicKeyCredentialProvider(relyingPartyIdentifier: request.rp.id!)
 
 
   let securityKeyRegistrationRequest =
@@ -53,7 +53,7 @@ private func prepareCrossPlatformAuthorizationRequest(challenge: Data,
   }
 
   if let excludedCredentials = self.attestationOptionsResponse?.publicKey.excludeCredentials {
-      if(!excludedCredentials.isEmpty){
+      if !excludedCredentials.isEmpty {
           securityKeyRegistrationRequest.excludedCredentials = credentialAttestationDescriptor(credentials: excludedCredentials)!
       }
   }
@@ -63,6 +63,19 @@ private func prepareCrossPlatformAuthorizationRequest(challenge: Data,
 
 }
 
+private func preparePlatformAuthorizationRequest(challenge: Data,
+                                                 userId: Data,
+                                                 request: PublicKeyCredentialCreationOptions) -> ASAuthorizationPlatformPublicKeyCredentialAssertionRequest {
+  let platformKeyPlatformCredentialProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier:  request.rp.id!)
+
+  let platformKeyRegistrationRequest =
+      platformKeyCredentialProvider.createCredentialRegistrationRequest(challenge: challenge!,
+                                                                        displayName: displayName!,
+                                                                        name: username!,
+                                                                        userID: userId!)
+
+  return platformKeyRegistrationRequest
+}
 
 private func createPasskey(request: PublicKeyCredentialCreationOptions) -> PublicKeyCredentialCreationResponse {
     if !self.isSupported {
@@ -86,24 +99,25 @@ private func createPasskey(request: PublicKeyCredentialCreationOptions) -> Publi
     let platformKeyRegistrationRequest: ASAuthorizationPlatformPublicKeyCredentialAssertionRequest?
 
     // - AuthenticatorAttachment.crossPlatform indicates that a security key should be used
+    // TODO: use the helper on the Authenticator Attachment enum?
     if let isSecurityKey: Bool = request.authenticatorSelection.authenticatorAttachment == AuthenticatorAttachment.crossPlatform {
-      // todo: create security key auth request
       securityKeyRegistrationRequest = prepareCrossPlatformAuthorizationRequest(challenge: challengeData,
                                                                                 userId: userId,
                                                                                 request: request
       )
     } else {
-      // todo: create platform key auth request
+      platformKeyRegistrationRequest = preparePlatformAuthorizationRequest(challenge: challengeData,
+                                                                           userId: userId,
+                                                                           request: request)
     }
 
-    let authController = ASAuthorizationController(authorizationRequests: [ securityKeyRegistrationRequest ] )
-    authController.delegate = self
-    authController.presentationContextProvider = self
-    authController.performRequests()
-    // TODO: notify the client of the auth modal being shown
-    // isPerformingModalRequest = true
+    // Set up a PasskeyDelegate instance with a callback function
+    self.passKeyDelegate = preparePasskeyDelegate()
 
-    return "get world! 👋"
+    if let passKeyDelegate = self.passKeyDelegate {
+      // Perform the authorization request
+      passKeyDelegate.performAuthForController(controller: authController);
+    }
 }
 
 private func getPasskey(request: PublicKeyCredentialRequestOptions) -> PublicKeyCredentialRequestResponse {
@@ -112,29 +126,45 @@ private func getPasskey(request: PublicKeyCredentialRequestOptions) -> PublicKey
 }
 
 // ! adapted from https://github.com/f-23/react-native-passkey/blob/fdcf7cf297debb247ada6317337767072158629c/ios/Passkey.swift#L138C55-L138C55
-// Handles ASAuthorization error codes
-func handleErrorCode(error: Error) -> PassKeyError {
+func handleASAuthorizationError(error: Error) -> PassKeyError {
   let errorCode = (error as NSError).code;
   switch errorCode {
     case 1001:
-      return PassKeyError.cancelled;
+      throw UserCancelledException()
     case 1004:
-      return PassKeyError.requestFailed;
+      throw PasskeyRequestFailedException()
     case 4004:
-      return PassKeyError.notConfigured;
+      throw NotConfiguredException()
     default:
-      return PassKeyError.unknown;
+      throw UnknownException()
   }
 }
 
+private func preparePasskeyDelegate() {
+  return PasskeyDelegate { error, result in
+        if (error != nil) {
+          handleASAuthorizationError(error: error!);
+        }
 
-// enum PassKeyError: String, Error {
-//   case requestFailed = "RequestFailed"
-//   case invalidChallenge = "InvalidChallenge"
-//   case notConfigured = "NotConfigured"
-//   case unknown = "UnknownError"
-// }
+        // Check if the result object contains a valid registration result
+        if let registrationResult = result?.registrationResult {
+          // Return a NSDictionary instance with the received authorization data
+          let authResponse: NSDictionary = [
+            "rawAttestationObject": registrationResult.rawAttestationObject.base64EncodedString(),
+            "rawClientDataJSON": registrationResult.rawClientDataJSON.base64EncodedString()
+          ];
 
+          let authResult: NSDictionary = [
+            "credentialID": registrationResult.credentialID.base64EncodedString(),
+            "response": authResponse
+          ]
+          return authResult
+        } else {
+          throw PasskeyRequestFailedException()
+        }
+      }
+
+}
 
 // - preferences for security keys
 
