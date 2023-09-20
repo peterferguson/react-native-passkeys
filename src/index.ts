@@ -1,3 +1,4 @@
+import { EventEmitter, Subscription } from "expo-modules-core";
 import type {
 	PublicKeyCredentialCreationOptionsJSON,
 	PublicKeyCredentialRequestOptionsJSON,
@@ -6,6 +7,10 @@ import type {
 // Import the native module. On web, it will be resolved to ExpoPasskeys.web.ts
 // and on native platforms to ExpoPasskeys.ts
 import ExpoPasskeysModule from "./ExpoPasskeysModule";
+
+export function isSupported(): boolean {
+	return ExpoPasskeysModule.isSupported();
+}
 
 export async function get(
 	request: PublicKeyCredentialRequestOptionsJSON,
@@ -16,5 +21,11 @@ export async function get(
 export async function create(
 	request: PublicKeyCredentialCreationOptionsJSON & Pick<CredentialCreationOptions, "signal">,
 ): Promise<Credential | null> {
-	return ExpoPasskeysModule.create(request);
+	return await ExpoPasskeysModule.create(request);
+}
+
+const emitter = new EventEmitter(ExpoPasskeysModule);
+
+export function addMessageListener(listener: (event) => void): Subscription {
+	return emitter.addListener("onMessage", listener);
 }

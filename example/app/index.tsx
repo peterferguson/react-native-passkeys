@@ -67,6 +67,7 @@ export default function App() {
 	return (
 		<View style={styles.container}>
 			<Text style={styles.title}>Testing Passkeys</Text>
+			<Text>Application ID: {Application.applicationId}</Text>
 			<Text>Passkeys are {passkey.isSupported() ? "Supported" : "Not Supported"}</Text>
 			<View style={styles.buttonContainer}>
 				<Pressable style={styles.button} onPress={createPasskey}>
@@ -106,5 +107,6 @@ const styles = StyleSheet.create({
 		width: "45%",
 		alignItems: "center",
 		justifyContent: "center",
+		textAlign: "center",
 	},
 });

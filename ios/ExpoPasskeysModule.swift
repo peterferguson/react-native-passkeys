@@ -77,28 +77,30 @@ final public class ExpoPasskeysModule: Module {
         }
         
         self.passkeyDelegate = PasskeyDelegate { result in
-          self.sendEvent(self.onMessageEventName, ["executing": "passkeyDelegate cb"])
-     
-                guard let passkeyResult = try? result.get() as PasskeyResult? else {
-                self.sendEvent(self.onMessageEventName, ["error in delegate": result])
-                //  handleASAuthorizationError(error: result.error);
-                    return
-              }
+            self.sendEvent(self.onMessageEventName, ["executing": "passkeyDelegate cb"])
             
-            // Check if the result object contains a valid registration result
-            if let registrationResult = passkeyResult.registrationResult {
-            // Return a NSDictionary instance with the received authorization data
-            let authResponse: NSDictionary = [
-              "rawAttestationObject": registrationResult.rawAttestationObject.toBase64URLEncodedString(),
-              "rawClientDataJSON": registrationResult.rawClientDataJSON.toBase64URLEncodedString()
-            ];
-
-            let authResult: NSDictionary = [
-              "credentialID": registrationResult.credentialID.toBase64URLEncodedString(),
-              "response": authResponse
-            ]
-            promise.resolve(authResult)
-          }
+            switch (result) {
+            case .failure(let error):
+                self.sendEvent(self.onMessageEventName, ["error in delegate": error.localizedDescription])
+                //  handleASAuthorizationError(error: result.error);
+                return
+            case .success(let passkeyResult):
+                // Check if the result object contains a valid registration result
+                if let registrationResult = passkeyResult.registrationResult {
+                    // Return a NSDictionary instance with the received authorization data
+                    let authResponse: NSDictionary = [
+                        "rawAttestationObject": registrationResult.rawAttestationObject.toBase64URLEncodedString(),
+                        "rawClientDataJSON": registrationResult.rawClientDataJSON.toBase64URLEncodedString()
+                    ];
+                    
+                    let authResult: NSDictionary = [
+                        "credentialID": registrationResult.credentialID.toBase64URLEncodedString(),
+                        "response": authResponse
+                    ]
+                    promise.resolve(authResult)
+                    
+                }
+            }
         }
       
       if let passkeyDelegate = self.passkeyDelegate {
