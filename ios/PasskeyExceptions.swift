@@ -12,6 +12,12 @@ internal class NotSupportedException: Exception {
   }
 }
 
+internal class BiometricException: Exception {
+  override var reason: String {
+    "Biometrics must be enabled"
+  }
+}
+
 internal class UserCancelledException: Exception {
   override var reason: String {
     "User cancelled the passkey interaction"
