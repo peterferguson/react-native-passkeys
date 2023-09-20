@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import * as Application from "expo-application";
 import * as passkey from "expo-passkeys";
+import { useEffect } from "react";
 
 // ! taken from https://github.com/MasterKale/SimpleWebAuthn/blob/e02dce6f2f83d8923f3a549f84e0b7b3d44fa3da/packages/browser/src/helpers/bufferToBase64URLString.ts
 /**
@@ -36,9 +38,12 @@ export default function App() {
 		await passkey.create({
 			challenge: bufferToBase64URLString(utf8StringToBuffer("fizz")),
 			pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-			rp: { id: "localhost", name: "ExpoPasskeys" },
+			rp: {
+				id: `https://${Application.applicationId?.split(".").reverse().join(".")}`,
+				name: "ExpoPasskeys",
+			},
 			user: {
-				id: "5678",
+				id: bufferToBase64URLString(utf8StringToBuffer("290283490")),
 				displayName: "username",
 				name: "username",
 			},
@@ -52,9 +57,17 @@ export default function App() {
 		});
 	};
 
+	useEffect(() => {
+		const sub = passkey.addMessageListener(console.log);
+		return () => {
+			sub.remove();
+		};
+	}, []);
+
 	return (
 		<View style={styles.container}>
 			<Text style={styles.title}>Testing Passkeys</Text>
+			<Text>Passkeys are {passkey.isSupported() ? "Supported" : "Not Supported"}</Text>
 			<View style={styles.buttonContainer}>
 				<Pressable style={styles.button} onPress={createPasskey}>
 					<Text>Create Passkey</Text>
