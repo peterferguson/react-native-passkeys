@@ -6,6 +6,7 @@ import LocalAuthentication
 final public class ExpoPasskeysModule: Module {
 
   var passkeyDelegate: PasskeyDelegate?
+  var passkeyError: Exception?
   let onMessageEventName: String = "onMessage"
 
   public func definition() -> ModuleDefinition {
@@ -77,13 +78,10 @@ final public class ExpoPasskeysModule: Module {
         }
         
         self.passkeyDelegate = PasskeyDelegate { result in
-            self.sendEvent(self.onMessageEventName, ["executing": "passkeyDelegate cb"])
-            
             switch (result) {
             case .failure(let error):
-                self.sendEvent(self.onMessageEventName, ["error in delegate": error.localizedDescription])
-                //  handleASAuthorizationError(error: result.error);
-                return
+//                throw handleASAuthorizationError(errorCode:(error as NSError).code, localizedDescription: error.localizedDescription);
+                self.passkeyError = handleASAuthorizationError(errorCode:(error as NSError).code, localizedDescription: error.localizedDescription)
             case .success(let passkeyResult):
                 // Check if the result object contains a valid registration result
                 if let registrationResult = passkeyResult.registrationResult {
@@ -105,6 +103,11 @@ final public class ExpoPasskeysModule: Module {
       
       if let passkeyDelegate = self.passkeyDelegate {
           passkeyDelegate.performAuthForController(controller: authController);
+      }
+        
+      if let error = self.passkeyError {
+          self.passkeyError = nil
+          throw error
       }
   }.runOnQueue(.main)
       
@@ -166,17 +169,16 @@ private func preparePlatformAuthorizationRequest(challenge: Data,
 
 
 // ! adapted from https://github.com/f-23/react-native-passkey/blob/fdcf7cf297debb247ada6317337767072158629c/ios/Passkey.swift#L138C55-L138C55
-func handleASAuthorizationError(error: Error) throws -> Void {
-  let errorCode = (error as NSError).code;
+func handleASAuthorizationError(errorCode: Int, localizedDescription: String = "") -> Exception {
   switch errorCode {
   case 1001:
-    throw UserCancelledException()
+    return UserCancelledException(name: "UserCancelledException", description: localizedDescription)
   case 1004:
-      throw PasskeyRequestFailedException(name: "PasskeyRequestFailedException", description: error.localizedDescription)
+      return PasskeyRequestFailedException(name: "PasskeyRequestFailedException", description: localizedDescription)
   case 4004:
-    throw NotConfiguredException()
+    return NotConfiguredException(name: "NotConfiguredException", description: localizedDescription)
   default:
-    throw UnknownException()
+     return UnknownException(name: "UnknownException", description: localizedDescription)
   }
 }
 
@@ -185,6 +187,7 @@ extension LAContext {
         case none
         case touchID
         case faceID
+        case opticID
     }
 
     var biometricType: BiometricType {
@@ -203,6 +206,8 @@ extension LAContext {
                 return .touchID
             case .faceID:
                 return .faceID
+            case .opticID:
+                return .opticID
             }
         } else {
             return  self.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil) ? .touchID : .none
