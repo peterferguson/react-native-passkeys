@@ -2,11 +2,17 @@
 import Foundation
 import AuthenticationServices
 
+protocol PasskeyResultHandler {
+  func onSuccess(_ data: PasskeyResult)
+  func onFailure(_ error: Error)
+}
+
 struct PasskeyResult {
   var registrationResult: PasskeyRegistrationResult?
   var assertionResult: PasskeyAssertionResult?
 }
 
+// TODO: these are returned to RN so should be records & converted to Base64URL
 struct PasskeyRegistrationResult {
   var credentialID: Data
   var rawAttestationObject: Data
@@ -19,18 +25,15 @@ struct PasskeyAssertionResult {
   var rawClientDataJSON: Data
   var signature: Data
   var userID: Data
+  var largeBlob: Data?
 }
 
 
 class PasskeyDelegate: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding  {
+    private let handler: PasskeyResultHandler 
 
-    typealias CompletionHandler = (Result<PasskeyResult, Error>) -> Void
-
-    private var _completion: CompletionHandler;
-  
-    // Initializes delegate with a completion handler (callback function)
-    init(completionHandler: @escaping CompletionHandler) {
-        self._completion = completionHandler;
+    init(handler: PasskeyResultHandler) {
+        self.handler = handler
     }
 
     // Perform the authorization request for a given ASAuthorizationController instance
@@ -52,7 +55,7 @@ class PasskeyDelegate: NSObject, ASAuthorizationControllerDelegate, ASAuthorizat
         controller: ASAuthorizationController,
         didCompleteWithError error: Error
     ) {
-        self._completion(.failure(error));
+        handler.onFailure(error)
     }
 
     @available(iOS 15.0, *)
@@ -63,29 +66,50 @@ class PasskeyDelegate: NSObject, ASAuthorizationControllerDelegate, ASAuthorizat
         case let credential as ASAuthorizationPlatformPublicKeyCredentialRegistration:
             // , is ASAuthorizationSecurityKeyPublicKeyCredentialRegistration:
             if credential.rawAttestationObject == nil {
-                self._completion(.failure(ASAuthorizationError(ASAuthorizationError.Code.failed)))
+                handler.onFailure((ASAuthorizationError(ASAuthorizationError.Code.failed)))
             }
-            let registrationResult = PasskeyRegistrationResult(credentialID: credential.credentialID,
+            
+            var registrationResult = PasskeyRegistrationResult(credentialID: credential.credentialID,
                                                                rawAttestationObject: credential.rawAttestationObject!,
                                                                rawClientDataJSON: credential.rawClientDataJSON)
-            self._completion(.success(PasskeyResult(registrationResult: registrationResult)))
+            // TODO: can we return if it was written
+            //            if #available(iOS 17.0, *), ((credential.largeBlob?.isSupported) != nil) {
+            //                if let largeBlob = credential.largeBlob {
+            //                    registrationResult.largeBlob = largeBlob
+            //                }
+            //            }
+            
+            
+            handler.onSuccess((PasskeyResult(registrationResult: registrationResult)))
             
         case let credential as ASAuthorizationSecurityKeyPublicKeyCredentialRegistration:
             if credential.rawAttestationObject == nil {
-                self._completion(.failure(ASAuthorizationError(ASAuthorizationError.Code.failed)))
+                handler.onFailure((ASAuthorizationError(ASAuthorizationError.Code.failed)))
             }
             let registrationResult = PasskeyRegistrationResult(credentialID: credential.credentialID,
                                                                rawAttestationObject: credential.rawAttestationObject!,
                                                                rawClientDataJSON: credential.rawClientDataJSON)
-            self._completion(.success(PasskeyResult(registrationResult: registrationResult)))
+            handler.onSuccess((PasskeyResult(registrationResult: registrationResult)))
             
         case let credential as ASAuthorizationPlatformPublicKeyCredentialAssertion:
+            var largeBlob: Data?
+            if #available(iOS 17.0, *), let result = credential.largeBlob?.result {
+                switch (result) {
+                case .read(data: let blob):
+                    largeBlob = blob
+                case .write(success: _):break
+                @unknown default: break
+                }
+            }
+            
             let assertionResult = PasskeyAssertionResult(credentialID: credential.credentialID,
                                                          rawAuthenticatorData: credential.rawAuthenticatorData,
                                                          rawClientDataJSON: credential.rawClientDataJSON,
                                                          signature: credential.signature,
-                                                         userID: credential.userID);
-            self._completion(.success(PasskeyResult(assertionResult: assertionResult)))
+                                                         userID: credential.userID,
+                                                         largeBlob: largeBlob);
+            
+            handler.onSuccess((PasskeyResult(assertionResult: assertionResult)))
             
         case let credential as ASAuthorizationSecurityKeyPublicKeyCredentialAssertion:
             let assertionResult = PasskeyAssertionResult(credentialID: credential.credentialID,
@@ -93,9 +117,9 @@ class PasskeyDelegate: NSObject, ASAuthorizationControllerDelegate, ASAuthorizat
                                                          rawClientDataJSON: credential.rawClientDataJSON,
                                                          signature: credential.signature,
                                                          userID: credential.userID);
-            self._completion(.success(PasskeyResult(assertionResult: assertionResult)))
+            handler.onSuccess((PasskeyResult(assertionResult: assertionResult)))
         default:
-            self._completion(.failure(ASAuthorizationError(ASAuthorizationError.Code.failed)))
+            handler.onFailure((ASAuthorizationError(ASAuthorizationError.Code.failed)))
         }
     }
 }

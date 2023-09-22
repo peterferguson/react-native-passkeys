@@ -1,14 +1,15 @@
 import ExpoModulesCore
 
-// - navigator.credentials.get request options
-internal struct PublicKeyCredentialRequestResponse {
+// - navigator.credentials.create request options
+// - Specification reference: https://w3c.github.io/webauthn/#dictionary-makecredentialoptions
+internal struct PublicKeyCredentialCreationResponse: Record {
 
     @Field
-    var rp: PublicKeyCredentialRpEntity?
-
+    var rp: PublicKeyCredentialRpEntity
+    
     @Field
-    var user: PublicKeyCredentialUserEntity?
-
+    var user: PublicKeyCredentialUserEntity
+    
     @Field
     var challenge: Base64URLString
 

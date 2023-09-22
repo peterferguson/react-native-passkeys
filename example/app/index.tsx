@@ -56,17 +56,11 @@ export default function App() {
 
 	const authenticatePasskey = async () => {
 		await passkey.get({
+			rpId: `${Application.applicationId?.split('.').reverse().join('.')}`,
 			challenge: bufferToBase64URLString(utf8StringToBuffer('fizz')),
 			// allowCredentials: [{ id: "5678", type: "public-key" }],
 		})
 	}
-
-	useEffect(() => {
-		const sub = passkey.addMessageListener(console.log)
-		return () => {
-			sub.remove()
-		}
-	}, [])
 
 	return (
 		<View style={styles.container}>

@@ -1,34 +1,34 @@
 import ExpoModulesCore
-
-// - Enums
-
-internal enum AttestationConveyancePreference: String {
-    case direct
-    case enterprise
-    case indirect
-    case none
-}
+import AuthenticationServices
 
 // - Structs
 
-struct PublicKeyCredentialEntity {
-    let name: String
+// - Specification reference: https://w3c.github.io/webauthn/#dictionary-pkcredentialentity
+struct PublicKeyCredentialEntity: Record {
+    // ! Not optional but we have to make it comply with `Record`
+    @Field
+    var name: String?
 }
 
 
+// - Specification reference: https://w3c.github.io/webauthn/#dictionary-credential-params
 struct PublicKeyCredentialParameters: Record {
-    // - defaulting to -7 this as it is the most widely supported
+    // ! the defaults here are NOT the standard but they are most widely supported & popular
     @Field
-    var alg: COSEAlgorithmIdentifier = -7 
-
+    var alg: COSEAlgorithmIdentifier = -7
+    
     @Field
     var type: PublicKeyCredentialType = .publicKey
+    
+    func appleise() -> ASAuthorizationPublicKeyCredentialParameters {
+        return ASAuthorizationPublicKeyCredentialParameters.init(algorithm: ASCOSEAlgorithmIdentifier(rawValue: self.alg))
+    }
 }
 
 // - navigator.credentials.create request options
+// - Specification reference: https://w3c.github.io/webauthn/#dictionary-makecredentialoptions
 internal struct PublicKeyCredentialCreationOptions: Record {
 
-    // TODO: figure out why I am forced to make these optional or get a 'No exact matches in call to initializer' error
     @Field
     var rp: PublicKeyCredentialRpEntity
 

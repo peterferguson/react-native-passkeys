@@ -6,9 +6,15 @@ internal class NotConfiguredException: Exception {
   }
 }
 
+internal class PendingPasskeyRequestException: Exception {
+  override var reason: String {
+    "There is already a pending passkey request"
+  }
+}
+
 internal class NotSupportedException: Exception {
   override var reason: String {
-    "Paskeys are not supported on this iOS version. Please use iOS 15 or above"
+    "Passkeys are not supported on this iOS version. Please use iOS 15 or above"
   }
 }
 

@@ -2,17 +2,16 @@ import AuthenticationServices
 import ExpoModulesCore
 import LocalAuthentication
 
+struct PasskeyContext {
+  let promise: Promise
+  let passkeyDelegate: PasskeyDelegate
+}
 
-final public class ExpoPasskeysModule: Module {
-
-  var passkeyDelegate: PasskeyDelegate?
-  var passkeyError: Exception?
-  let onMessageEventName: String = "onMessage"
+final public class ExpoPasskeysModule: Module, PasskeyResultHandler {
+  private var passkeyContext: PasskeyContext?
 
   public func definition() -> ModuleDefinition {
     Name("ExpoPasskeys")
-
-    Events(self.onMessageEventName)
 
     Function("isSupported") { () -> Bool in
       if #available(iOS 15.0, *) {
@@ -26,149 +25,227 @@ final public class ExpoPasskeysModule: Module {
       return false
     }
 
-//  AsyncFunction("get") {
-//      (request: PublicKeyCredentialRequestOptions) throws -> PublicKeyCredentialRequestResponse in {
-//          // TODO: implement me
-//          throw NotSupportedException()
-//      }
-//  }
+    AsyncFunction("get") { (request: PublicKeyCredentialRequestOptions, promise: Promise) throws in
+        do { 
+            // - all the throws are already in the helper `isAvailable` so we don't need to do anything
+            // ? this seems like a code smell ... what is the best way to do this
+            try isAvailable() 
+        } 
+        catch let error {
+            throw error
+        }
+        let passkeyDelegate = PasskeyDelegate(handler: self)
+        passkeyContext = PasskeyContext(promise: promise, passkeyDelegate: passkeyDelegate)
+        
+        guard let challengeData: Data = Data(base64URLEncoded: request.challenge) else {
+            throw InvalidChallengeException()
+        }
+
+        let crossPlatformKeyAssertionRequest = prepareCrossPlatformAssertionRequest(challenge: challengeData, request: request)
+        let platformKeyAssertionRequest = preparePlatformAssertionRequest(challenge: challengeData, request: request)
+        
+        let authController = ASAuthorizationController(authorizationRequests: [platformKeyAssertionRequest, crossPlatformKeyAssertionRequest])
+    
+        passkeyDelegate.performAuthForController(controller: authController);
+    }.runOnQueue(.main)
 
     AsyncFunction("create") { (request: PublicKeyCredentialCreationOptions, promise: Promise) throws in
-        if #unavailable(iOS 15.0) {
-            throw NotSupportedException()
+        do { 
+            // - all the throws are already in the helper `isAvailable` so we don't need to do anything
+            // ? this seems like a code smell ... what is the best way to do this
+            try isAvailable() 
+        } 
+        catch let error {
+            throw error
         }
 
-        if LAContext().biometricType == .none {
-            throw BiometricException()
-        }
+        let passkeyDelegate = PasskeyDelegate(handler: self)
+        let context = PasskeyContext(promise: promise, passkeyDelegate: passkeyDelegate)
         
         guard let challengeData: Data = Data(base64URLEncoded: request.challenge) else {
             throw InvalidChallengeException()
         }
         
-//        if !request.user.id.isEmpty {
-//            throw MissingUserIdException()
-//        }
-        
         guard let userId: Data = Data(base64URLEncoded: request.user.id) else {
             throw InvalidUserIdException()
         }
         
-        let authController: ASAuthorizationController;
-//        let securityKeyRegistrationRequest: ASAuthorizationSecurityKeyPublicKeyCredentialRegistrationRequest?
-        let platformKeyRegistrationRequest: ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest?
+        var crossPlatformKeyRegistrationRequest: ASAuthorizationSecurityKeyPublicKeyCredentialRegistrationRequest?
+        var platformKeyRegistrationRequest: ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest?
         
-//        // - AuthenticatorAttachment.crossPlatform indicates that a security key should be used
-//        // TODO: use the helper on the Authenticator Attachment enum?
-//        if let isSecurityKey: Bool = request.authenticatorSelection.authenticatorAttachment == AuthenticatorAttachment.crossPlatform {
-//            securityKeyRegistrationRequest = prepareCrossPlatformAuthorizationRequest(challenge: challengeData,
-//                                                                                      userId: userId,
-//                                                                                      request: request
-//            )
-//        } else {
-            platformKeyRegistrationRequest = preparePlatformAuthorizationRequest(challenge: challengeData,
-                                                                                 userId: userId,
-                                                                                 request: request)
-//        }
+        // - AuthenticatorAttachment.crossPlatform indicates that a security key should be used
+        // TODO: use the helper on the Authenticator Attachment enum?
+        if request.authenticatorSelection?.authenticatorAttachment == AuthenticatorAttachment.crossPlatform {
+            crossPlatformKeyRegistrationRequest = prepareCrossPlatformRegistrationRequest(challenge: challengeData,
+                                                                                          userId: userId,
+                                                                                          request: request)
+        } else {
+            platformKeyRegistrationRequest = preparePlatformRegistrationRequest(challenge: challengeData,
+                                                                                userId: userId,
+                                                                                request: request)
+        }
+
+        let authController: ASAuthorizationController;
 
         if platformKeyRegistrationRequest != nil {
             authController = ASAuthorizationController(authorizationRequests: [platformKeyRegistrationRequest!]);
         } else {
-            throw NotSupportedException()
+            authController = ASAuthorizationController(authorizationRequests: [crossPlatformKeyRegistrationRequest!])
         }
+
+        passkeyContext = context
         
-        self.passkeyDelegate = PasskeyDelegate { result in
-            switch (result) {
-            case .failure(let error):
-//                throw handleASAuthorizationError(errorCode:(error as NSError).code, localizedDescription: error.localizedDescription);
-                self.passkeyError = handleASAuthorizationError(errorCode:(error as NSError).code, localizedDescription: error.localizedDescription)
-            case .success(let passkeyResult):
-                // Check if the result object contains a valid registration result
-                if let registrationResult = passkeyResult.registrationResult {
-                    // Return a NSDictionary instance with the received authorization data
-                    let authResponse: NSDictionary = [
-                        "rawAttestationObject": registrationResult.rawAttestationObject.toBase64URLEncodedString(),
-                        "rawClientDataJSON": registrationResult.rawClientDataJSON.toBase64URLEncodedString()
-                    ];
-                    
-                    let authResult: NSDictionary = [
-                        "credentialID": registrationResult.credentialID.toBase64URLEncodedString(),
-                        "response": authResponse
-                    ]
-                    promise.resolve(authResult)
-                    
-                }
-            }
-        }
-      
-      if let passkeyDelegate = self.passkeyDelegate {
-          passkeyDelegate.performAuthForController(controller: authController);
-      }
-        
-      if let error = self.passkeyError {
-          self.passkeyError = nil
-          throw error
-      }
-  }.runOnQueue(.main)
+        context.passkeyDelegate.performAuthForController(controller: authController);
+    }.runOnQueue(.main)
       
   }
+
+  private func isAvailable() throws -> Bool {
+    if #unavailable(iOS 15.0) {
+        throw NotSupportedException()
+    }
+
+    if passkeyContext != nil {
+        throw PendingPasskeyRequestException()
+    }
+
+    if LAContext().biometricType == .none {
+        throw BiometricException()
+    }
+
+    return true
+  }
+
+  internal func onSuccess(_ data: PasskeyResult) {
+    guard let promise = passkeyContext?.promise else {
+        log.error("Passkey context has been lost")
+        return
+    }
+    passkeyContext = nil
+
+    // TODO: these should comply to the actual return types
+    if let registrationResult = data.registrationResult {
+        let authResponse: NSDictionary = [
+            "rawAttestationObject": registrationResult.rawAttestationObject.toBase64URLEncodedString(),
+            "rawClientDataJSON": registrationResult.rawClientDataJSON.toBase64URLEncodedString()
+        ];
+
+        let authResult: NSDictionary = [
+            "credentialID": registrationResult.credentialID.toBase64URLEncodedString(),
+            "response": authResponse
+        ]
+
+        promise.resolve(authResult)
+    }
+
+    // promise.resolve(data)
+  }
+
+  internal func onFailure(_ error: Error) {
+    guard let promise = passkeyContext?.promise else {
+      log.error("Passkey context has been lost")
+      return
+    }
+    passkeyContext = nil
+    promise.reject(handleASAuthorizationError(errorCode:(error as NSError).code, 
+                                              localizedDescription: error.localizedDescription))
+  }
+
 }
 
-//private func prepareCrossPlatformAuthorizationRequest(challenge: Data,
-//                                                      userId: Data,
-//                                                      request: PublicKeyCredentialCreationOptions) -> ASAuthorizationSecurityKeyPublicKeyCredentialAssertionRequest {
-//
-//  let securityKeyCredentialProvider = ASAuthorizationSecurityKeyPublicKeyCredentialProvider(relyingPartyIdentifier: request.rp!.id!)
-//
-//
-//  let securityKeyRegistrationRequest =
-//      securityKeyCredentialProvider.createCredentialRegistrationRequest(challenge: challenge,
-//                                                                        displayName: request.user!.displayName,
-//                                                                        name: request.user!.name,
-//                                                                        userID: userId)
-//
-//  // Set request options to the Security Key provider
-//  securityKeyRegistrationRequest.credentialParameters = request.pubKeyCredParams
-//
-//  if let residentCredPref = request.authenticatorSelection?.residentKey {
-//      securityKeyRegistrationRequest.residentKeyPreference = parseResidentKeyPreference(residentCredPref)
-//  }
-//
-//  if let userVerificationPref = request.authenticatorSelection?.userVerification {
-//      securityKeyRegistrationRequest.userVerificationPreference = parseUserVerificationPreference(userVerificationPref)
-//  }
-//
-//  if let rpAttestationPref = request.attestation {
-//      securityKeyRegistrationRequest.attestationPreference = parseAttestationStatementPreference(rpAttestationPref)
-//  }
-//
-//  if let excludedCredentials = request.excludeCredentials {
-//      if !excludedCredentials.isEmpty {
-//          securityKeyRegistrationRequest.excludedCredentials = credentialAttestationDescriptor(credentials: excludedCredentials)!
-//      }
-//  }
-//
-//
-//  return securityKeyRegistrationRequest
-//
-//}
+private func prepareCrossPlatformRegistrationRequest(challenge: Data,
+                                                     userId: Data,
+                                                     request: PublicKeyCredentialCreationOptions) -> ASAuthorizationSecurityKeyPublicKeyCredentialRegistrationRequest {
 
-private func preparePlatformAuthorizationRequest(challenge: Data,
-                                                 userId: Data,
-                                                 request: PublicKeyCredentialCreationOptions) -> ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest {
-  let platformKeyCredentialProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier:  request.rp.id!)
+    let crossPlatformCredentialProvider = ASAuthorizationSecurityKeyPublicKeyCredentialProvider(relyingPartyIdentifier: request.rp.id!)
 
-  let platformKeyRegistrationRequest =
+
+  let crossPlatformRegistrationRequest =
+      crossPlatformCredentialProvider.createCredentialRegistrationRequest(challenge: challenge,
+                                                                          displayName: request.user.displayName,
+                                                                          name: request.user.name,
+                                                                          userID: userId)
+
+  // Set request options to the Security Key provider
+    crossPlatformRegistrationRequest.credentialParameters = request.pubKeyCredParams.map({ $0.appleise() })
+
+  if let residentCredPref = request.authenticatorSelection?.residentKey {
+      crossPlatformRegistrationRequest.residentKeyPreference = residentCredPref.appleise()
+  }
+
+  if let userVerificationPref = request.authenticatorSelection?.userVerification {
+      crossPlatformRegistrationRequest.userVerificationPreference = userVerificationPref.appleise()
+  }
+
+  if let rpAttestationPref = request.attestation {
+      crossPlatformRegistrationRequest.attestationPreference = rpAttestationPref.appleise()
+  }
+
+  if let excludedCredentials = request.excludeCredentials {
+      if !excludedCredentials.isEmpty {
+          crossPlatformRegistrationRequest.excludedCredentials = excludedCredentials.map({$0.getCrossPlatformDescriptor()})
+      }
+  }
+
+
+  return crossPlatformRegistrationRequest
+
+}
+
+private func preparePlatformRegistrationRequest(challenge: Data,
+                                                userId: Data,
+                                                request: PublicKeyCredentialCreationOptions) -> ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest {
+  let platformKeyCredentialProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(
+    relyingPartyIdentifier:  request.rp.id!)
+
+  let platformKeyAssertionRequest =
       platformKeyCredentialProvider.createCredentialRegistrationRequest(challenge: challenge,
-//                                                                        displayName: request.user!.displayName,
                                                                         name: request.user.name,
                                                                         userID: userId)
 
-  return platformKeyRegistrationRequest
+  return platformKeyAssertionRequest
+}
+
+private func prepareCrossPlatformAssertionRequest(challenge: Data, 
+                                                  request: PublicKeyCredentialRequestOptions) -> ASAuthorizationSecurityKeyPublicKeyCredentialAssertionRequest {
+
+    let crossPlatformCredentialProvider = ASAuthorizationSecurityKeyPublicKeyCredentialProvider(
+        relyingPartyIdentifier: request.rpId)
+
+
+    let crossPlatformAssertionRequest: ASAuthorizationSecurityKeyPublicKeyCredentialAssertionRequest =
+      crossPlatformCredentialProvider.createCredentialAssertionRequest(challenge: challenge)
+
+    if let allowCredentials = request.allowCredentials {
+        if !allowCredentials.isEmpty {
+          crossPlatformAssertionRequest.allowedCredentials =  allowCredentials.map({ $0.getCrossPlatformDescriptor() })
+        }
+    }
+
+  return crossPlatformAssertionRequest
+}
+
+private func preparePlatformAssertionRequest(challenge: Data, request: PublicKeyCredentialRequestOptions) -> ASAuthorizationPlatformPublicKeyCredentialAssertionRequest {
+
+    let platformKeyCredentialProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(
+        relyingPartyIdentifier: request.rpId)
+
+
+    let platformKeyAssertionRequest: ASAuthorizationPlatformPublicKeyCredentialAssertionRequest =
+      platformKeyCredentialProvider.createCredentialAssertionRequest(challenge: challenge)
+
+
+    if let allowCredentials = request.allowCredentials {
+        if !allowCredentials.isEmpty {
+          platformKeyAssertionRequest.allowedCredentials = allowCredentials.map({ $0.getPlatformDescriptor() })
+        }
+    }
+
+  return platformKeyAssertionRequest
 }
 
 
-// ! adapted from https://github.com/f-23/react-native-passkey/blob/fdcf7cf297debb247ada6317337767072158629c/ios/Passkey.swift#L138C55-L138C55
+
 func handleASAuthorizationError(errorCode: Int, localizedDescription: String = "") -> Exception {
   switch errorCode {
   case 1001:
@@ -208,6 +285,8 @@ extension LAContext {
                 return .faceID
             case .opticID:
                 return .opticID
+            @unknown default:
+                return .none
             }
         } else {
             return  self.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil) ? .touchID : .none
