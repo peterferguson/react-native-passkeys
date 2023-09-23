@@ -1,9 +1,13 @@
 import ExpoModulesCore
 
-// - Specification reference: https://w3c.github.io/webauthn/#typedefdef-publickeycredentialjson
+/** 
+    Specification reference: https://w3c.github.io/webauthn/#typedefdef-publickeycredentialjson
+*/
 typealias PublicKeyCredentialJSON = Either<RegistrationResponseJSON, AuthenticationResponseJSON>
 
-// - Specification reference: https://w3c.github.io/webauthn/#dictdef-registrationresponsejson
+/**
+    Specification reference: https://w3c.github.io/webauthn/#dictdef-registrationresponsejson
+*/
 internal struct RegistrationResponseJSON: Record {
     @Field
     var id: Base64URLString
@@ -24,9 +28,9 @@ internal struct RegistrationResponseJSON: Record {
     var type: PublicKeyCredentialType = .publicKey
 }
 
-
-
-// - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticatorattestationresponsejson
+/**
+    Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticatorattestationresponsejson
+*/
 internal struct AuthenticatorAttestationResponseJSON: Record {
      
     @Field
@@ -50,7 +54,9 @@ internal struct AuthenticatorAttestationResponseJSON: Record {
     var attestationObject: Base64URLString
 }
 
-// - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationresponsejson
+/**
+    Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationresponsejson
+*/
 internal struct AuthenticationResponseJSON: Record {
     
     @Field
@@ -73,7 +79,9 @@ internal struct AuthenticationResponseJSON: Record {
     var clientExtensionResults: AuthenticationExtensionsClientOutputsJSON?
 }
 
-// - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticatorassertionresponsejson
+/**
+    Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticatorassertionresponsejson
+*/
 internal struct AuthenticatorAssertionResponseJSON: Record {
     
     @Field
@@ -93,7 +101,9 @@ internal struct AuthenticatorAssertionResponseJSON: Record {
     
 }
 
-// - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsclientoutputsjson
+/**
+    Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsclientoutputsjson
+*/
 internal struct  AuthenticationExtensionsClientOutputsJSON: Record {
 
     // ? this is only available in iOS 17 but I cannot set this here
@@ -103,8 +113,12 @@ internal struct  AuthenticationExtensionsClientOutputsJSON: Record {
     
 }
 
-// - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargebloboutputs
-// - we convert this to a `JSON` type for consistency
+/**
+ We convert this to `AuthenticationExtensionsLargeBlobOutputsJSON` instead of `AuthenticationExtensionsLargeBlobOutputs` for consistency
+ and because it is what is actually returned to RN
+
+ Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargebloboutputs
+ */
 internal struct AuthenticationExtensionsLargeBlobOutputsJSON: Record {
 
     @Field

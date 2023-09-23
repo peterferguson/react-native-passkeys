@@ -201,15 +201,14 @@ private func preparePlatformRegistrationRequest(challenge: Data,
     // platformKeyRegistrationRequest.shouldShowHybridTransport
     
     if #available(iOS 17, *) {
-        switch (request.extensions?.largeBlob?.support) {
-        case .preferred:
-            platformKeyRegistrationRequest.largeBlob = ASAuthorizationPublicKeyCredentialLargeBlobRegistrationInput.supportPreferred
-        case .required:
-            platformKeyRegistrationRequest.largeBlob = ASAuthorizationPublicKeyCredentialLargeBlobRegistrationInput.supportRequired
-        case .none:
-            // break
-            platformKeyRegistrationRequest.largeBlob = ASAuthorizationPublicKeyCredentialLargeBlobRegistrationInput.supportPreferred
-        }
+         switch (request.extensions?.largeBlob?.support) {
+         case .preferred:
+             platformKeyRegistrationRequest.largeBlob = ASAuthorizationPublicKeyCredentialLargeBlobRegistrationInput.supportPreferred
+         case .required:
+             platformKeyRegistrationRequest.largeBlob = ASAuthorizationPublicKeyCredentialLargeBlobRegistrationInput.supportRequired
+         case .none:
+              break
+         }
     }
 
     if let userVerificationPref = request.authenticatorSelection?.userVerification {

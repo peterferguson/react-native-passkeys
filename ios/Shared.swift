@@ -3,7 +3,9 @@ import AuthenticationServices
 
 // - Enums 
 
-// - Specification reference: https://w3c.github.io/webauthn/#enum-transport
+/**
+    Specification reference: https://w3c.github.io/webauthn/#enum-transport
+*/
 internal enum AuthenticatorTransport: String, Enumerable {
     case ble
     case hybrid
@@ -33,14 +35,18 @@ internal enum AuthenticatorTransport: String, Enumerable {
 
 }
 
-// - Specification reference: https://w3c.github.io/webauthn/#enum-attachment
+/**
+    Specification reference: https://w3c.github.io/webauthn/#enum-attachment
+*/
 internal enum AuthenticatorAttachment: String, Enumerable {
     case platform
     // - cross-platform marks that the user wants to select a security key
     case crossPlatform = "cross-platform"
 }
 
-// - Specification reference: https://w3c.github.io/webauthn/#enum-attestation-convey
+/**
+    Specification reference: https://w3c.github.io/webauthn/#enum-attestation-convey
+*/
 internal enum AttestationConveyancePreference: String, Enumerable {
     case direct
     case enterprise
@@ -61,12 +67,16 @@ internal enum AttestationConveyancePreference: String, Enumerable {
     }
 }
 
-// - Specification reference: https://w3c.github.io/webauthn/#enum-credentialType
+/**
+    Specification reference: https://w3c.github.io/webauthn/#enum-credentialType
+*/
 internal enum PublicKeyCredentialType: String, Enumerable {
     case publicKey = "public-key"
 }
 
-// - Specification reference: https://w3c.github.io/webauthn/#enum-userVerificationRequirement
+/**
+    Specification reference: https://w3c.github.io/webauthn/#enum-userVerificationRequirement
+*/
 internal enum UserVerificationRequirement: String, Enumerable {
     case discouraged
     case preferred
@@ -86,7 +96,9 @@ internal enum UserVerificationRequirement: String, Enumerable {
     }
 }
 
-// - Specification reference: https://w3c.github.io/webauthn/#enum-residentKeyRequirement
+/**
+    Specification reference: https://w3c.github.io/webauthn/#enum-residentKeyRequirement
+*/
 internal enum ResidentKeyRequirement: String, Enumerable {
     case discouraged
     case preferred
@@ -106,7 +118,9 @@ internal enum ResidentKeyRequirement: String, Enumerable {
     }
 }
 
-// - Specification reference: https://w3c.github.io/webauthn/#enumdef-largeblobsupport
+/**
+    Specification reference: https://w3c.github.io/webauthn/#enumdef-largeblobsupport
+*/
 internal enum LargeBlobSupport: String, Enumerable {
     case preferred
     case required
@@ -114,7 +128,9 @@ internal enum LargeBlobSupport: String, Enumerable {
 
 // - Structs
 
-// - Specification reference: https://w3c.github.io/webauthn/#dictionary-authenticatorSelection
+/**
+    Specification reference: https://w3c.github.io/webauthn/#dictionary-authenticatorSelection
+*/
 internal struct AuthenticatorSelectionCriteria {
     @Field
     var authenticatorAttachment: AuthenticatorAttachment?
@@ -129,13 +145,17 @@ internal struct AuthenticatorSelectionCriteria {
     var userVerification: UserVerificationRequirement? = UserVerificationRequirement.preferred;
 }
 
-// - Specification reference: https://w3c.github.io/webauthn/#dictionary-pkcredentialentity
+/**
+    Specification reference: https://w3c.github.io/webauthn/#dictionary-pkcredentialentity
+*/
 internal struct PublicKeyCredentialEntity: Record {
     @Field
     var name: String
 }
 
-// - Specification reference: https://w3c.github.io/webauthn/#dictionary-credential-params
+/**
+    Specification reference: https://w3c.github.io/webauthn/#dictionary-credential-params
+*/
 internal struct PublicKeyCredentialParameters: Record {
     // ! the defaults here are NOT the standard but they are most widely supported & popular
     @Field
@@ -149,15 +169,21 @@ internal struct PublicKeyCredentialParameters: Record {
     }
 }
 
-// - Specification reference: https://w3c.github.io/webauthn/#dictionary-rp-credential-params
+/**
+    Specification reference: https://w3c.github.io/webauthn/#dictionary-rp-credential-params
+*/
 internal struct PublicKeyCredentialRpEntity: Record {
+    
     @Field
     var name: String
+    
     @Field
     var id: String?
 }
 
-// - Specification reference: https://w3c.github.io/webauthn/#dictdef-publickeycredentialuserentity
+/**
+    Specification reference: https://w3c.github.io/webauthn/#dictdef-publickeycredentialuserentity
+*/
 internal struct PublicKeyCredentialUserEntity: Record {
 
     @Field
@@ -171,7 +197,9 @@ internal struct PublicKeyCredentialUserEntity: Record {
 }
 
 
-// - Specification reference: https://w3c.github.io/webauthn/#dictdef-publickeycredentialdescriptor
+/**
+    Specification reference: https://w3c.github.io/webauthn/#dictdef-publickeycredentialdescriptor
+*/
 internal struct PublicKeyCredentialDescriptor: Record {
 
     @Field
@@ -200,25 +228,31 @@ internal struct PublicKeyCredentialDescriptor: Record {
 }
 
 
-// - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsclientinputs
-internal struct AuthenticationExtensionsClientInputs: Record {
-
-    // - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargeblobinputs
-    struct AuthenticationExtensionsLargeBlobInputs: Record {
-        // - Only valid during registration.
-        @Field
-        var support: LargeBlobSupport?
-        
-        // - A boolean that indicates that the Relying Party would like to fetch the previously-written blob associated with the asserted credential. Only valid during authentication.
-        @Field
-        var read: Bool?
-        
-        // - An opaque byte string that the Relying Party wishes to store with the existing credential. Only valid during authentication.
-        // - We impose that the data is passed as base64-url encoding to make better align the passing of data from RN to native code
-        @Field
-        var write: Base64URLString?
-    }
+/**
+    Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargeblobinputs
+*/
+internal struct AuthenticationExtensionsLargeBlobInputs: Record {
+    // - Only valid during registration.
+    @Field
+    var support: LargeBlobSupport?
     
+    // - A boolean that indicates that the Relying Party would like to fetch the previously-written blob associated with the asserted credential. Only valid during authentication.
+    @Field
+    var read: Bool?
+    
+    // - An opaque byte string that the Relying Party wishes to store with the existing credential. Only valid during authentication.
+    // - We impose that the data is passed as base64-url encoding to make better align the passing of data from RN to native code
+    @Field
+    var write: Base64URLString?
+}
+
+
+/**
+    Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsclientinputs
+*/
+internal struct AuthenticationExtensionsClientInputs: Record {
+    
+    @Field
     var largeBlob: AuthenticationExtensionsLargeBlobInputs?
 }
 
@@ -227,7 +261,9 @@ internal struct AuthenticationExtensionsClientInputs: Record {
 
 internal struct AuthenticationExtensionsClientOutputs {
     
-    // - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargebloboutputs
+    /**
+    Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargebloboutputs
+*/
     internal struct AuthenticationExtensionsLargeBlobOutputs {
         // - true if, and only if, the created credential supports storing large blobs. Only present in registration outputs.
         let supported: Bool?;
@@ -242,13 +278,16 @@ internal struct AuthenticationExtensionsClientOutputs {
     let largeBlob: AuthenticationExtensionsLargeBlobOutputs?
 }
 
-// -  Branded types referenced in the interfaces
+/**
+    Branded types to make it clearer what the user should input
+*/
 typealias COSEAlgorithmIdentifier = Int
 typealias BufferSource = Data
 typealias Base64URLString = String
 
-// - Encoding helpers
-
+/**
+    String extension to help with base64-url encoding
+*/
 extension String {
     // Encode a string to Base64 encoded string
     // Convert the string to data, then encode the data with base64EncodedString()
@@ -263,7 +302,9 @@ extension String {
         return String(data: data, encoding: .utf8)
     }
 }
-
+/**
+    Data extension to enable base64-url encoding & decoding
+*/
 public extension Data {
     init?(base64URLEncoded input: String) {
         var base64 = input
