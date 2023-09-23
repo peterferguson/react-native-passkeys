@@ -81,9 +81,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace 'expo.modules.passkeys.example'
+    namespace 'uk.co.peterferguson.passkeyexample'
     defaultConfig {
-        applicationId 'expo.modules.passkeys.example'
+        applicationId 'uk.co.peterferguson.passkeyexample'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -1,4 +1,4 @@
-# Expo Passkeys
+# React Native Passkeys
 
 This is a module to help you create and authenticate with passkeys on ios, android & web with the same api. The library aims to stay close to the standard [`navigator.credentials`](https://w3c.github.io/webappsec-credential-management/#framework-credential-management). More specifically, we provide an api for `get` & `create` functions (since these are the functions available cross-platform).
 

@@ -1,4 +1,4 @@
-package expo.modules.passkeys.example;
+package uk.co.peterferguson.passkeyexample;
 
 import android.app.Application;
 import android.content.res.Configuration;

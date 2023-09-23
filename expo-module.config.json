@@ -1,17 +1,9 @@
 {
-  "platforms": [
-    "ios",
-    "android",
-    "web"
-  ],
+  "platforms": ["ios", "android", "web"],
   "ios": {
-    "modules": [
-      "ReactNativePasskeysModule"
-    ]
+    "modules": ["ReactNativePasskeysModule"]
   },
   "android": {
-    "modules": [
-      "expo.modules.passkeys.ReactNativePasskeysModule"
-    ]
+    "modules": ["expo.modules.passkeys.ReactNativePasskeysModule"]
   }
 }

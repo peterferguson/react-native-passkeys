@@ -1,4 +1,4 @@
-package expo.modules.passkeys.example;
+package uk.co.peterferguson.passkeyexample;
 
 import android.os.Build;
 import android.os.Bundle;
