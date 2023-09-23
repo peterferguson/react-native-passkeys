@@ -1,7 +1,7 @@
 {
-  "name": "expo-passkeys",
+  "name": "react-native-passkeys",
   "version": "0.1.0",
-  "description": "An expo module for creating and authenticating with webauthn passkeys",
+  "description": "A library for cross-platform passkeys (webauthn) with a single api",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
@@ -21,16 +21,16 @@
     "webauthn",
     "passkeys",
     "expo",
-    "expo-passkeys",
-    "ExpoPasskeys"
+    "react-native-passkeys",
+    "ReactNativePasskeys"
   ],
-  "repository": "https://github.com/peterferguson/expo-passkeys",
+  "repository": "https://github.com/peterferguson/react-native-passkeys",
   "bugs": {
-    "url": "https://github.com/peterferguson/expo-passkeys/issues"
+    "url": "https://github.com/peterferguson/react-native-passkeys/issues"
   },
   "author": "Peter Ferguson <peterferguson95@gmail.com> (https://github.com/peterferguson)",
   "license": "MIT",
-  "homepage": "https://github.com/peterferguson/expo-passkeys#readme",
+  "homepage": "https://github.com/peterferguson/react-native-passkeys#readme",
   "devDependencies": {
     "@biomejs/biome": "1.2.2",
     "@types/react": "^18.0.25",

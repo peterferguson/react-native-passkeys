@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 import * as Application from 'expo-application'
-import * as passkey from 'expo-passkeys'
+import * as passkey from 'react-native-passkeys'
 import { Alert } from 'react-native'
 import React from 'react'
 
@@ -44,7 +44,7 @@ export default function App() {
 				pubKeyCredParams: [{ alg: -7, type: 'public-key' }],
 				rp: {
 					id: `${Application.applicationId?.split('.').reverse().join('.')}`,
-					name: 'ExpoPasskeys',
+					name: 'ReactNativePasskeys',
 				},
 				user: {
 					id: bufferToBase64URLString(utf8StringToBuffer('290283490')),

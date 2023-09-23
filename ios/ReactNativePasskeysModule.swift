@@ -7,11 +7,11 @@ struct PasskeyContext {
   let promise: Promise
 }
 
-final public class ExpoPasskeysModule: Module, PasskeyResultHandler {
+final public class ReactNativePasskeysModule: Module, PasskeyResultHandler {
   private var passkeyContext: PasskeyContext?
 
   public func definition() -> ModuleDefinition {
-    Name("ExpoPasskeys")
+    Name("ReactNativePasskeys")
 
     Function("isSupported") { () -> Bool in
       if #available(iOS 15.0, *) {

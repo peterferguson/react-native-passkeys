@@ -8,14 +8,14 @@ import type {
 	PublicKeyCredentialRequestOptionsJSON,
 	RegistrationCredential,
 	RegistrationResponseJSON,
-} from './ExpoPasskeys.types'
+} from './ReactNativePasskeys.types'
 
-// Import the native module. On web, it will be resolved to ExpoPasskeys.web.ts
-// and on native platforms to ExpoPasskeys.ts
-import ExpoPasskeysModule from './ExpoPasskeysModule'
+// Import the native module. On web, it will be resolved to ReactNativePasskeys.web.ts
+// and on native platforms to ReactNativePasskeys.ts
+import ReactNativePasskeysModule from './ReactNativePasskeysModule'
 
 export function isSupported(): boolean {
-	return ExpoPasskeysModule.isSupported()
+	return ReactNativePasskeysModule.isSupported()
 }
 
 export async function create(
@@ -25,7 +25,7 @@ export async function create(
 		extensions?: { largeBlob?: AuthenticationExtensionsLargeBlobInputs }
 	} & Pick<CredentialCreationOptions, 'signal'>,
 ): Promise<RegistrationResponseJSON | null> {
-	return await ExpoPasskeysModule.create(request)
+	return await ReactNativePasskeysModule.create(request)
 }
 
 export async function get(
@@ -35,5 +35,5 @@ export async function get(
 		extensions?: { largeBlob?: AuthenticationExtensionsLargeBlobInputs }
 	},
 ): Promise<AuthenticationResponseJSON | null> {
-	return ExpoPasskeysModule.get(request)
+	return ReactNativePasskeysModule.get(request)
 }

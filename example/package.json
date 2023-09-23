@@ -1,5 +1,5 @@
 {
-  "name": "expo-passkeys-example",
+  "name": "react-native-passkeys-example",
   "version": "1.0.0",
   "main": "expo-router/entry",
   "scripts": {

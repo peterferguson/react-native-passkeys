@@ -6,7 +6,7 @@ module.exports = async (env, argv) => {
     {
       ...env,
       babel: {
-        dangerouslyAddModulePathsToTranspile: ['expo-passkeys'],
+        dangerouslyAddModulePathsToTranspile: ['react-native-passkeys'],
       },
     },
     argv

@@ -1,27 +1,27 @@
 import type {
 	PublicKeyCredentialCreationOptionsJSON,
 	PublicKeyCredentialRequestOptionsJSON,
-} from "./ExpoPasskeys.types";
-import { NotSupportedError } from "./errors";
-import { base64URLStringToBuffer } from "./utils/base64";
+} from './ReactNativePasskeys.types'
+import { NotSupportedError } from './errors'
+import { base64URLStringToBuffer } from './utils/base64'
 
 export default {
 	get name(): string {
-		return "ExpoPasskeys";
+		return 'ReactNativePasskeys'
 	},
 	isAutoFillAvalilable(): Promise<boolean> {
-		const globalPublicKeyCredential = window.PublicKeyCredential;
+		const globalPublicKeyCredential = window.PublicKeyCredential
 
 		if (globalPublicKeyCredential.isConditionalMediationAvailable === undefined)
-			return new Promise((resolve) => resolve(false));
+			return new Promise((resolve) => resolve(false))
 
-		return globalPublicKeyCredential.isConditionalMediationAvailable();
+		return globalPublicKeyCredential.isConditionalMediationAvailable()
 	},
 
 	isSupported() {
 		return (
-			window?.PublicKeyCredential !== undefined && typeof window.PublicKeyCredential === "function"
-		);
+			window?.PublicKeyCredential !== undefined && typeof window.PublicKeyCredential === 'function'
+		)
 	},
 
 	async get({
@@ -29,10 +29,11 @@ export default {
 		signal,
 		...request
 	}: PublicKeyCredentialRequestOptionsJSON &
-		Pick<CredentialRequestOptions, "mediation" | "signal">): Promise<Credential | null> {
+		Pick<CredentialRequestOptions, 'mediation' | 'signal'>): Promise<Credential | null> {
 		return navigator.credentials.get({
 			mediation,
 			signal,
+			// @ts-expect-error: largeBlob is not included in the TS navigator credential types yet
 			publicKey: {
 				...request,
 				challenge: base64URLStringToBuffer(request.challenge),
@@ -41,18 +42,19 @@ export default {
 					id: base64URLStringToBuffer(credential.id),
 				})),
 			},
-		});
+		})
 	},
 
 	async create({
 		signal,
 		...request
 	}: PublicKeyCredentialCreationOptionsJSON &
-		Pick<CredentialCreationOptions, "signal">): Promise<Credential | null> {
-		if (!this.isSupported) throw new NotSupportedError();
+		Pick<CredentialCreationOptions, 'signal'>): Promise<Credential | null> {
+		if (!this.isSupported) throw new NotSupportedError()
 
 		return navigator.credentials.create({
 			signal,
+			// @ts-expect-error: largeBlob is not included in the TS navigator credential types yet
 			publicKey: {
 				...request,
 				challenge: base64URLStringToBuffer(request.challenge),
@@ -62,6 +64,6 @@ export default {
 					id: base64URLStringToBuffer(credential.id),
 				})),
 			},
-		});
+		})
 	},
-};
+}
