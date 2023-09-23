@@ -36,17 +36,8 @@ internal enum AuthenticatorTransport: String, Enumerable {
 // - Specification reference: https://w3c.github.io/webauthn/#enum-attachment
 internal enum AuthenticatorAttachment: String, Enumerable {
     case platform
-    case crossPlatform = "cross-platform"
-    
     // - cross-platform marks that the user wants to select a security key
-    var isSecurityKey: Bool {
-        switch self {
-            case .platform:
-                return false
-            case .crossPlatform:
-                return true
-        }
-    }
+    case crossPlatform = "cross-platform"
 }
 
 // - Specification reference: https://w3c.github.io/webauthn/#enum-attestation-convey
@@ -121,26 +112,42 @@ internal enum LargeBlobSupport: String, Enumerable {
     case required
 }
 
+// - Structs
+
+// - Specification reference: https://w3c.github.io/webauthn/#dictionary-authenticatorSelection
 internal struct AuthenticatorSelectionCriteria {
-    // - Specification reference: https://w3c.github.io/webauthn/#dom-authenticatorselectioncriteria-authenticatorattachment
     @Field
     var authenticatorAttachment: AuthenticatorAttachment?
     
-    // - Specification reference: https://w3c.github.io/webauthn/#dom-authenticatorselectioncriteria-residentkey
     @Field
     var residentKey: ResidentKeyRequirement?;
 
-    // - Specification reference: https://w3c.github.io/webauthn/#dom-authenticatorselectioncriteria-requireresidentkey
     @Field
     var requireResidentKey: Bool? = false;
     
-    // - Specification reference: https://w3c.github.io/webauthn/#dom-authenticatorselectioncriteria-userverification
     @Field
     var userVerification: UserVerificationRequirement? = UserVerificationRequirement.preferred;
 }
 
+// - Specification reference: https://w3c.github.io/webauthn/#dictionary-pkcredentialentity
+internal struct PublicKeyCredentialEntity: Record {
+    @Field
+    var name: String
+}
 
-// - Structs
+// - Specification reference: https://w3c.github.io/webauthn/#dictionary-credential-params
+internal struct PublicKeyCredentialParameters: Record {
+    // ! the defaults here are NOT the standard but they are most widely supported & popular
+    @Field
+    var alg: COSEAlgorithmIdentifier = -7
+    
+    @Field
+    var type: PublicKeyCredentialType = .publicKey
+    
+    func appleise() -> ASAuthorizationPublicKeyCredentialParameters {
+        return ASAuthorizationPublicKeyCredentialParameters.init(algorithm: ASCOSEAlgorithmIdentifier(rawValue: self.alg))
+    }
+}
 
 // - Specification reference: https://w3c.github.io/webauthn/#dictionary-rp-credential-params
 internal struct PublicKeyCredentialRpEntity: Record {
@@ -152,10 +159,13 @@ internal struct PublicKeyCredentialRpEntity: Record {
 
 // - Specification reference: https://w3c.github.io/webauthn/#dictdef-publickeycredentialuserentity
 internal struct PublicKeyCredentialUserEntity: Record {
+
     @Field
     var name: String
+
     @Field
     var displayName: String
+
     @Field
     var id: Base64URLString
 }
@@ -163,10 +173,13 @@ internal struct PublicKeyCredentialUserEntity: Record {
 
 // - Specification reference: https://w3c.github.io/webauthn/#dictdef-publickeycredentialdescriptor
 internal struct PublicKeyCredentialDescriptor: Record {
+
     @Field
     var id: Base64URLString
+
     @Field
     var transports: [AuthenticatorTransport]?
+
     @Field
     var type: PublicKeyCredentialType = .publicKey
 
@@ -188,21 +201,25 @@ internal struct PublicKeyCredentialDescriptor: Record {
 
 
 // - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsclientinputs
-internal struct AuthenticationExtensionsClientInputs {
-    struct AuthenticationExtensionsLargeBlobInputs {
+internal struct AuthenticationExtensionsClientInputs: Record {
+
+    // - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargeblobinputs
+    struct AuthenticationExtensionsLargeBlobInputs: Record {
         // - Only valid during registration.
-        let support: LargeBlobSupport?
+        @Field
+        var support: LargeBlobSupport?
         
         // - A boolean that indicates that the Relying Party would like to fetch the previously-written blob associated with the asserted credential. Only valid during authentication.
-        let read: Bool?
+        @Field
+        var read: Bool?
         
         // - An opaque byte string that the Relying Party wishes to store with the existing credential. Only valid during authentication.
         // - We impose that the data is passed as base64-url encoding to make better align the passing of data from RN to native code
-        let write: Base64URLString?
+        @Field
+        var write: Base64URLString?
     }
     
-    // - only largeBlob extension is currently supported on iOS17
-    let largeBlob: AuthenticationExtensionsLargeBlobInputs?
+    var largeBlob: AuthenticationExtensionsLargeBlobInputs?
 }
 
 // ! There is only one webauthn extension currently supported on iOS as of iOS 17.0:
@@ -258,7 +275,7 @@ public extension Data {
         self.init(base64Encoded: base64)
     }
 
-    func toBase64URLEncodedString() -> String {
+    internal func toBase64URLEncodedString() -> Base64URLString {
         var result = self.base64EncodedString()
         result = result.replacingOccurrences(of: "+", with: "-")
         result = result.replacingOccurrences(of: "/", with: "_")

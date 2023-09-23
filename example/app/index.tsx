@@ -2,7 +2,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 import * as Application from 'expo-application'
 import * as passkey from 'expo-passkeys'
-import { useEffect } from 'react'
+import { Alert } from 'react-native'
+import React from 'react'
 
 // ! taken from https://github.com/MasterKale/SimpleWebAuthn/blob/e02dce6f2f83d8923f3a549f84e0b7b3d44fa3da/packages/browser/src/helpers/bufferToBase64URLString.ts
 /**
@@ -34,9 +35,11 @@ export function utf8StringToBuffer(value: string): ArrayBuffer {
 }
 
 export default function App() {
+	const [result, setResult] = React.useState()
+
 	const createPasskey = async () => {
 		try {
-			await passkey.create({
+			const json = await passkey.create({
 				challenge: bufferToBase64URLString(utf8StringToBuffer('fizz')),
 				pubKeyCredParams: [{ alg: -7, type: 'public-key' }],
 				rp: {
@@ -48,18 +51,57 @@ export default function App() {
 					displayName: 'username',
 					name: 'username',
 				},
+				extensions: { largeBlob: { support: 'preferred' } },
 			})
+
+			console.log('creation json -', json)
+
+			setResult(json)
 		} catch (e) {
 			console.error('create error', e)
 		}
 	}
 
 	const authenticatePasskey = async () => {
-		await passkey.get({
+		const json = await passkey.get({
 			rpId: `${Application.applicationId?.split('.').reverse().join('.')}`,
 			challenge: bufferToBase64URLString(utf8StringToBuffer('fizz')),
-			// allowCredentials: [{ id: "5678", type: "public-key" }],
+			// extensions: { largeBlob: { read: true } },
+			// allowCredentials: [{ id: '5678', type: 'public-key' }],
 		})
+
+		console.log('authentication json -', json)
+
+		setResult(json)
+	}
+
+	const writeBlob = async () => {
+		const json = await passkey.get({
+			rpId: `${Application.applicationId?.split('.').reverse().join('.')}`,
+			challenge: bufferToBase64URLString(utf8StringToBuffer('fizz')),
+			extensions: {
+				largeBlob: { write: bufferToBase64URLString(utf8StringToBuffer('my first large blob')) },
+			},
+			// allowCredentials: [{ id: '5678', type: 'public-key' }],
+		})
+
+		const written = json?.clientExtensionResults.largeBlob?.written
+		if (written) Alert.alert('This blob was written to the passkey')
+
+		setResult(json)
+	}
+	const readBlob = async () => {
+		const json = await passkey.get({
+			rpId: `${Application.applicationId?.split('.').reverse().join('.')}`,
+			challenge: bufferToBase64URLString(utf8StringToBuffer('fizz')),
+			extensions: { largeBlob: { read: true } },
+			// allowCredentials: [{ id: '5678', type: 'public-key' }],
+		})
+
+		const blob = json?.clientExtensionResults.largeBlob?.blob
+		if (blob) Alert.alert('This passkey has blob', blob)
+
+		setResult(json)
 	}
 
 	return (
@@ -69,12 +111,19 @@ export default function App() {
 			<Text>Passkeys are {passkey.isSupported() ? 'Supported' : 'Not Supported'}</Text>
 			<View style={styles.buttonContainer}>
 				<Pressable style={styles.button} onPress={createPasskey}>
-					<Text>Create Passkey</Text>
+					<Text>Create</Text>
 				</Pressable>
 				<Pressable style={styles.button} onPress={authenticatePasskey}>
-					<Text>Authenticate Passkey</Text>
+					<Text>Authenticate</Text>
+				</Pressable>
+				<Pressable style={styles.button} onPress={writeBlob}>
+					<Text>Add Blob</Text>
+				</Pressable>
+				<Pressable style={styles.button} onPress={readBlob}>
+					<Text>Read Blob</Text>
 				</Pressable>
 			</View>
+			{result && <Text>Result {JSON.stringify(result, null, 2)}</Text>}
 		</View>
 	)
 }
@@ -92,15 +141,17 @@ const styles = StyleSheet.create({
 		marginVertical: '5%',
 	},
 	buttonContainer: {
-		width: '60%',
-		padding: 10,
+		padding: 24,
 		flexDirection: 'row',
-		justifyContent: 'space-between',
+		flexWrap: 'wrap',
+		alignItems: 'center',
+		rowGap: 4,
+		justifyContent: 'space-evenly',
 	},
 	button: {
 		backgroundColor: '#fff',
 		padding: 10,
-		margin: 10,
+		borderWidth: 1,
 		borderRadius: 5,
 		width: '45%',
 		alignItems: 'center',
