@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
 
 import * as Application from 'expo-application'
 import * as passkey from 'react-native-passkeys'
@@ -34,24 +34,39 @@ export function utf8StringToBuffer(value: string): ArrayBuffer {
 	return new TextEncoder().encode(value)
 }
 
+const rp = {
+	id: Platform.select({
+		web: undefined,
+		native: `${Application.applicationId?.split('.').reverse().join('.')}`,
+	}),
+	name: 'ReactNativePasskeys',
+}
+
+const challenge = bufferToBase64URLString(utf8StringToBuffer('fizz'))
+
+const user = {
+	id: bufferToBase64URLString(utf8StringToBuffer('290283490')),
+	displayName: 'username',
+	name: 'username',
+}
+
+const authenticatorSelection = {
+	userVerification: 'required',
+	residentKey: 'required',
+} as const
+
 export default function App() {
 	const [result, setResult] = React.useState()
 
 	const createPasskey = async () => {
 		try {
 			const json = await passkey.create({
-				challenge: bufferToBase64URLString(utf8StringToBuffer('fizz')),
+				challenge,
 				pubKeyCredParams: [{ alg: -7, type: 'public-key' }],
-				rp: {
-					id: `${Application.applicationId?.split('.').reverse().join('.')}`,
-					name: 'ReactNativePasskeys',
-				},
-				user: {
-					id: bufferToBase64URLString(utf8StringToBuffer('290283490')),
-					displayName: 'username',
-					name: 'username',
-				},
-				extensions: { largeBlob: { support: 'preferred' } },
+				rp,
+				user,
+				authenticatorSelection,
+				extensions: { largeBlob: { support: 'required' } },
 			})
 
 			console.log('creation json -', json)
@@ -64,10 +79,9 @@ export default function App() {
 
 	const authenticatePasskey = async () => {
 		const json = await passkey.get({
-			rpId: `${Application.applicationId?.split('.').reverse().join('.')}`,
-			challenge: bufferToBase64URLString(utf8StringToBuffer('fizz')),
-			// extensions: { largeBlob: { read: true } },
-			// allowCredentials: [{ id: '5678', type: 'public-key' }],
+			rpId: rp.id,
+			challenge,
+			// allowCredentials: [	{ id: user.id, type: 'public-key' }],
 		})
 
 		console.log('authentication json -', json)
@@ -77,28 +91,33 @@ export default function App() {
 
 	const writeBlob = async () => {
 		const json = await passkey.get({
-			rpId: `${Application.applicationId?.split('.').reverse().join('.')}`,
-			challenge: bufferToBase64URLString(utf8StringToBuffer('fizz')),
+			rpId: rp.id,
+			challenge,
 			extensions: {
 				largeBlob: { write: bufferToBase64URLString(utf8StringToBuffer('my first large blob')) },
 			},
-			// allowCredentials: [{ id: '5678', type: 'public-key' }],
+			// allowCredentials: [{ id: user.id, type: 'public-key' }],
 		})
 
-		const written = json?.clientExtensionResults.largeBlob?.written
+		console.log('add blob json -', json)
+
+		const written = json?.clientExtensionResults?.largeBlob?.written
 		if (written) Alert.alert('This blob was written to the passkey')
 
 		setResult(json)
 	}
+
 	const readBlob = async () => {
 		const json = await passkey.get({
-			rpId: `${Application.applicationId?.split('.').reverse().join('.')}`,
-			challenge: bufferToBase64URLString(utf8StringToBuffer('fizz')),
+			rpId: rp.id,
+			challenge,
 			extensions: { largeBlob: { read: true } },
-			// allowCredentials: [{ id: '5678', type: 'public-key' }],
+			// allowCredentials: [{ id: user.id, type: 'public-key' }],
 		})
 
-		const blob = json?.clientExtensionResults.largeBlob?.blob
+		console.log('read blob json -', json)
+
+		const blob = json?.clientExtensionResults?.largeBlob?.blob
 		if (blob) Alert.alert('This passkey has blob', blob)
 
 		setResult(json)
@@ -123,7 +142,7 @@ export default function App() {
 					<Text>Read Blob</Text>
 				</Pressable>
 			</View>
-			{result && <Text>Result {JSON.stringify(result, null, 2)}</Text>}
+			{result && <Text style={styles.resultText}>Result {JSON.stringify(result, null, 2)}</Text>}
 		</View>
 	)
 }
@@ -139,6 +158,9 @@ const styles = StyleSheet.create({
 		fontSize: 20,
 		fontWeight: 'bold',
 		marginVertical: '5%',
+	},
+	resultText: {
+		maxWidth: '60%',
 	},
 	buttonContainer: {
 		padding: 24,
