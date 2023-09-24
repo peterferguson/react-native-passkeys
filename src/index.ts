@@ -18,6 +18,10 @@ export function isSupported(): boolean {
 	return ReactNativePasskeysModule.isSupported()
 }
 
+export function isAutoFillAvalilable(): boolean {
+	return ReactNativePasskeysModule.isAutoFillAvalilable()
+}
+
 export async function create(
 	request: Omit<PublicKeyCredentialCreationOptionsJSON, 'extensions'> & {
 		// - only largeBlob is supported currently on iOS
