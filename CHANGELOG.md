@@ -1,4 +1,4 @@
-# react-native-passkeys
+# rn-passkeys
 
 ## 0.1.1
 
