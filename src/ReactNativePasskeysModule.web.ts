@@ -1,9 +1,10 @@
 import type {
 	AuthenticationCredential,
+	AuthenticationExtensionsClientInputs,
+	AuthenticationExtensionsClientOutputs,
 	AuthenticationResponseJSON,
 	PublicKeyCredentialCreationOptionsJSON,
 	PublicKeyCredentialRequestOptionsJSON,
-	AuthenticationExtensionsClientInputs,
 	RegistrationCredential,
 	RegistrationResponseJSON,
 } from './ReactNativePasskeys.types'
@@ -39,7 +40,6 @@ export default {
 
 		const credential = (await navigator.credentials.create({
 			signal,
-			// @ts-expect-error: largeBlob is not included in the TS navigator credential types yet
 			publicKey: {
 				...request,
 				challenge: base64URLStringToBuffer(request.challenge),
@@ -47,11 +47,15 @@ export default {
 				excludeCredentials: request.excludeCredentials?.map((credential) => ({
 					...credential,
 					id: base64URLStringToBuffer(credential.id),
+					// TODO: remove the override when typescript has updated webauthn types
+					transports: (credential.transports ?? undefined) as AuthenticatorTransport[] | undefined,
 				})),
 			},
 		})) as RegistrationCredential
 
-		const clientExtensionResults = credential?.getClientExtensionResults()
+		// TODO: remove the override when typescript has updated webauthn types
+		const clientExtensionResults =
+			credential?.getClientExtensionResults() as AuthenticationExtensionsClientOutputs
 
 		warnUserOfMissingWebauthnExtensions(request.extensions, clientExtensionResults)
 
@@ -66,7 +70,6 @@ export default {
 			},
 			authenticatorAttachment: undefined,
 			type: 'public-key',
-			// @ts-expect-error: TS navigator credential clientExtensionResults types are behind
 			clientExtensionResults,
 		}
 	},
@@ -83,18 +86,21 @@ export default {
 		const credential = (await navigator.credentials.get({
 			mediation,
 			signal,
-			// @ts-expect-error: largeBlob is not included in the TS navigator credential types yet
 			publicKey: {
 				...request,
 				challenge: base64URLStringToBuffer(request.challenge),
 				allowCredentials: request.allowCredentials?.map((credential) => ({
 					...credential,
 					id: base64URLStringToBuffer(credential.id),
+					// TODO: remove the override when typescript has updated webauthn types
+					transports: (credential.transports ?? undefined) as AuthenticatorTransport[] | undefined,
 				})),
 			},
 		})) as AuthenticationCredential
 
-		const clientExtensionResults = credential?.getClientExtensionResults()
+		// TODO: remove the override when typescript has updated webauthn types
+		const clientExtensionResults =
+			credential?.getClientExtensionResults() as AuthenticationExtensionsClientOutputs
 
 		warnUserOfMissingWebauthnExtensions(request.extensions, clientExtensionResults)
 
@@ -112,7 +118,6 @@ export default {
 					: undefined,
 			},
 			authenticatorAttachment: undefined,
-			// @ts-expect-error: TS navigator credential clientExtensionResults types are behind
 			clientExtensionResults,
 			type: 'public-key',
 		}

@@ -1,9 +1,44 @@
-// ! adapted from https://github.com/github/webauthn-json/blob/63958abfcf04d1e56e3d054d9a156d1cfb3d3ee0/src/webauthn-json/basic/json.ts
+import type {
+	// - for override
+	AuthenticationExtensionsClientInputs as TypeScriptAuthenticationExtensionsClientInputs,
+	// - for use & reexport
+	Base64URLString,
+	AuthenticatorTransportFuture,
+	PublicKeyCredentialJSON,
+	PublicKeyCredentialDescriptorJSON,
+	PublicKeyCredentialUserEntityJSON,
+	AuthenticatorAttestationResponseJSON,
+} from '@simplewebauthn/typescript-types'
 
-/**
- * Using a branded type to communicate that this isn't just any string, but a Base64URL-encoded string
- */
-export type Base64URLString = string
+export type {
+	AttestationConveyancePreference,
+	AuthenticationCredential,
+	AuthenticatorAssertionResponse,
+	AuthenticatorAttachment,
+	AuthenticatorAttestationResponse,
+	AuthenticatorSelectionCriteria,
+	AuthenticatorTransport,
+	COSEAlgorithmIdentifier,
+	Crypto,
+	PublicKeyCredentialCreationOptions,
+	PublicKeyCredentialDescriptor,
+	PublicKeyCredentialParameters,
+	PublicKeyCredentialRequestOptions,
+	PublicKeyCredentialRpEntity,
+	PublicKeyCredentialType,
+	PublicKeyCredentialUserEntity,
+	RegistrationCredential,
+	UserVerificationRequirement,
+} from '@simplewebauthn/typescript-types'
+
+export type {
+	Base64URLString,
+	PublicKeyCredentialJSON,
+	AuthenticatorTransportFuture,
+	PublicKeyCredentialDescriptorJSON,
+	PublicKeyCredentialUserEntityJSON,
+	AuthenticatorAttestationResponseJSON,
+}
 
 /**
  * A variant of PublicKeyCredentialCreationOptions suitable for JSON transmission
@@ -38,24 +73,6 @@ export interface PublicKeyCredentialRequestOptionsJSON {
 }
 
 /**
- * - Specification reference: https://w3c.github.io/webauthn/#dictdef-publickeycredentialdescriptorjson
- */
-export interface PublicKeyCredentialDescriptorJSON {
-	id: Base64URLString
-	type: PublicKeyCredentialType
-	transports?: AuthenticatorTransportFuture[]
-}
-
-/**
- * - Specification reference: https://w3c.github.io/webauthn/#dictdef-publickeycredentialuserentityjson
- */
-export interface PublicKeyCredentialUserEntityJSON {
-	id: string
-	name: string
-	displayName: string
-}
-
-/**
  * A slightly-modified RegistrationCredential to simplify working with ArrayBuffers that
  * are Base64URL-encoded so that they can be sent as JSON.
  *
@@ -86,24 +103,6 @@ export interface AuthenticationResponseJSON {
 }
 
 /**
- * A slightly-modified AuthenticatorAttestationResponse to simplify working with ArrayBuffers that
- * are Base64URL-encoded so that they can be sent as JSON.
- *
- * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticatorattestationresponsejson
- */
-export interface AuthenticatorAttestationResponseJSON {
-	clientDataJSON: Base64URLString
-	attestationObject: Base64URLString
-	// Optional in L2, but becomes required in L3. Play it safe until L3 becomes Recommendation
-	authenticatorData?: Base64URLString
-	// Optional in L2, but becomes required in L3. Play it safe until L3 becomes Recommendation
-	transports?: AuthenticatorTransportFuture[]
-	// Optional in L2, but becomes required in L3. Play it safe until L3 becomes Recommendation
-	publicKeyAlgorithm?: COSEAlgorithmIdentifier
-	publicKey?: Base64URLString
-}
-
-/**
  * A slightly-modified AuthenticatorAssertionResponse to simplify working with ArrayBuffers that
  * are Base64URL-encoded so that they can be sent as JSON.
  *
@@ -117,56 +116,14 @@ export interface AuthenticatorAssertionResponseJSON {
 }
 
 /**
- * A WebAuthn-compatible device and the information needed to verify assertions by it
- */
-export type AuthenticatorDevice = {
-	credentialPublicKey: Uint8Array
-	credentialID: Uint8Array
-	// Number of times this authenticator is expected to have been used
-	counter: number
-	// From browser's `startRegistration()` -> RegistrationCredentialJSON.transports (API L2 and up)
-	transports?: AuthenticatorTransportFuture[]
-}
-
-/**
- * A super class of TypeScript's `AuthenticatorTransport` that includes support for the latest
- * transports. Should eventually be replaced by TypeScript's when TypeScript gets updated to
- * know about it (sometime after 5.3)
- */
-export type AuthenticatorTransportFuture =
-	| 'ble'
-	| 'cable'
-	| 'hybrid'
-	| 'internal'
-	| 'nfc'
-	| 'smart-card'
-	| 'usb'
-
-/**
- * A super class of TypeScript's `PublicKeyCredentialDescriptor` that knows about the latest
- * transports. Should eventually be replaced by TypeScript's when TypeScript gets updated to
- * know about it (sometime after 5.3)
- */
-export interface PublicKeyCredentialDescriptorFuture
-	extends Omit<PublicKeyCredentialDescriptor, 'transports'> {
-	transports?: AuthenticatorTransportFuture[]
-}
-
-/**
- *  - Specification reference: https://w3c.github.io/webauthn/#typedefdef-publickeycredentialjson
- */
-export type PublicKeyCredentialJSON = RegistrationResponseJSON | AuthenticationResponseJSON
-
-/**
  * TypeScript's types are behind the latest extensions spec, so we define them here.
  * Should eventually be replaced by TypeScript's when TypeScript gets updated to
  * know about it (sometime after 5.3)
- */
-
-/**
+ *
  * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsclientinputs
  */
-export interface AuthenticationExtensionsClientInputs {
+export interface AuthenticationExtensionsClientInputs
+	extends TypeScriptAuthenticationExtensionsClientInputs {
 	largeBlob?: AuthenticationExtensionsLargeBlobInputs
 }
 
