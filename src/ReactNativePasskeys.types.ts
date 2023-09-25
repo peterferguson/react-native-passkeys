@@ -6,13 +6,12 @@
 export type Base64URLString = string
 
 /**
- * A variant of PublicKeyCredentialCreationOptions suitable for JSON transmission to the browser to
- * (eventually) get passed into navigator.credentials.create(...) in the browser.
+ * A variant of PublicKeyCredentialCreationOptions suitable for JSON transmission
  *
  * This should eventually get replaced with official TypeScript DOM types when WebAuthn L3 types
  * eventually make it into the language:
  *
- * https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson
+ * - Specification reference: https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson
  */
 export interface PublicKeyCredentialCreationOptionsJSON {
 	rp: PublicKeyCredentialRpEntity
@@ -27,8 +26,7 @@ export interface PublicKeyCredentialCreationOptionsJSON {
 }
 
 /**
- * A variant of PublicKeyCredentialRequestOptions suitable for JSON transmission to the browser to
- * (eventually) get passed into navigator.credentials.get(...) in the browser.
+ * A variant of PublicKeyCredentialRequestOptions suitable for JSON transmission
  */
 export interface PublicKeyCredentialRequestOptionsJSON {
 	challenge: Base64URLString
@@ -40,7 +38,7 @@ export interface PublicKeyCredentialRequestOptionsJSON {
 }
 
 /**
- * https://w3c.github.io/webauthn/#dictdef-publickeycredentialdescriptorjson
+ * - Specification reference: https://w3c.github.io/webauthn/#dictdef-publickeycredentialdescriptorjson
  */
 export interface PublicKeyCredentialDescriptorJSON {
 	id: Base64URLString
@@ -49,7 +47,7 @@ export interface PublicKeyCredentialDescriptorJSON {
 }
 
 /**
- * https://w3c.github.io/webauthn/#dictdef-publickeycredentialuserentityjson
+ * - Specification reference: https://w3c.github.io/webauthn/#dictdef-publickeycredentialuserentityjson
  */
 export interface PublicKeyCredentialUserEntityJSON {
 	id: string
@@ -58,17 +56,10 @@ export interface PublicKeyCredentialUserEntityJSON {
 }
 
 /**
- * The value returned from navigator.credentials.create()
- */
-export interface RegistrationCredential extends PublicKeyCredentialFuture {
-	response: AuthenticatorAttestationResponseFuture
-}
-
-/**
  * A slightly-modified RegistrationCredential to simplify working with ArrayBuffers that
- * are Base64URL-encoded in the browser so that they can be sent as JSON to the server.
+ * are Base64URL-encoded so that they can be sent as JSON.
  *
- * https://w3c.github.io/webauthn/#dictdef-registrationresponsejson
+ * - Specification reference: https://w3c.github.io/webauthn/#dictdef-registrationresponsejson
  */
 export interface RegistrationResponseJSON {
 	id: Base64URLString
@@ -80,17 +71,10 @@ export interface RegistrationResponseJSON {
 }
 
 /**
- * The value returned from navigator.credentials.get()
- */
-export interface AuthenticationCredential extends PublicKeyCredentialFuture {
-	response: AuthenticatorAssertionResponse
-}
-
-/**
  * A slightly-modified AuthenticationCredential to simplify working with ArrayBuffers that
- * are Base64URL-encoded in the browser so that they can be sent as JSON to the server.
+ * are Base64URL-encoded so that they can be sent as JSON.
  *
- * https://w3c.github.io/webauthn/#dictdef-authenticationresponsejson
+ * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationresponsejson
  */
 export interface AuthenticationResponseJSON {
 	id: Base64URLString
@@ -103,9 +87,9 @@ export interface AuthenticationResponseJSON {
 
 /**
  * A slightly-modified AuthenticatorAttestationResponse to simplify working with ArrayBuffers that
- * are Base64URL-encoded in the browser so that they can be sent as JSON to the server.
+ * are Base64URL-encoded so that they can be sent as JSON.
  *
- * https://w3c.github.io/webauthn/#dictdef-authenticatorattestationresponsejson
+ * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticatorattestationresponsejson
  */
 export interface AuthenticatorAttestationResponseJSON {
 	clientDataJSON: Base64URLString
@@ -121,9 +105,9 @@ export interface AuthenticatorAttestationResponseJSON {
 
 /**
  * A slightly-modified AuthenticatorAssertionResponse to simplify working with ArrayBuffers that
- * are Base64URL-encoded in the browser so that they can be sent as JSON to the server.
+ * are Base64URL-encoded so that they can be sent as JSON.
  *
- * https://w3c.github.io/webauthn/#dictdef-authenticatorassertionresponsejson
+ * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticatorassertionresponsejson
  */
 export interface AuthenticatorAssertionResponseJSON {
 	clientDataJSON: Base64URLString
@@ -145,81 +129,52 @@ export type AuthenticatorDevice = {
 }
 
 /**
- * AuthenticatorAttestationResponse in TypeScript's DOM lib is outdated (up through v3.9.7).
- * Maintain an augmented version here so we can implement additional properties as the WebAuthn
- * spec evolves.
- *
- * See https://www.w3.org/TR/webauthn-2/#iface-authenticatorattestationresponse
- *
- * Properties marked optional are not supported in all browsers.
- */
-export interface AuthenticatorAttestationResponseFuture extends AuthenticatorAttestationResponse {
-	getTransports(): AuthenticatorTransportFuture[]
-}
-
-/**
  * A super class of TypeScript's `AuthenticatorTransport` that includes support for the latest
  * transports. Should eventually be replaced by TypeScript's when TypeScript gets updated to
- * know about it (sometime after 4.6.3)
+ * know about it (sometime after 5.3)
  */
 export type AuthenticatorTransportFuture =
 	| 'ble'
-	// | 'cable'
+	| 'cable'
 	| 'hybrid'
 	| 'internal'
 	| 'nfc'
-	// | 'smart-card'
+	| 'smart-card'
 	| 'usb'
 
 /**
  * A super class of TypeScript's `PublicKeyCredentialDescriptor` that knows about the latest
  * transports. Should eventually be replaced by TypeScript's when TypeScript gets updated to
- * know about it (sometime after 4.6.3)
+ * know about it (sometime after 5.3)
  */
 export interface PublicKeyCredentialDescriptorFuture
 	extends Omit<PublicKeyCredentialDescriptor, 'transports'> {
 	transports?: AuthenticatorTransportFuture[]
 }
 
-/** */
+/**
+ *  - Specification reference: https://w3c.github.io/webauthn/#typedefdef-publickeycredentialjson
+ */
 export type PublicKeyCredentialJSON = RegistrationResponseJSON | AuthenticationResponseJSON
 
 /**
- * A super class of TypeScript's `PublicKeyCredential` that knows about upcoming WebAuthn features
+ * TypeScript's types are behind the latest extensions spec, so we define them here.
+ * Should eventually be replaced by TypeScript's when TypeScript gets updated to
+ * know about it (sometime after 5.3)
  */
-export interface PublicKeyCredentialFuture extends PublicKeyCredential {
-	type: PublicKeyCredentialType
-	// See https://github.com/w3c/webauthn/issues/1745
-	isConditionalMediationAvailable?(): Promise<boolean>
-	// See https://w3c.github.io/webauthn/#sctn-parseCreationOptionsFromJSON
-	parseCreationOptionsFromJSON?(
-		options: PublicKeyCredentialCreationOptionsJSON,
-	): PublicKeyCredentialCreationOptions
-	// See https://w3c.github.io/webauthn/#sctn-parseRequestOptionsFromJSON
-	parseRequestOptionsFromJSON?(
-		options: PublicKeyCredentialRequestOptionsJSON,
-	): PublicKeyCredentialRequestOptions
-	// See https://w3c.github.io/webauthn/#dom-publickeycredential-tojson
-	toJSON?(): PublicKeyCredentialJSON
-}
 
 /**
- * The two types of credentials as defined by bit 3 ("Backup Eligibility") in authenticator data:
- * - `"singleDevice"` credentials will never be backed up
- * - `"multiDevice"` credentials can be backed up
+ * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsclientinputs
  */
-export type CredentialDeviceType = 'singleDevice' | 'multiDevice'
-
-// - Extensions
-
-// - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsclientinputs
 export interface AuthenticationExtensionsClientInputs {
 	largeBlob?: AuthenticationExtensionsLargeBlobInputs
 }
 
 export type LargeBlobSupport = 'preferred' | 'required'
 
-// - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargeblobinputs
+/**
+ * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargeblobinputs
+ */
 export interface AuthenticationExtensionsLargeBlobInputs {
 	// - Only valid during registration.
 	support?: LargeBlobSupport
@@ -237,7 +192,9 @@ export interface AuthenticationExtensionsClientOutputs {
 	largeBlob?: AuthenticationExtensionsLargeBlobOutputs
 }
 
-// - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargebloboutputs
+/**
+ * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargebloboutputs
+ */
 export interface AuthenticationExtensionsLargeBlobOutputs {
 	// - true if, and only if, the created credential supports storing large blobs. Only present in registration outputs.
 	supported?: boolean

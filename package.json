@@ -9,6 +9,7 @@
     "clean": "expo-module clean",
     "lint": "expo-module lint",
     "test": "expo-module test",
+    "preinstall": "npx only-allow pnpm",
     "prepare": "expo-module prepare",
     "expo-module": "expo-module",
     "open:ios": "open -a \"Xcode\" example/ios",
