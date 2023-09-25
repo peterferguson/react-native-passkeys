@@ -1,5 +1,11 @@
 # rn-passkeys
 
+## 0.1.4
+
+### Patch Changes
+
+- remove only-allow preinstall
+
 ## 0.1.3
 
 ### Patch Changes
