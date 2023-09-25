@@ -1,7 +1,7 @@
 # rn-passkeys
 
-## 0.1.1
+## 0.1.2
 
 ### Patch Changes
 
-- Initial iOS and web implementation
+- 8aab9e3: Initial iOS and web implementation
