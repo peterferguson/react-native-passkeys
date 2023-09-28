@@ -131,7 +131,7 @@ internal enum LargeBlobSupport: String, Enumerable {
 /**
     Specification reference: https://w3c.github.io/webauthn/#dictionary-authenticatorSelection
 */
-internal struct AuthenticatorSelectionCriteria {
+internal struct AuthenticatorSelectionCriteria: Record {
     @Field
     var authenticatorAttachment: AuthenticatorAttachment?
     
