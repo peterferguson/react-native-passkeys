@@ -27,14 +27,8 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>passkeyexample</string>
-          <string>uk.co.peterferguson.passkeyexample</string>
-        </array>
-      </dict>
-      <dict>
-        <key>CFBundleURLSchemes</key>
-        <array>
-          <string>exp+react-native-passkeys-example</string>
+          <string>react-native-passkeys</string>
+          <string>app.web.react-native-passkeys</string>
         </array>
       </dict>
     </array>

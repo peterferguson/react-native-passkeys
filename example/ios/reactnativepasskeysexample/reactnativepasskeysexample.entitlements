@@ -6,8 +6,7 @@
     <string>development</string>
     <key>com.apple.developer.associated-domains</key>
     <array>
-      <string>applinks:passkeyexample.peterferguson.co.uk</string>
-      <string>webcredentials:passkeyexample.peterferguson.co.uk</string>
+      <string>webcredentials:react-native-passkeys.web.app</string>
     </array>
   </dict>
 </plist>

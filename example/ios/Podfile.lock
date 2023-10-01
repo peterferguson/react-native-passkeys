@@ -457,7 +457,7 @@ PODS:
     - React-jsi (= 0.72.4)
     - React-logger (= 0.72.4)
     - React-perflogger (= 0.72.4)
-  - ReactNativePasskeys (0.1.0):
+  - ReactNativePasskeys (0.1.5):
     - ExpoModulesCore
   - RNGestureHandler (2.12.0):
     - React-Core
@@ -691,7 +691,7 @@ SPEC CHECKSUMS:
   React-runtimescheduler: 4941cc1b3cf08b792fbf666342c9fc95f1969035
   React-utils: b79f2411931f9d3ea5781404dcbb2fa8a837e13a
   ReactCommon: 4b2bdcb50a3543e1c2b2849ad44533686610826d
-  ReactNativePasskeys: 0dba5b20a06d80da9f1fa00924d143b54f0660f8
+  ReactNativePasskeys: 5d543113b1014799dbac1a17891cdc997c5f5d01
   RNGestureHandler: dec4645026e7401a0899f2846d864403478ff6a5
   RNScreens: 68fd1060f57dd1023880bf4c05d74784b5392789
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17

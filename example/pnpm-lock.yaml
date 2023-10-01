@@ -4,6 +4,9 @@ dependencies:
   '@expo/metro-runtime':
     specifier: ^2.2.8
     version: 2.2.8(react-native@0.72.4)
+  '@hexagon/base64':
+    specifier: ^1.1.28
+    version: 1.1.28
   expo:
     specifier: ~49.0.11
     version: 49.0.11(@babel/core@7.20.2)
@@ -1978,6 +1981,10 @@ packages:
     resolution: {integrity: sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==}
     dependencies:
       '@hapi/hoek': 9.3.0
+    dev: false
+
+  /@hexagon/base64@1.1.28:
+    resolution: {integrity: sha512-lhqDEAvWixy3bZ+UOYbPwUbBkwBq5C1LAJ/xPC8Oi+lL54oyakv/npbA0aU2hgCsx/1NUd4IBvV03+aUBWxerw==}
     dev: false
 
   /@jest/create-cache-key-function@29.7.0:

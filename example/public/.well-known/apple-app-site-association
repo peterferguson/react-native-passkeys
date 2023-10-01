@@ -1,0 +1,22 @@
+{
+    "applinks": {
+        "details": [
+            {
+                "appIDs": [
+                    "Y37LU57238.app.web.react-native-passkeys"
+                ],
+                "components": [
+                    {
+                        "/": "/*"
+                    }
+                ]
+            }
+        ]
+    },
+    "webcredentials": {
+        "apps": [
+            "Y37LU57238.app.web.react-native-passkeys"
+        ]
+    },
+    "appclips": {}
+}
