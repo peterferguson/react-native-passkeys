@@ -8,7 +8,7 @@ import type {
 	PublicKeyCredentialDescriptorJSON,
 	PublicKeyCredentialUserEntityJSON,
 	AuthenticatorAttestationResponseJSON,
-} from '@simplewebauthn/typescript-types'
+} from "@simplewebauthn/typescript-types";
 
 export type {
 	AttestationConveyancePreference,
@@ -29,7 +29,7 @@ export type {
 	PublicKeyCredentialUserEntity,
 	RegistrationCredential,
 	UserVerificationRequirement,
-} from '@simplewebauthn/typescript-types'
+} from "@simplewebauthn/typescript-types";
 
 export type {
 	Base64URLString,
@@ -38,7 +38,7 @@ export type {
 	PublicKeyCredentialDescriptorJSON,
 	PublicKeyCredentialUserEntityJSON,
 	AuthenticatorAttestationResponseJSON,
-}
+};
 
 /**
  * A variant of PublicKeyCredentialCreationOptions suitable for JSON transmission
@@ -49,27 +49,27 @@ export type {
  * - Specification reference: https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson
  */
 export interface PublicKeyCredentialCreationOptionsJSON {
-	rp: PublicKeyCredentialRpEntity
-	user: PublicKeyCredentialUserEntityJSON
-	challenge: Base64URLString
-	pubKeyCredParams: PublicKeyCredentialParameters[]
-	timeout?: number
-	excludeCredentials?: PublicKeyCredentialDescriptorJSON[]
-	authenticatorSelection?: AuthenticatorSelectionCriteria
-	attestation?: AttestationConveyancePreference
-	extensions?: AuthenticationExtensionsClientInputs
+	rp: PublicKeyCredentialRpEntity;
+	user: PublicKeyCredentialUserEntityJSON;
+	challenge: Base64URLString;
+	pubKeyCredParams: PublicKeyCredentialParameters[];
+	timeout?: number;
+	excludeCredentials?: PublicKeyCredentialDescriptorJSON[];
+	authenticatorSelection?: AuthenticatorSelectionCriteria;
+	attestation?: AttestationConveyancePreference;
+	extensions?: AuthenticationExtensionsClientInputs;
 }
 
 /**
  * A variant of PublicKeyCredentialRequestOptions suitable for JSON transmission
  */
 export interface PublicKeyCredentialRequestOptionsJSON {
-	challenge: Base64URLString
-	timeout?: number
-	rpId?: string
-	allowCredentials?: PublicKeyCredentialDescriptorJSON[]
-	userVerification?: UserVerificationRequirement
-	extensions?: AuthenticationExtensionsClientInputs
+	challenge: Base64URLString;
+	timeout?: number;
+	rpId?: string;
+	allowCredentials?: PublicKeyCredentialDescriptorJSON[];
+	userVerification?: UserVerificationRequirement;
+	extensions?: AuthenticationExtensionsClientInputs;
 }
 
 /**
@@ -79,12 +79,12 @@ export interface PublicKeyCredentialRequestOptionsJSON {
  * - Specification reference: https://w3c.github.io/webauthn/#dictdef-registrationresponsejson
  */
 export interface RegistrationResponseJSON {
-	id: Base64URLString
-	rawId: Base64URLString
-	response: AuthenticatorAttestationResponseJSON
-	authenticatorAttachment?: AuthenticatorAttachment
-	clientExtensionResults: AuthenticationExtensionsClientOutputs
-	type: PublicKeyCredentialType
+	id: Base64URLString;
+	rawId: Base64URLString;
+	response: AuthenticatorAttestationResponseJSON;
+	authenticatorAttachment?: AuthenticatorAttachment;
+	clientExtensionResults: AuthenticationExtensionsClientOutputsJSON;
+	type: PublicKeyCredentialType;
 }
 
 /**
@@ -94,12 +94,12 @@ export interface RegistrationResponseJSON {
  * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationresponsejson
  */
 export interface AuthenticationResponseJSON {
-	id: Base64URLString
-	rawId: Base64URLString
-	response: AuthenticatorAssertionResponseJSON
-	authenticatorAttachment?: AuthenticatorAttachment
-	clientExtensionResults: AuthenticationExtensionsClientOutputs
-	type: PublicKeyCredentialType
+	id: Base64URLString;
+	rawId: Base64URLString;
+	response: AuthenticatorAssertionResponseJSON;
+	authenticatorAttachment?: AuthenticatorAttachment;
+	clientExtensionResults: AuthenticationExtensionsClientOutputsJSON;
+	type: PublicKeyCredentialType;
 }
 
 /**
@@ -109,10 +109,10 @@ export interface AuthenticationResponseJSON {
  * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticatorassertionresponsejson
  */
 export interface AuthenticatorAssertionResponseJSON {
-	clientDataJSON: Base64URLString
-	authenticatorData: Base64URLString
-	signature: Base64URLString
-	userHandle?: string
+	clientDataJSON: Base64URLString;
+	authenticatorData: Base64URLString;
+	signature: Base64URLString;
+	userHandle?: string;
 }
 
 /**
@@ -124,29 +124,36 @@ export interface AuthenticatorAssertionResponseJSON {
  */
 export interface AuthenticationExtensionsClientInputs
 	extends TypeScriptAuthenticationExtensionsClientInputs {
-	largeBlob?: AuthenticationExtensionsLargeBlobInputs
+	largeBlob?: AuthenticationExtensionsLargeBlobInputs;
 }
 
-export type LargeBlobSupport = 'preferred' | 'required'
+export type LargeBlobSupport = "preferred" | "required";
 
 /**
  * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargeblobinputs
  */
 export interface AuthenticationExtensionsLargeBlobInputs {
 	// - Only valid during registration.
-	support?: LargeBlobSupport
+	support?: LargeBlobSupport;
 
 	// - A boolean that indicates that the Relying Party would like to fetch the previously-written blob associated with the asserted credential. Only valid during authentication.
-	read?: boolean
+	read?: boolean;
 
 	// - An opaque byte string that the Relying Party wishes to store with the existing credential. Only valid during authentication.
 	// - We impose that the data is passed as base64-url encoding to make better align the passing of data from RN to native code
-	write?: Base64URLString
+	write?: Base64URLString;
 }
 
 // - largeBlob extension: https://w3c.github.io/webauthn/#sctn-large-blob-extension
 export interface AuthenticationExtensionsClientOutputs {
-	largeBlob?: AuthenticationExtensionsLargeBlobOutputs
+	largeBlob?: Omit<AuthenticationExtensionsLargeBlobOutputs, "blob"> & {
+		blob?: ArrayBuffer;
+	};
+}
+
+// - largeBlob extension: https://w3c.github.io/webauthn/#sctn-large-blob-extension
+export interface AuthenticationExtensionsClientOutputsJSON {
+	largeBlob?: AuthenticationExtensionsLargeBlobOutputs;
 }
 
 /**
@@ -154,11 +161,11 @@ export interface AuthenticationExtensionsClientOutputs {
  */
 export interface AuthenticationExtensionsLargeBlobOutputs {
 	// - true if, and only if, the created credential supports storing large blobs. Only present in registration outputs.
-	supported?: boolean
+	supported?: boolean;
 
 	// - The opaque byte string that was associated with the credential identified by rawId. Only valid if read was true.
-	blob?: Base64URLString
+	blob?: Base64URLString;
 
 	// - A boolean that indicates that the contents of write were successfully stored on the authenticator, associated with the specified credential.
-	written?: boolean
+	written?: boolean;
 }

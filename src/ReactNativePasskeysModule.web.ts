@@ -2,41 +2,42 @@ import type {
 	AuthenticationCredential,
 	AuthenticationExtensionsClientInputs,
 	AuthenticationExtensionsClientOutputs,
+	AuthenticationExtensionsClientOutputsJSON,
 	AuthenticationResponseJSON,
 	PublicKeyCredentialCreationOptionsJSON,
 	PublicKeyCredentialRequestOptionsJSON,
 	RegistrationCredential,
 	RegistrationResponseJSON,
-} from './ReactNativePasskeys.types'
-import { NotSupportedError } from './errors'
-import { base64URLStringToBuffer, bufferToBase64URLString } from './utils/base64'
+} from "./ReactNativePasskeys.types";
+import { NotSupportedError } from "./errors";
+import { base64URLStringToBuffer, bufferToBase64URLString } from "./utils/base64";
 
 export default {
 	get name(): string {
-		return 'ReactNativePasskeys'
+		return "ReactNativePasskeys";
 	},
 
 	isAutoFillAvalilable(): Promise<boolean> {
-		const globalPublicKeyCredential = window.PublicKeyCredential
+		const globalPublicKeyCredential = window.PublicKeyCredential;
 
 		if (globalPublicKeyCredential.isConditionalMediationAvailable === undefined)
-			return new Promise((resolve) => resolve(false))
+			return new Promise((resolve) => resolve(false));
 
-		return globalPublicKeyCredential.isConditionalMediationAvailable()
+		return globalPublicKeyCredential.isConditionalMediationAvailable();
 	},
 
 	isSupported() {
 		return (
-			window?.PublicKeyCredential !== undefined && typeof window.PublicKeyCredential === 'function'
-		)
+			window?.PublicKeyCredential !== undefined && typeof window.PublicKeyCredential === "function"
+		);
 	},
 
 	async create({
 		signal,
 		...request
 	}: PublicKeyCredentialCreationOptionsJSON &
-		Pick<CredentialCreationOptions, 'signal'>): Promise<RegistrationResponseJSON | null> {
-		if (!this.isSupported) throw new NotSupportedError()
+		Pick<CredentialCreationOptions, "signal">): Promise<RegistrationResponseJSON | null> {
+		if (!this.isSupported) throw new NotSupportedError();
 
 		const credential = (await navigator.credentials.create({
 			signal,
@@ -51,15 +52,15 @@ export default {
 					transports: (credential.transports ?? undefined) as AuthenticatorTransport[] | undefined,
 				})),
 			},
-		})) as RegistrationCredential
+		})) as RegistrationCredential;
 
 		// TODO: remove the override when typescript has updated webauthn types
-		const clientExtensionResults =
-			credential?.getClientExtensionResults() as AuthenticationExtensionsClientOutputs
+		const { largeBlob, ...clientExtensionResults } =
+			credential?.getClientExtensionResults() as AuthenticationExtensionsClientOutputs;
 
-		warnUserOfMissingWebauthnExtensions(request.extensions, clientExtensionResults)
+		warnUserOfMissingWebauthnExtensions(request.extensions, clientExtensionResults);
 
-		if (!credential) return null
+		if (!credential) return null;
 
 		return {
 			id: credential?.id,
@@ -69,9 +70,17 @@ export default {
 				attestationObject: bufferToBase64URLString(credential.response.attestationObject),
 			},
 			authenticatorAttachment: undefined,
-			type: 'public-key',
-			clientExtensionResults,
-		}
+			type: "public-key",
+			clientExtensionResults: {
+				...clientExtensionResults,
+				...(largeBlob && {
+					largeBlob: {
+						...largeBlob,
+						blob: largeBlob?.blob ? bufferToBase64URLString(largeBlob.blob) : undefined,
+					},
+				}),
+			} satisfies AuthenticationExtensionsClientOutputsJSON,
+		};
 	},
 
 	async get({
@@ -81,13 +90,22 @@ export default {
 	}: PublicKeyCredentialRequestOptionsJSON &
 		Pick<
 			CredentialRequestOptions,
-			'mediation' | 'signal'
+			"mediation" | "signal"
 		>): Promise<AuthenticationResponseJSON | null> {
 		const credential = (await navigator.credentials.get({
 			mediation,
 			signal,
 			publicKey: {
 				...request,
+				extensions: {
+					...request.extensions,
+					largeBlob: {
+						...request.extensions?.largeBlob,
+						...(request.extensions?.largeBlob?.write && {
+							write: base64URLStringToBuffer(request.extensions.largeBlob.write),
+						}),
+					},
+				},
 				challenge: base64URLStringToBuffer(request.challenge),
 				allowCredentials: request.allowCredentials?.map((credential) => ({
 					...credential,
@@ -96,15 +114,15 @@ export default {
 					transports: (credential.transports ?? undefined) as AuthenticatorTransport[] | undefined,
 				})),
 			},
-		})) as AuthenticationCredential
+		})) as AuthenticationCredential;
 
 		// TODO: remove the override when typescript has updated webauthn types
-		const clientExtensionResults =
-			credential?.getClientExtensionResults() as AuthenticationExtensionsClientOutputs
+		const extensions =
+			credential?.getClientExtensionResults() as AuthenticationExtensionsClientOutputs;
+		warnUserOfMissingWebauthnExtensions(request.extensions, extensions);
+		const { largeBlob, ...clientExtensionResults } = extensions;
 
-		warnUserOfMissingWebauthnExtensions(request.extensions, clientExtensionResults)
-
-		if (!credential) return null
+		if (!credential) return null;
 
 		return {
 			id: credential.id,
@@ -118,11 +136,19 @@ export default {
 					: undefined,
 			},
 			authenticatorAttachment: undefined,
-			clientExtensionResults,
-			type: 'public-key',
-		}
+			clientExtensionResults: {
+				...clientExtensionResults,
+				...(largeBlob && {
+					largeBlob: {
+						...largeBlob,
+						blob: largeBlob?.blob ? bufferToBase64URLString(largeBlob.blob) : undefined,
+					},
+				}),
+			} satisfies AuthenticationExtensionsClientOutputsJSON,
+			type: "public-key",
+		};
 	},
-}
+};
 
 /**
  *  warn the user about extensions that they tried to use that are not supported
@@ -133,12 +159,12 @@ const warnUserOfMissingWebauthnExtensions = (
 ) => {
 	if (clientExtensionResults) {
 		for (const key in requestedExtensions) {
-			console.log(key, clientExtensionResults[key])
-			if (typeof clientExtensionResults[key] === 'undefined') {
+			console.log(key, clientExtensionResults[key]);
+			if (typeof clientExtensionResults[key] === "undefined") {
 				alert(
 					`Webauthn extension ${key} is undefined -- your browser probably doesn't know about it`,
-				)
+				);
 			}
 		}
 	}
-}
+};
