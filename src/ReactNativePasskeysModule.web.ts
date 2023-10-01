@@ -55,10 +55,11 @@ export default {
 		})) as RegistrationCredential;
 
 		// TODO: remove the override when typescript has updated webauthn types
-		const { largeBlob, ...clientExtensionResults } =
+		const extensions =
 			credential?.getClientExtensionResults() as AuthenticationExtensionsClientOutputs;
+		warnUserOfMissingWebauthnExtensions(request.extensions, extensions);
+		const { largeBlob, ...clientExtensionResults } = extensions;
 
-		warnUserOfMissingWebauthnExtensions(request.extensions, clientExtensionResults);
 
 		if (!credential) return null;
 
