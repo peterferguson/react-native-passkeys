@@ -1,5 +1,11 @@
 # rn-passkeys
 
+## 0.1.6
+
+### Patch Changes
+
+- update client extension types
+
 ## 0.1.5
 
 ### Patch Changes
