@@ -1,4 +1,5 @@
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import * as Application from "expo-application";
 import * as passkey from "react-native-passkeys";
@@ -54,6 +55,7 @@ const rp = {
 	name: "ReactNativePasskeys",
 } satisfies PublicKeyCredentialRpEntity;
 
+// Don't do this in production!
 const challenge = bufferToBase64URLString(utf8StringToBuffer("fizz"));
 
 const user = {
@@ -68,6 +70,8 @@ const authenticatorSelection = {
 } satisfies AuthenticatorSelectionCriteria;
 
 export default function App() {
+	const insets = useSafeAreaInsets();
+
 	const [result, setResult] = React.useState();
 	const [credentialId, setCredentialId] = React.useState("");
 
@@ -117,7 +121,7 @@ export default function App() {
 			rpId: rp.id,
 			challenge,
 			extensions: {
-				largeBlob: { write: bufferToBase64URLString(utf8StringToBuffer("my first large blob")) },
+				largeBlob: { write: bufferToBase64URLString(utf8StringToBuffer("Hey its a private key!")) },
 			},
 			...(credentialId && {
 				allowCredentials: [{ id: credentialId, type: "public-key" }],
@@ -151,34 +155,59 @@ export default function App() {
 	};
 
 	return (
-		<View style={styles.container}>
-			<Text style={styles.title}>Testing Passkeys</Text>
-			<Text>Application ID: {Application.applicationId}</Text>
-			<Text>Passkeys are {passkey.isSupported() ? "Supported" : "Not Supported"}</Text>
-			{credentialId && <Text>User Credential ID: {credentialId}</Text>}
-			<View style={styles.buttonContainer}>
-				<Pressable style={styles.button} onPress={createPasskey}>
-					<Text>Create</Text>
-				</Pressable>
-				<Pressable style={styles.button} onPress={authenticatePasskey}>
-					<Text>Authenticate</Text>
-				</Pressable>
-				<Pressable style={styles.button} onPress={writeBlob}>
-					<Text>Add Blob</Text>
-				</Pressable>
-				<Pressable style={styles.button} onPress={readBlob}>
-					<Text>Read Blob</Text>
-				</Pressable>
-			</View>
-			{result && <Text style={styles.resultText}>Result {JSON.stringify(result, null, 2)}</Text>}
+		<View style={{ flex: 1 }}>
+			<ScrollView
+				style={{
+					paddingTop: insets.top,
+					backgroundColor: "#fccefe",
+					paddingBottom: insets.bottom,
+				}}
+				contentContainerStyle={styles.scrollContainer}
+			>
+				<Text style={styles.title}>Testing Passkeys</Text>
+				<Text>Application ID: {Application.applicationId}</Text>
+				<Text>Passkeys are {passkey.isSupported() ? "Supported" : "Not Supported"}</Text>
+				{credentialId && <Text>User Credential ID: {credentialId}</Text>}
+				<View style={styles.buttonContainer}>
+					<Pressable style={styles.button} onPress={createPasskey}>
+						<Text>Create</Text>
+					</Pressable>
+					<Pressable style={styles.button} onPress={authenticatePasskey}>
+						<Text>Authenticate</Text>
+					</Pressable>
+					<Pressable style={styles.button} onPress={writeBlob}>
+						<Text>Add Blob</Text>
+					</Pressable>
+					<Pressable style={styles.button} onPress={readBlob}>
+						<Text>Read Blob</Text>
+					</Pressable>
+				</View>
+				{result && <Text style={styles.resultText}>Result {JSON.stringify(result, null, 2)}</Text>}
+			</ScrollView>
+			<Text
+				style={{
+					textAlign: "center",
+					position: "absolute",
+					bottom: insets.bottom + 16,
+					left: 0,
+					right: 0,
+				}}
+			>
+				Source available on{" "}
+				<Text
+					onPress={() => Linking.openURL("https://github.com/peterferguson/react-native-passkeys")}
+					style={{ textDecorationLine: "underline" }}
+				>
+					GitHub
+				</Text>
+			</Text>
 		</View>
 	);
 }
 
 const styles = StyleSheet.create({
-	container: {
+	scrollContainer: {
 		flex: 1,
-		backgroundColor: "#fccefe",
 		alignItems: "center",
 		justifyContent: "center",
 	},
@@ -188,7 +217,7 @@ const styles = StyleSheet.create({
 		marginVertical: "5%",
 	},
 	resultText: {
-		maxWidth: "60%",
+		maxWidth: "80%",
 	},
 	buttonContainer: {
 		padding: 24,
