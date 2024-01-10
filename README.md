@@ -16,15 +16,15 @@ npx expo install react-native-passkeys
 
 #### 1. Host an Apple App Site Association (AASA) file
 
-For Passkeys to work on iOS, you'll need to host an AASA file on your domain. This file is used to verify that your app is allowed to handle the domain you are trying to authenticate with.
+For Passkeys to work on iOS, you'll need to host an AASA file on your domain. This file is used to verify that your app is allowed to handle the domain you are trying to authenticate with. This must be hosted on a site with a valid SSL certificate.
 
-The file should be hosted at (note there is no `.json` extension):
+The file should be hosted at:
 
 ```
 https://<your_domain>/.well-known/apple-app-site-association
 ```
 
-and should look something like this:
+Note there is no `.json` extension for this file but the format is json. The contents of the file should look something like this:
 
 ```json
 {
@@ -33,6 +33,8 @@ and should look something like this:
   }
 }
 ```
+
+Replace `<teamID>` with your Apple Team ID and `<bundleID>` with your app's bundle identifier.
 
 #### 2. Add Associated Domains
 
@@ -54,14 +56,14 @@ Replace `<your_domain>` with the domain you are hosting the AASA file on. For ex
 
 ```sh
 npx expo prebuild -p ios
-npx expo run:ios
+npx expo run:ios # or build in the cloud with EAS
 ```
 
 ## Android Setup
 
 #### 1. Host an `assetlinks.json` File
 
-For Passkeys to work on Android, you'll need to host an `assetlinks.json` file on your domain. This file is used to verify that your app is allowed to handle the domain you are trying to authenticate with.
+For Passkeys to work on Android, you'll need to host an `assetlinks.json` file on your domain. This file is used to verify that your app is allowed to handle the domain you are trying to authenticate with. This must be hosted on a site with a valid SSL certificate.
 
 The file should be hosted at:
 
@@ -111,5 +113,5 @@ Next, you'll need to modify the `compileSdkVersion` in your `app.json` to be at 
 
 ```sh
 npx expo prebuild -p android
-npx expo run:android
+npx expo run:android # or build in the cloud with EAS
 ```
