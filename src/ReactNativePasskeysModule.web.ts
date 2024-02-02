@@ -60,7 +60,6 @@ export default {
 		warnUserOfMissingWebauthnExtensions(request.extensions, extensions);
 		const { largeBlob, ...clientExtensionResults } = extensions;
 
-
 		if (!credential) return null;
 
 		return {
@@ -100,6 +99,13 @@ export default {
 				...request,
 				extensions: {
 					...request.extensions,
+					/**
+					 * the navigator interface doesn't have a largeBlob property
+					 * as it may not be supported by all browsers
+					 *
+					 * browsers that do not support the extension will just ignore the property so it's safe to include it
+					 *
+					 * @ts-expect-error:*/
 					largeBlob: {
 						...request.extensions?.largeBlob,
 						...(request.extensions?.largeBlob?.write && {
