@@ -1,6 +1,6 @@
 {
   "name": "react-native-passkeys",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "description": "A library for using (webauthn) passkeys on iOS, Android & web with a single api",
   "main": "build/index.js",
   "types": "build/index.d.ts",
