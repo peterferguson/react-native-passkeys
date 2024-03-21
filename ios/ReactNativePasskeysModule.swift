@@ -174,7 +174,9 @@ private func prepareCrossPlatformRegistrationRequest(challenge: Data,
 
   if let excludedCredentials = request.excludeCredentials {
       if !excludedCredentials.isEmpty {
-          crossPlatformRegistrationRequest.excludedCredentials = excludedCredentials.map({ $0.getCrossPlatformDescriptor() })
+        if #available(iOS 17.4, *) {
+            crossPlatformRegistrationRequest.excludedCredentials = excludedCredentials.map({ $0.getCrossPlatformDescriptor() })
+        }
       }
   }
 
@@ -221,7 +223,9 @@ private func preparePlatformRegistrationRequest(challenge: Data,
 
     if let excludedCredentials = request.excludeCredentials {
         if !excludedCredentials.isEmpty {
-            platformKeyRegistrationRequest.excludedCredentials = excludedCredentials.map({ $0.getPlatformDescriptor() })
+            if #available(iOS 17.4, *) {
+                platformKeyRegistrationRequest.excludedCredentials = excludedCredentials.map({ $0.getPlatformDescriptor() })
+            }
         }
     }
     
