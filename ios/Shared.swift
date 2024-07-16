@@ -61,8 +61,10 @@ internal enum AttestationConveyancePreference: String, Enumerable {
             return ASAuthorizationPublicKeyCredentialAttestationKind.indirect
         case .enterprise:
             return ASAuthorizationPublicKeyCredentialAttestationKind.enterprise
+        case .none:
+            return ASAuthorizationPublicKeyCredentialAttestationKind.none
         default:
-            return ASAuthorizationPublicKeyCredentialAttestationKind.direct
+            return ASAuthorizationPublicKeyCredentialAttestationKind.none
         }
     }
 }
