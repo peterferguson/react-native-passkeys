@@ -12,6 +12,16 @@ import type {
 import { NotSupportedError } from "./errors";
 import { base64URLStringToBuffer, bufferToBase64URLString } from "./utils/base64";
 
+interface CreationReponse extends Omit<RegistrationResponseJSON, "response"> {
+	response: RegistrationResponseJSON["response"] & {
+		/**
+		 * This operation returns an ArrayBuffer containing the DER SubjectPublicKeyInfo of the new credential, or null if this is not available.
+		 * https://w3c.github.io/webauthn/#dom-authenticatorattestationresponse-getpublickey
+		 */
+		getPublicKey(): Uint8Array | null;
+	};
+}
+
 export default {
 	get name(): string {
 		return "ReactNativePasskeys";
@@ -36,7 +46,7 @@ export default {
 		signal,
 		...request
 	}: PublicKeyCredentialCreationOptionsJSON &
-		Pick<CredentialCreationOptions, "signal">): Promise<RegistrationResponseJSON | null> {
+		Pick<CredentialCreationOptions, "signal">): Promise<CreationReponse | null> {
 		if (!this.isSupported) throw new NotSupportedError();
 
 		const credential = (await navigator.credentials.create({
@@ -63,11 +73,14 @@ export default {
 		if (!credential) return null;
 
 		return {
-			id: credential?.id,
+			id: credential.id,
 			rawId: credential.id,
 			response: {
 				clientDataJSON: bufferToBase64URLString(credential.response.clientDataJSON),
 				attestationObject: bufferToBase64URLString(credential.response.attestationObject),
+				getPublicKey() {
+					return credential.response.getPublicKey();
+				},
 			},
 			authenticatorAttachment: undefined,
 			type: "public-key",
