@@ -52,7 +52,28 @@ Add the following to your `app.json`:
 
 Replace `<your_domain>` with the domain you are hosting the AASA file on. For example, if you are hosting the AASA file on `https://example.com/.well-known/apple-app-site-association`, you would add `example.com` to the `associatedDomains` array.
 
-#### 3. Prebuild and run your app
+#### 3. Add minimum deployment target
+
+Add the following to your `app.json`:
+
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.0"
+          }
+        }
+      ]
+    ]
+  }
+}
+```
+
+#### 4. Prebuild and run your app
 
 ```sh
 npx expo prebuild -p ios
