@@ -169,3 +169,17 @@ export interface AuthenticationExtensionsLargeBlobOutputs {
 	// - A boolean that indicates that the contents of write were successfully stored on the authenticator, associated with the specified credential.
 	written?: boolean;
 }
+
+/**
+ * A library specific type that combines the JSON results of a registration operation with a method
+ * to get the public key of the new credential since these are not available directly from the native side
+ */
+export interface CreationReponse extends Omit<RegistrationResponseJSON, "response"> {
+	response: RegistrationResponseJSON["response"] & {
+		/**
+		 * This operation returns an ArrayBuffer containing the DER SubjectPublicKeyInfo of the new credential, or null if this is not available.
+		 * https://w3c.github.io/webauthn/#dom-authenticatorattestationresponse-getpublickey
+		 */
+		getPublicKey(): Uint8Array | null;
+	};
+}
