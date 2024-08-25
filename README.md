@@ -92,7 +92,7 @@ The file should be hosted at:
 https://<your_domain>/.well-known/assetlinks.json
 ```
 
-and should look something like this:
+and should look something like this (you can generate this file using the [Android Asset Links Assistant](https://developers.google.com/digital-asset-links/tools/generator)):
 
 ```json
 [

@@ -46,10 +46,12 @@ export function base64UrlToString(base64urlString: Base64URLString): string {
 	return base64.toString(base64urlString, true);
 }
 
+const bundleId = Application.applicationId?.split(".").reverse().join(".");
 const rp = {
 	id: Platform.select({
 		web: undefined,
-		native: `${Application.applicationId?.split(".").reverse().join(".")}`,
+		ios: bundleId,
+		android: bundleId?.replaceAll("_", "-"),
 	}),
 	name: "ReactNativePasskeys",
 } satisfies PublicKeyCredentialRpEntity;
@@ -85,7 +87,9 @@ export default function App() {
 				rp,
 				user,
 				authenticatorSelection,
-				extensions: { largeBlob: { support: "required" } },
+				...(Platform.OS !== "android" && {
+					extensions: { largeBlob: { support: "required" } },
+				}),
 			});
 
 			console.log("creation json -", json);
