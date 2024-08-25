@@ -1,6 +1,5 @@
 import { Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
 import * as Application from "expo-application";
 import * as passkey from "react-native-passkeys";
 import alert from "../utils/alert";
@@ -73,6 +72,9 @@ export default function App() {
 	const insets = useSafeAreaInsets();
 
 	const [result, setResult] = React.useState();
+	const [creationResponse, setCreationResponse] = React.useState<
+		NonNullable<Awaited<ReturnType<typeof passkey.create>>>["response"] | null
+	>(null);
 	const [credentialId, setCredentialId] = React.useState("");
 
 	const createPasskey = async () => {
@@ -89,6 +91,7 @@ export default function App() {
 			console.log("creation json -", json);
 
 			if (json?.rawId) setCredentialId(json.rawId);
+			if (json?.response) setCreationResponse(json.response);
 
 			setResult(json);
 		} catch (e) {
@@ -181,6 +184,16 @@ export default function App() {
 					<Pressable style={styles.button} onPress={readBlob}>
 						<Text>Read Blob</Text>
 					</Pressable>
+					{creationResponse && (
+						<Pressable
+							style={styles.button}
+							onPress={() => {
+								alert("Public Key", creationResponse?.getPublicKey() as Uint8Array);
+							}}
+						>
+							<Text>Get PublicKey</Text>
+						</Pressable>
+					)}
 				</View>
 				{result && <Text style={styles.resultText}>Result {JSON.stringify(result, null, 2)}</Text>}
 			</ScrollView>

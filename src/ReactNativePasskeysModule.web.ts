@@ -18,7 +18,7 @@ interface CreationReponse extends Omit<RegistrationResponseJSON, "response"> {
 		 * This operation returns an ArrayBuffer containing the DER SubjectPublicKeyInfo of the new credential, or null if this is not available.
 		 * https://w3c.github.io/webauthn/#dom-authenticatorattestationresponse-getpublickey
 		 */
-		getPublicKey(): Uint8Array | null;
+		getPublicKey(): ArrayBuffer | null;
 	};
 }
 
