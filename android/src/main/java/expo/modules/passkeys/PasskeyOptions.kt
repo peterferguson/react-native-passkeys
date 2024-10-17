@@ -75,7 +75,7 @@ class PublicKeyCredentialRequestOptions: Record {
     var timeout: Int? = null
 
     @Field
-    var allowCredentials: List<PublicKeyCredentialParameters>? = null
+    var allowCredentials: List<PublicKeyCredentialDescriptor>? = null
 
     @Field
     var userVerification: String? = null
