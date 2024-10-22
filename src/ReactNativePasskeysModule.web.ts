@@ -27,7 +27,7 @@ export default {
 		return "ReactNativePasskeys";
 	},
 
-	isAutoFillAvalilable(): Promise<boolean> {
+	isAutoFillAvailable(): Promise<boolean> {
 		const globalPublicKeyCredential = window.PublicKeyCredential;
 
 		if (globalPublicKeyCredential.isConditionalMediationAvailable === undefined)
