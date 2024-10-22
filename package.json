@@ -40,8 +40,10 @@
     "typescript": "^5.2.2"
   },
   "peerDependencies": {
-    "expo": "*",
     "react": "*",
-    "react-native": "*"
-  }
+    "react-native": "*",
+    "expo": "*",
+    "expo-modules-core": "*"
+  },
+  "packageManager": "bun@1.1.30"
 }
