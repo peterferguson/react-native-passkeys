@@ -119,12 +119,12 @@ export default {
 					 * browsers that do not support the extension will just ignore the property so it's safe to include it
 					 *
 					 * @ts-expect-error:*/
-					largeBlob: {
-						...request.extensions?.largeBlob,
-						...(request.extensions?.largeBlob?.write && {
-							write: base64URLStringToBuffer(request.extensions.largeBlob.write),
-						}),
-					},
+					largeBlob: request.extensions?.largeBlob?.write
+						? {
+								...request.extensions?.largeBlob,
+								write: base64URLStringToBuffer(request.extensions.largeBlob.write),
+							}
+						: request.extensions?.largeBlob,
 				},
 				challenge: base64URLStringToBuffer(request.challenge),
 				allowCredentials: request.allowCredentials?.map((credential) => ({
