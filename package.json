@@ -6,12 +6,17 @@
   "types": "build/index.d.ts",
   "scripts": {
     "build": "expo-module build",
+    "check-exports": "attw --pack .",
+    "ci": "pnpm run lint && pnpm run format && pnpm run prepare && pnpm run check-exports",
     "clean": "expo-module clean",
-    "lint": "expo-module lint",
-    "test": "expo-module test",
     "expo-module": "expo-module",
+    "format": "pnpx @biomejs/biome format --write ./src",
+    "lint": "pnpx @biomejs/biome lint --write ./src",
     "open:ios": "open -a \"Xcode\" example/ios",
-    "open:android": "open -a \"Android Studio\" example/android"
+    "open:android": "open -a \"Android Studio\" example/android",
+    "prepare": "expo-module prepare",
+    "prepublishOnly": "expo-module prepublishOnly",
+    "test": "expo-module test"
   },
   "keywords": [
     "react-native",
@@ -31,7 +36,8 @@
   "license": "MIT",
   "homepage": "https://github.com/peterferguson/react-native-passkeys#readme",
   "devDependencies": {
-    "@biomejs/biome": "1.2.2",
+    "@arethetypeswrong/cli": "^0.17.4",
+    "@biomejs/biome": "1.9.4",
     "@changesets/cli": "^2.26.2",
     "@simplewebauthn/typescript-types": "^8.0.0",
     "@types/react": "^18.0.25",

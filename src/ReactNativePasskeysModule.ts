@@ -1,14 +1,17 @@
 import { requireNativeModule } from "expo-modules-core";
+import { NotSupportedError } from "./errors";
+
 import type {
 	PublicKeyCredentialCreationOptionsJSON,
 	RegistrationResponseJSON,
+	PublicKeyCredentialRequestOptionsJSON,
+	AuthenticationResponseJSON,
 } from "./ReactNativePasskeys.types";
-import { NotSupportedError } from "./errors";
-
-const passkeys = requireNativeModule("ReactNativePasskeys");
 
 // It loads the native module object from the JSI or falls back to
 // the bridge module (from NativeModulesProxy) if the remote debugger is on.
+const passkeys = requireNativeModule("ReactNativePasskeys");
+
 export default {
 	...passkeys,
 

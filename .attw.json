@@ -1,0 +1,8 @@
+{
+  "excludeEntrypoints": [
+    "build/*"
+  ],
+  "ignoreRules": [
+    "unexpected-module-syntax"
+  ]
+}

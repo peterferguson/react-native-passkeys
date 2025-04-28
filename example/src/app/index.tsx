@@ -173,7 +173,7 @@ export default function App() {
 			>
 				<Text style={styles.title}>Testing Passkeys</Text>
 				<Text>Application ID: {Application.applicationId}</Text>
-				<Text>Passkeys are {passkey.isSupported() ? "Supported" : "Not Supported"}</Text>
+				<Text>Passkeys are {passkey.isSupported() ? "supported" : "not supported"}</Text>
 				{credentialId && <Text>User Credential ID: {credentialId}</Text>}
 				<View style={styles.buttonContainer}>
 					<Pressable style={styles.button} onPress={createPasskey}>

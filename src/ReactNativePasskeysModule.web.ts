@@ -1,3 +1,6 @@
+import { NotSupportedError } from "./errors";
+import { base64URLStringToBuffer, bufferToBase64URLString } from "./utils/base64";
+
 import type {
 	AuthenticationCredential,
 	AuthenticationExtensionsClientInputs,
@@ -8,19 +11,8 @@ import type {
 	PublicKeyCredentialRequestOptionsJSON,
 	RegistrationCredential,
 	RegistrationResponseJSON,
+	CreationReponse,
 } from "./ReactNativePasskeys.types";
-import { NotSupportedError } from "./errors";
-import { base64URLStringToBuffer, bufferToBase64URLString } from "./utils/base64";
-
-interface CreationReponse extends Omit<RegistrationResponseJSON, "response"> {
-	response: RegistrationResponseJSON["response"] & {
-		/**
-		 * This operation returns an ArrayBuffer containing the DER SubjectPublicKeyInfo of the new credential, or null if this is not available.
-		 * https://w3c.github.io/webauthn/#dom-authenticatorattestationresponse-getpublickey
-		 */
-		getPublicKey(): ArrayBuffer | null;
-	};
-}
 
 export default {
 	get name(): string {
@@ -28,12 +20,7 @@ export default {
 	},
 
 	isAutoFillAvalilable(): Promise<boolean> {
-		const globalPublicKeyCredential = window.PublicKeyCredential;
-
-		if (globalPublicKeyCredential.isConditionalMediationAvailable === undefined)
-			return new Promise((resolve) => resolve(false));
-
-		return globalPublicKeyCredential.isConditionalMediationAvailable();
+		return window.PublicKeyCredential.isConditionalMediationAvailable?.() ?? Promise.resolve(false);
 	},
 
 	isSupported() {
