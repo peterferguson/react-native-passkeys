@@ -79,7 +79,7 @@ export default function App() {
 	>(null);
 	const [credentialId, setCredentialId] = React.useState("");
 
-	const createPasskey = async () => {
+	const createPasskey = async (config?: passkey.PasskeysConfig) => {
 		try {
 			const json = await passkey.create({
 				challenge,
@@ -90,7 +90,7 @@ export default function App() {
 				...(Platform.OS !== "android" && {
 					extensions: { largeBlob: { support: "required" } },
 				}),
-			});
+			}, config);
 
 			console.log("creation json -", json);
 
@@ -103,14 +103,14 @@ export default function App() {
 		}
 	};
 
-	const authenticatePasskey = async () => {
+	const authenticatePasskey = async (config?: passkey.PasskeysConfig) => {
 		const json = await passkey.get({
 			rpId: rp.id,
 			challenge,
 			...(credentialId && {
 				allowCredentials: [{ id: credentialId, type: "public-key" }],
 			}),
-		});
+		}, config);
 
 		console.log("authentication json -", json);
 
@@ -176,11 +176,17 @@ export default function App() {
 				<Text>Passkeys are {passkey.isSupported() ? "Supported" : "Not Supported"}</Text>
 				{credentialId && <Text>User Credential ID: {credentialId}</Text>}
 				<View style={styles.buttonContainer}>
-					<Pressable style={styles.button} onPress={createPasskey}>
+					<Pressable style={styles.button} onPress={() => createPasskey()}>
 						<Text>Create</Text>
 					</Pressable>
-					<Pressable style={styles.button} onPress={authenticatePasskey}>
+					<Pressable style={styles.button} onPress={() => createPasskey({ios:{requireBiometrics: false}})}>
+						<Text>Create (biometrics not required)</Text>
+					</Pressable>
+					<Pressable style={styles.button} onPress={() => authenticatePasskey()}>
 						<Text>Authenticate</Text>
+					</Pressable>
+					<Pressable style={styles.button} onPress={() => authenticatePasskey({ios:{requireBiometrics: false}})}>
+						<Text>Authenticate (biometrics not required)</Text>
 					</Pressable>
 					<Pressable style={styles.button} onPress={writeBlob}>
 						<Text>Add Blob</Text>
