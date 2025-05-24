@@ -25,11 +25,11 @@ final public class ReactNativePasskeysModule: Module, PasskeyResultHandler {
       return false
     }
 
-    AsyncFunction("get") { (request: PublicKeyCredentialRequestOptions, promise: Promise) throws in
+    AsyncFunction("get") { (request: PublicKeyCredentialRequestOptions, requireBiometrics: Bool, promise: Promise) throws in
         do { 
             // - all the throws are already in the helper `isAvailable` so we don't need to do anything
             // ? this seems like a code smell ... what is the best way to do this
-            let _ = try isAvailable() 
+            let _ = try isAvailable(requireBiometrics: requireBiometrics)
         } 
         catch let error {
             throw error
@@ -49,11 +49,11 @@ final public class ReactNativePasskeysModule: Module, PasskeyResultHandler {
         passkeyDelegate.performAuthForController(controller: authController);
     }.runOnQueue(.main)
 
-    AsyncFunction("create") { (request: PublicKeyCredentialCreationOptions, promise: Promise) throws in
+    AsyncFunction("create") { (request: PublicKeyCredentialCreationOptions, requireBiometrics: Bool, promise: Promise) throws in
         do { 
             // - all the throws are already in the helper `isAvailable` so we don't need to do anything
             // ? this seems like a code smell ... what is the best way to do this
-            let _ = try isAvailable() 
+            let _ = try isAvailable(requireBiometrics: requireBiometrics)
         } 
         catch let error {
             throw error
@@ -98,7 +98,7 @@ final public class ReactNativePasskeysModule: Module, PasskeyResultHandler {
       
   }
 
-  private func isAvailable() throws -> Bool {
+  private func isAvailable(requireBiometrics: Bool = true) throws -> Bool {
     if #unavailable(iOS 15.0) {
         throw NotSupportedException()
     }
@@ -107,7 +107,15 @@ final public class ReactNativePasskeysModule: Module, PasskeyResultHandler {
         throw PendingPasskeyRequestException()
     }
 
-    if LAContext().biometricType == .none {
+    let context = LAContext()
+
+    // Check the local authentication policy can be evaluated
+    let policy: LAPolicy = requireBiometrics ? .deviceOwnerAuthenticationWithBiometrics : .deviceOwnerAuthentication
+    guard context.canEvaluatePolicy(policy, error: nil) else {
+        throw BiometricException()
+    }
+
+    if requireBiometrics && context.biometricType == .none {
         throw BiometricException()
     }
 
@@ -315,11 +323,6 @@ extension LAContext {
 
     var biometricType: BiometricType {
         var error: NSError?
-
-        guard self.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
-            // Capture these recoverable error thru Crashlytics
-            return .none
-        }
 
         if #available(iOS 11.0, *) {
             switch self.biometryType {
