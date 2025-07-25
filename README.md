@@ -1,3 +1,35 @@
+
+<div align="right">
+  <details>
+    <summary >🌐 Language</summary>
+    <div>
+      <div align="center">
+        <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=en">English</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=zh-CN">简体中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=zh-TW">繁體中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=ja">日本語</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=ko">한국어</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=hi">हिन्दी</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=th">ไทย</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=fr">Français</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=de">Deutsch</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=es">Español</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=it">Italiano</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=ru">Русский</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=pt">Português</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=nl">Nederlands</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=pl">Polski</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=ar">العربية</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=fa">فارسی</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=tr">Türkçe</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=vi">Tiếng Việt</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=id">Bahasa Indonesia</a>
+        | <a href="https://openaitx.github.io/view.html?user=peterferguson&project=react-native-passkeys&lang=as">অসমীয়া</
+      </div>
+    </div>
+  </details>
+</div>
+
 # React Native Passkeys
 
 This is an Expo module to help you create and authenticate with passkeys on iOS, Android & web with the same api. The library aims to stay close to the standard [`navigator.credentials`](https://w3c.github.io/webappsec-credential-management/#framework-credential-management). More specifically, we provide an api for `get` & `create` functions (since these are the functions available cross-platform).
