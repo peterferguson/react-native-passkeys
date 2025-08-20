@@ -30,10 +30,14 @@ import expo.modules.kotlin.modules.ModuleDefinition
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import android.util.Log
 
 class ReactNativePasskeysModule : Module() {
 
     private val mainScope = CoroutineScope(Dispatchers.Default)
+    companion object {
+        private const val TAG = "RNPasskeys"
+    }
 
     override fun definition() = ModuleDefinition {
         Name("ReactNativePasskeys")
@@ -54,19 +58,24 @@ class ReactNativePasskeysModule : Module() {
             val json = Gson().toJson(request)
             val createPublicKeyCredentialRequest = CreatePublicKeyCredentialRequest(json)
 
-
             mainScope.launch {
                 try {
-                    val result = appContext.currentActivity?.let {
-                        credentialManager.createCredential(it, createPublicKeyCredentialRequest)
+                    val activity = appContext.currentActivity
+                    if (activity == null) {
+                        promise.reject("Passkey Create", "No current activity", null)
+                        return@launch
                     }
-                    val response =
-                        result?.data?.getString("androidx.credentials.BUNDLE_KEY_REGISTRATION_RESPONSE_JSON")
+                    val result = credentialManager.createCredential(activity, createPublicKeyCredentialRequest)
+                    val response = result?.data?.getString("androidx.credentials.BUNDLE_KEY_REGISTRATION_RESPONSE_JSON")
                     val createCredentialResponse =
                         Gson().fromJson(response, RegistrationResponseJSON::class.java)
                     promise.resolve(createCredentialResponse)
                 } catch (e: CreateCredentialException) {
+                    Log.e(TAG, "create(): CreateCredentialException: ${e.javaClass.simpleName}: ${e.message}", e)
                     promise.reject("Passkey Create", getRegistrationException(e), e)
+                } catch (t: Throwable) {
+                    Log.e(TAG, "create(): Unexpected throwable: ${t.javaClass.simpleName}: ${t.message}", t)
+                    promise.reject("Passkey Create", t.message, t)
                 }
             }
         }
@@ -75,21 +84,36 @@ class ReactNativePasskeysModule : Module() {
             val credentialManager =
                 CredentialManager.create(appContext.reactContext?.applicationContext!!)
             val json = Gson().toJson(request)
+            Log.d(TAG, "get()): json to GetPublicKeyCredentialOption= $json")
             val getCredentialRequest =
                 GetCredentialRequest(listOf(GetPublicKeyCredentialOption(json)))
 
             mainScope.launch {
                 try {
-                    val result = appContext.currentActivity?.let {
-                        credentialManager.getCredential(it, getCredentialRequest)
+                    val activity = appContext.currentActivity
+                    if (activity == null) {
+                        Log.e(TAG, "get(): currentActivity is null")
+                        promise.reject("Passkey Get", "No current activity", null)
+                        return@launch
                     }
+
+                    val result = credentialManager.getCredential(activity, getCredentialRequest)
+                    val dataKeys = result?.credential?.data?.keySet()?.joinToString(", ") ?: "<no keys>"
                     val response =
                         result?.credential?.data?.getString("androidx.credentials.BUNDLE_KEY_AUTHENTICATION_RESPONSE_JSON")
+                    Log.d(TAG, "get(): response JSON content = $response")
+                    
                     val createCredentialResponse =
                         Gson().fromJson(response, AuthenticationResponseJSON::class.java)
                     promise.resolve(createCredentialResponse)
                 } catch (e: GetCredentialException) {
-                    promise.reject("Passkey Get", getAuthenticationException(e), e)
+                    Log.e(TAG, "get(): GetCredentialException: ${e.javaClass.simpleName}: ${e.message}", e)
+                    val mapped = getAuthenticationException(e)
+                    Log.e(TAG, "get(): mapped auth exception = $mapped")
+                    promise.reject("Passkey Get", mapped, e)
+                } catch (t: Throwable) {
+                    Log.e(TAG, "get(): Unexpected throwable: ${t.javaClass.simpleName}: ${t.message}", t)
+                    promise.reject("Passkey Get", t.message, t)
                 }
             }
         }
@@ -158,5 +182,4 @@ class ReactNativePasskeysModule : Module() {
                 e.toString()
             }
         }
-
 }

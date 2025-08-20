@@ -33,6 +33,9 @@ class PublicKeyCredentialCreationOptions: Record {
     @Field
     var attestation: String? = null
 
+    @Field
+    var extensions: Map<String, Any>? = null
+
 }
 
 class AuthenticatorSelectionCriteria: Record {
@@ -79,6 +82,9 @@ class PublicKeyCredentialRequestOptions: Record {
 
     @Field
     var userVerification: String? = null
+
+    @Field
+    var extensions: Map<String, Any>? = null
 }
 
 class PublicKeyCredentialRpEntity: Record {
@@ -219,6 +225,9 @@ class AuthenticationExtensionsClientOutputsJSON: Record {
     @Field
     var largeBlob: AuthenticationExtensionsLargeBlobOutputsJSON? = null
 
+    @Field
+    var prf: AuthenticationExtensionsPrfOutputsJSON? = null
+
 }
 /**
 We convert this to `AuthenticationExtensionsLargeBlobOutputsJSON` instead of `AuthenticationExtensionsLargeBlobOutputs` for consistency
@@ -237,3 +246,30 @@ class AuthenticationExtensionsLargeBlobOutputsJSON: Record {
     @Field
     var written: Boolean? = null;
 };
+
+/**
+ * PRF extension outputs
+ * Specification reference: https://w3c.github.io/webauthn/#sctn-prf-extension
+ */
+class AuthenticationExtensionsPrfOutputsJSON: Record {
+
+    @Field
+    var enabled: Boolean? = null;
+
+    @Field
+    var results: AuthenticationExtensionsPrfResultsJSON? = null;
+
+}
+
+/**
+ * PRF results containing the computed PRF values
+ */
+class AuthenticationExtensionsPrfResultsJSON: Record {
+
+    @Field
+    var first: String? = null;
+
+    @Field
+    var second: String? = null;
+
+}

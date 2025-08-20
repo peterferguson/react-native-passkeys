@@ -1,13 +1,13 @@
 import type {
-	// - for override
-	AuthenticationExtensionsClientInputs as TypeScriptAuthenticationExtensionsClientInputs,
+	AuthenticatorAttestationResponseJSON,
+	AuthenticatorTransportFuture,
 	// - for use & reexport
 	Base64URLString,
-	AuthenticatorTransportFuture,
-	PublicKeyCredentialJSON,
 	PublicKeyCredentialDescriptorJSON,
+	PublicKeyCredentialJSON,
 	PublicKeyCredentialUserEntityJSON,
-	AuthenticatorAttestationResponseJSON,
+	// - for override
+	AuthenticationExtensionsClientInputs as TypeScriptAuthenticationExtensionsClientInputs,
 } from "@simplewebauthn/typescript-types";
 
 export type {
@@ -28,16 +28,11 @@ export type {
 	PublicKeyCredentialType,
 	PublicKeyCredentialUserEntity,
 	RegistrationCredential,
-	UserVerificationRequirement,
+	UserVerificationRequirement
 } from "@simplewebauthn/typescript-types";
 
 export type {
-	Base64URLString,
-	PublicKeyCredentialJSON,
-	AuthenticatorTransportFuture,
-	PublicKeyCredentialDescriptorJSON,
-	PublicKeyCredentialUserEntityJSON,
-	AuthenticatorAttestationResponseJSON,
+	AuthenticatorAttestationResponseJSON, AuthenticatorTransportFuture, Base64URLString, PublicKeyCredentialDescriptorJSON, PublicKeyCredentialJSON, PublicKeyCredentialUserEntityJSON
 };
 
 /**
@@ -125,6 +120,7 @@ export interface AuthenticatorAssertionResponseJSON {
 export interface AuthenticationExtensionsClientInputs
 	extends TypeScriptAuthenticationExtensionsClientInputs {
 	largeBlob?: AuthenticationExtensionsLargeBlobInputs;
+	prf?: AuthenticationExtensionsPrfInputs;
 }
 
 export type LargeBlobSupport = "preferred" | "required";
@@ -144,6 +140,18 @@ export interface AuthenticationExtensionsLargeBlobInputs {
 	write?: Base64URLString;
 }
 
+/**
+ * PRF extension inputs
+ * Specification reference: https://w3c.github.io/webauthn/#sctn-prf-extension
+ */
+export interface AuthenticationExtensionsPrfInputs {
+	// - The evaluation parameters for PRF computation
+	eval?: {
+		first?: Base64URLString;
+		second?: Base64URLString;
+	};
+}
+
 // - largeBlob extension: https://w3c.github.io/webauthn/#sctn-large-blob-extension
 export interface AuthenticationExtensionsClientOutputs {
 	largeBlob?: Omit<AuthenticationExtensionsLargeBlobOutputs, "blob"> & {
@@ -154,6 +162,7 @@ export interface AuthenticationExtensionsClientOutputs {
 // - largeBlob extension: https://w3c.github.io/webauthn/#sctn-large-blob-extension
 export interface AuthenticationExtensionsClientOutputsJSON {
 	largeBlob?: AuthenticationExtensionsLargeBlobOutputs;
+	prf?: AuthenticationExtensionsPrfOutputs;
 }
 
 /**
@@ -168,6 +177,21 @@ export interface AuthenticationExtensionsLargeBlobOutputs {
 
 	// - A boolean that indicates that the contents of write were successfully stored on the authenticator, associated with the specified credential.
 	written?: boolean;
+}
+
+/**
+ * PRF extension outputs
+ * Specification reference: https://w3c.github.io/webauthn/#sctn-prf-extension
+ */
+export interface AuthenticationExtensionsPrfOutputs {
+	// - true if PRF was enabled and results are available
+	enabled?: boolean;
+
+	// - The computed PRF results
+	results?: {
+		first?: Base64URLString;
+		second?: Base64URLString;
+	};
 }
 
 /**
