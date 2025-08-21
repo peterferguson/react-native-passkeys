@@ -48,7 +48,14 @@ export default {
 					// TODO: remove the override when typescript has updated webauthn types
 					transports: (credential.transports ?? undefined) as AuthenticatorTransport[] | undefined,
 				})),
-			},
+				extensions: request.extensions ? {
+					...request.extensions,
+					largeBlob: request.extensions.largeBlob ? {
+						...request.extensions.largeBlob,
+						write: request.extensions.largeBlob.write ? base64URLStringToBuffer(request.extensions.largeBlob.write) : undefined,
+					} : undefined,
+				} : undefined,
+			} as PublicKeyCredentialCreationOptions,
 		})) as RegistrationCredential;
 
 		// TODO: remove the override when typescript has updated webauthn types
@@ -97,22 +104,13 @@ export default {
 			signal,
 			publicKey: {
 				...request,
-				extensions: {
+				extensions: request.extensions ? {
 					...request.extensions,
-					/**
-					 * the navigator interface doesn't have a largeBlob property
-					 * as it may not be supported by all browsers
-					 *
-					 * browsers that do not support the extension will just ignore the property so it's safe to include it
-					 *
-					 * @ts-expect-error:*/
-					largeBlob: request.extensions?.largeBlob?.write
-						? {
-								...request.extensions?.largeBlob,
-								write: base64URLStringToBuffer(request.extensions.largeBlob.write),
-							}
-						: request.extensions?.largeBlob,
-				},
+					largeBlob: request.extensions.largeBlob ? {
+						...request.extensions.largeBlob,
+						write: request.extensions.largeBlob.write ? base64URLStringToBuffer(request.extensions.largeBlob.write) : undefined,
+					} : undefined,
+				} : undefined,
 				challenge: base64URLStringToBuffer(request.challenge),
 				allowCredentials: request.allowCredentials?.map((credential) => ({
 					...credential,
@@ -120,7 +118,7 @@ export default {
 					// TODO: remove the override when typescript has updated webauthn types
 					transports: (credential.transports ?? undefined) as AuthenticatorTransport[] | undefined,
 				})),
-			},
+			} as PublicKeyCredentialRequestOptions,
 		})) as AuthenticationCredential;
 
 		// TODO: remove the override when typescript has updated webauthn types
