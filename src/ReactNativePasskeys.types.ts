@@ -153,15 +153,23 @@ export interface AuthenticationExtensionsLargeBlobInputs {
 }
 
 // - largeBlob extension: https://w3c.github.io/webauthn/#sctn-large-blob-extension
+// - prf extension: https://w3c.github.io/webauthn/#prf-extension
 export interface AuthenticationExtensionsClientOutputs {
 	largeBlob?: Omit<AuthenticationExtensionsLargeBlobOutputs, "blob"> & {
 		blob?: ArrayBuffer;
+	};
+	prf?: Omit<AuthenticationExtensionsPRFOutputsJSON, "results"> & {
+		results: {
+			first: BufferSource;
+			second?: BufferSource;
+		}
 	};
 }
 
 // - largeBlob extension: https://w3c.github.io/webauthn/#sctn-large-blob-extension
 export interface AuthenticationExtensionsClientOutputsJSON {
 	largeBlob?: AuthenticationExtensionsLargeBlobOutputs;
+	json?: AuthenticationExtensionsPRFOutputsJSON
 }
 
 /**
@@ -178,16 +186,38 @@ export interface AuthenticationExtensionsLargeBlobOutputs {
 	written?: boolean;
 }
 
+
+/**
+ * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsprfvalues
+ */
+
+export interface AuthenticationExtensionsPRFValuesJSON {
+	first: Base64URLString;
+	second?: Base64URLString
+}
+
+/**
+ * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsprfoutputs
+ */
+export interface AuthenticationExtensionsPRFOutputsJSON {
+	// - true if, and only if, the PRF is available for use with the created credential. This is only reported during registration and is not present in the case of authentication.
+	enabled?: boolean;
+
+	results?: {
+		eval: AuthenticationExtensionsPRFValuesJSON
+	}
+}
+
 /**
  * A library specific type that combines the JSON results of a registration operation with a method
  * to get the public key of the new credential since these are not available directly from the native side
  */
-export interface CreationReponse extends Omit<RegistrationResponseJSON, "response"> {
+export interface CreationResponse extends Omit<RegistrationResponseJSON, "response"> {
 	response: RegistrationResponseJSON["response"] & {
 		/**
 		 * This operation returns an ArrayBuffer containing the DER SubjectPublicKeyInfo of the new credential, or null if this is not available.
 		 * https://w3c.github.io/webauthn/#dom-authenticatorattestationresponse-getpublickey
 		 */
-		getPublicKey(): Uint8Array | null;
+		getPublicKey(): ArrayBuffer | null;
 	};
 }
