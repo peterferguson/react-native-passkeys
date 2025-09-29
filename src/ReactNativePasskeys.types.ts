@@ -160,8 +160,8 @@ export interface AuthenticationExtensionsClientOutputs {
 	};
 	prf?: Omit<AuthenticationExtensionsPRFOutputsJSON, "results"> & {
 		results: {
-			first: BufferSource;
-			second?: BufferSource;
+			first: ArrayBuffer;
+			second?: ArrayBuffer;
 		}
 	};
 }
@@ -169,7 +169,7 @@ export interface AuthenticationExtensionsClientOutputs {
 // - largeBlob extension: https://w3c.github.io/webauthn/#sctn-large-blob-extension
 export interface AuthenticationExtensionsClientOutputsJSON {
 	largeBlob?: AuthenticationExtensionsLargeBlobOutputs;
-	json?: AuthenticationExtensionsPRFOutputsJSON
+	prf?: AuthenticationExtensionsPRFOutputsJSON
 }
 
 /**
@@ -203,9 +203,7 @@ export interface AuthenticationExtensionsPRFOutputsJSON {
 	// - true if, and only if, the PRF is available for use with the created credential. This is only reported during registration and is not present in the case of authentication.
 	enabled?: boolean;
 
-	results?: {
-		eval: AuthenticationExtensionsPRFValuesJSON
-	}
+	results?: AuthenticationExtensionsPRFValuesJSON
 }
 
 /**

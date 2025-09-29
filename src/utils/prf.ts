@@ -1,7 +1,10 @@
 import { base64URLStringToBuffer } from './base64'
-import type { PublicKeyCredentialCreationOptionsJSON } from '../ReactNativePasskeys.types'
+import type {
+	PublicKeyCredentialCreationOptionsJSON,
+	PublicKeyCredentialRequestOptionsJSON
+} from '../ReactNativePasskeys.types'
 
-export function normalizePRFInputs(request: PublicKeyCredentialCreationOptionsJSON) {
+export function normalizePRFInputs(request: PublicKeyCredentialCreationOptionsJSON | PublicKeyCredentialRequestOptionsJSON) {
 	const { prf } = request.extensions ?? {}
 
 	if (!prf) {

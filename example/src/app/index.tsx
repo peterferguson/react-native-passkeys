@@ -73,7 +73,7 @@ const authenticatorSelection = {
 export default function App() {
 	const insets = useSafeAreaInsets();
 
-	const [result, setResult] = React.useState();
+	const [result, setResult] = React.useState<any>();
 	const [creationResponse, setCreationResponse] = React.useState<
 		NonNullable<Awaited<ReturnType<typeof passkey.create>>>["response"] | null
 	>(null);
@@ -88,7 +88,10 @@ export default function App() {
 				user,
 				authenticatorSelection,
 				...(Platform.OS !== "android" && {
-					extensions: { largeBlob: { support: "required" } },
+					extensions: {
+						largeBlob: { support: "required" },
+						prf: {}
+					},
 				}),
 			});
 
@@ -161,6 +164,26 @@ export default function App() {
 		setResult(json);
 	};
 
+	const deriveKey = async () => {
+		const json = await passkey.get({
+			rpId: rp.id,
+			challenge,
+			extensions: { prf: { eval: { first: bufferToBase64URLString(utf8StringToBuffer('my derived key'))} } },
+			...(credentialId && {
+				allowCredentials: [{ id: credentialId, type: "public-key" }],
+			}),
+		});
+
+		console.log("derive key json -", json);
+
+
+		setResult({
+			clientExtensionResults: {
+				prf: json?.clientExtensionResults.prf
+			},
+		});
+	};
+
 	return (
 		<View style={{ flex: 1 }}>
 			<ScrollView
@@ -187,6 +210,9 @@ export default function App() {
 					</Pressable>
 					<Pressable style={styles.button} onPress={readBlob}>
 						<Text>Read Blob</Text>
+					</Pressable>
+					<Pressable style={styles.button} onPress={deriveKey}>
+						<Text>Derive Key (PRF)</Text>
 					</Pressable>
 					{creationResponse && (
 						<Pressable

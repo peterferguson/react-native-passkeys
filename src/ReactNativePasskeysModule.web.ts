@@ -13,7 +13,7 @@ import type {
 	RegistrationResponseJSON,
 	CreationResponse,
 } from "./ReactNativePasskeys.types";
-import { normalizePRFInputs } from './utils/extensions'
+import { normalizePRFInputs } from './utils/prf'
 
 export default {
 	get name(): string {
@@ -60,7 +60,7 @@ export default {
 		const extensions =
 			credential?.getClientExtensionResults() as AuthenticationExtensionsClientOutputs;
 		warnUserOfMissingWebauthnExtensions(request.extensions, extensions);
-		const { largeBlob, ...clientExtensionResults } = extensions;
+		const { largeBlob, prf, ...clientExtensionResults } = extensions;
 
 		if (!credential) return null;
 
@@ -84,6 +84,13 @@ export default {
 						blob: largeBlob?.blob ? bufferToBase64URLString(largeBlob.blob) : undefined,
 					},
 				}),
+				...(prf?.results && { prf: {
+						enabled: prf.enabled,
+						results: {
+							first: bufferToBase64URLString(prf.results.first),
+							second: prf.results.second ? bufferToBase64URLString(prf.results.second) : undefined
+						}
+					}})
 			} satisfies AuthenticationExtensionsClientOutputsJSON,
 		};
 	},
@@ -104,6 +111,7 @@ export default {
 				...request,
 				extensions: {
 					...request.extensions,
+					prf: normalizePRFInputs(request),
 					/**
 					 * the navigator interface doesn't have a largeBlob property
 					 * as it may not be supported by all browsers
@@ -132,7 +140,7 @@ export default {
 		const extensions =
 			credential?.getClientExtensionResults() as AuthenticationExtensionsClientOutputs;
 		warnUserOfMissingWebauthnExtensions(request.extensions, extensions);
-		const { largeBlob, ...clientExtensionResults } = extensions;
+		const { largeBlob, prf, ...clientExtensionResults } = extensions;
 
 		if (!credential) return null;
 
@@ -156,6 +164,12 @@ export default {
 						blob: largeBlob?.blob ? bufferToBase64URLString(largeBlob.blob) : undefined,
 					},
 				}),
+				...(prf?.results && { prf: {
+					results: {
+						first: bufferToBase64URLString(prf.results.first),
+						second: prf.results.second ? bufferToBase64URLString(prf.results.second) : undefined
+					}
+				}})
 			} satisfies AuthenticationExtensionsClientOutputsJSON,
 			type: "public-key",
 		};
