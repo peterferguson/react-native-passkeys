@@ -42,7 +42,7 @@ final public class ReactNativePasskeysModule: Module, PasskeyResultHandler {
         }
 
         let crossPlatformKeyAssertionRequest = prepareCrossPlatformAssertionRequest(challenge: challengeData, request: request)
-        let platformKeyAssertionRequest = preparePlatformAssertionRequest(challenge: challengeData, request: request)
+        let platformKeyAssertionRequest = try preparePlatformAssertionRequest(challenge: challengeData, request: request)
         
         let authController = ASAuthorizationController(authorizationRequests: [platformKeyAssertionRequest, crossPlatformKeyAssertionRequest])
     
@@ -78,7 +78,7 @@ final public class ReactNativePasskeysModule: Module, PasskeyResultHandler {
                                                                                           userId: userId,
                                                                                           request: request)
         } else {
-            platformKeyRegistrationRequest = preparePlatformRegistrationRequest(challenge: challengeData,
+            platformKeyRegistrationRequest = try preparePlatformRegistrationRequest(challenge: challengeData,
                                                                                 userId: userId,
                                                                                 request: request)
         }
@@ -186,7 +186,7 @@ private func prepareCrossPlatformRegistrationRequest(challenge: Data,
 
 private func preparePlatformRegistrationRequest(challenge: Data,
                                                 userId: Data,
-                                                request: PublicKeyCredentialCreationOptions) -> ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest {
+                                                request: PublicKeyCredentialCreationOptions) throws -> ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest {
   let platformKeyCredentialProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(
     relyingPartyIdentifier: request.rp.id!)
 
@@ -215,9 +215,19 @@ private func preparePlatformRegistrationRequest(challenge: Data,
 
     if #available(iOS 18, *) {
         if let prf = request.extensions?.prf {
-            platformKeyRegistrationRequest.prf = prf.eval.map { eval in
-              let first = Data(base64URLEncoded: eval.first)!
-              let second = eval.second.flatMap { Data(base64URLEncoded: $0) }
+            platformKeyRegistrationRequest.prf = try prf.eval.map { eval in
+              guard let first = Data(base64URLEncoded: eval.first) else {
+                throw InvalidPRFInputException(name: "InvalidFirstPRFInput", description: "Incorrect base64url encoding")
+              }
+              
+              let second = try eval.second.map {
+                guard let data = Data(base64URLEncoded: $0) else {
+                  throw InvalidPRFInputException(name: "InvalidSecondPRFInput", description: "Incorrect base64url encoding")
+                }
+                
+                return data
+              }
+              
               return .inputValues(ASAuthorizationPublicKeyCredentialPRFAssertionInput.InputValues(saltInput1: first, saltInput2: second))
             } ?? .checkForSupport
         }
@@ -262,7 +272,7 @@ private func prepareCrossPlatformAssertionRequest(challenge: Data,
   return crossPlatformAssertionRequest
 }
 
-private func preparePlatformAssertionRequest(challenge: Data, request: PublicKeyCredentialRequestOptions) -> ASAuthorizationPlatformPublicKeyCredentialAssertionRequest {
+private func preparePlatformAssertionRequest(challenge: Data, request: PublicKeyCredentialRequestOptions) throws -> ASAuthorizationPlatformPublicKeyCredentialAssertionRequest {
 
     let platformKeyCredentialProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(
         relyingPartyIdentifier: request.rpId)
@@ -285,9 +295,18 @@ private func preparePlatformAssertionRequest(challenge: Data, request: PublicKey
     }
 
      if #available(iOS 18, *) {
-        platformKeyAssertionRequest.prf = request.extensions?.prf?.eval.map { eval in
-            let first = Data(base64URLEncoded: eval.first)!
-            let second = eval.second.flatMap { Data(base64URLEncoded: $0) }
+        platformKeyAssertionRequest.prf = try request.extensions?.prf?.eval.map { eval in
+            guard let first = Data(base64URLEncoded: eval.first) else {
+              throw InvalidPRFInputException(name: "InvalidFirstPRFInput", description: "Incorrect base64url encoding")
+            }
+          
+            let second = try eval.second.map {
+              guard let data = Data(base64URLEncoded: $0) else {
+                throw InvalidPRFInputException(name: "InvalidSecondPRFInput", description: "Incorrect base64url encoding")
+              }
+              return data
+            }
+          
             return .inputValues(ASAuthorizationPublicKeyCredentialPRFAssertionInput.InputValues(saltInput1: first, saltInput2: second))
         }
       }

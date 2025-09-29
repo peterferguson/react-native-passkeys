@@ -116,7 +116,7 @@ export interface AuthenticatorAssertionResponseJSON {
 }
 
 /**
- * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsprfvalues
+ * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsprfinputs
  */
 export interface AuthenticationExtensionsPrfInputs {
 	eval?: { first: Base64URLString; second?: Base64URLString }
@@ -169,7 +169,7 @@ export interface AuthenticationExtensionsClientOutputs {
 // - largeBlob extension: https://w3c.github.io/webauthn/#sctn-large-blob-extension
 export interface AuthenticationExtensionsClientOutputsJSON {
 	largeBlob?: AuthenticationExtensionsLargeBlobOutputs;
-	prf?: AuthenticationExtensionsPRFOutputsJSON
+	prf?: AuthenticationExtensionsPRFOutputsJSON;
 }
 
 /**
@@ -192,7 +192,7 @@ export interface AuthenticationExtensionsLargeBlobOutputs {
  */
 export interface AuthenticationExtensionsPRFValuesJSON {
 	first: Base64URLString;
-	second?: Base64URLString
+	second?: Base64URLString;
 }
 
 /**
@@ -202,7 +202,7 @@ export interface AuthenticationExtensionsPRFOutputsJSON {
 	// - true if, and only if, the PRF is available for use with the created credential. This is only reported during registration and is not present in the case of authentication.
 	enabled?: boolean;
 
-	results?: AuthenticationExtensionsPRFValuesJSON
+	results?: AuthenticationExtensionsPRFValuesJSON;
 }
 
 /**

@@ -61,6 +61,14 @@ internal class PasskeyAuthorizationFailedException: Exception {
   }
 }
 
+
+internal class InvalidPRFInputException: Exception {
+  override var reason: String {
+    "The provided PRF input was invalid"
+  }
+}
+
+
 internal class UnknownException: Exception {
   override var reason: String {
     "An unknown exception occured"

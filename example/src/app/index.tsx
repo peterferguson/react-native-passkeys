@@ -179,7 +179,7 @@ export default function App() {
 
 		setResult({
 			clientExtensionResults: {
-				prf: json?.clientExtensionResults.prf
+				prf: json?.clientExtensionResults?.prf
 			},
 		});
 	};

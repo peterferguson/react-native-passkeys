@@ -37,7 +37,7 @@ export async function get(
 	request: Omit<PublicKeyCredentialRequestOptionsJSON, "extensions"> & {
 		// - only largeBlob is supported currently on iOS
 		// - no extensions are currently supported on Android
-		extensions?: { largeBlob?: AuthenticationExtensionsLargeBlobInputs, prf?: Required<AuthenticationExtensionsPrfInputs> };
+		extensions?: { largeBlob?: AuthenticationExtensionsLargeBlobInputs, prf?: AuthenticationExtensionsPrfInputs };
 	},
 ): Promise<AuthenticationResponseJSON | null> {
 	return await ReactNativePasskeysModule.get(request);
