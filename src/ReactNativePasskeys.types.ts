@@ -190,7 +190,6 @@ export interface AuthenticationExtensionsLargeBlobOutputs {
 /**
  * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsprfvalues
  */
-
 export interface AuthenticationExtensionsPRFValuesJSON {
 	first: Base64URLString;
 	second?: Base64URLString

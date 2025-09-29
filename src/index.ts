@@ -1,14 +1,15 @@
 import type {
 	AuthenticationCredential,
 	AuthenticationExtensionsLargeBlobInputs,
-	AuthenticationExtensionsLargeBlobOutputs, AuthenticationExtensionsPrfInputs,
+	AuthenticationExtensionsLargeBlobOutputs,
+	AuthenticationExtensionsPrfInputs,
 	AuthenticationResponseJSON,
 	Base64URLString,
 	PublicKeyCredentialCreationOptionsJSON,
 	PublicKeyCredentialRequestOptionsJSON,
 	RegistrationCredential,
 	RegistrationResponseJSON,
-} from './ReactNativePasskeys.types'
+} from "./ReactNativePasskeys.types";
 
 // Import the native module. On web, it will be resolved to ReactNativePasskeys.web.ts
 // and on native platforms to ReactNativePasskeys.ts
