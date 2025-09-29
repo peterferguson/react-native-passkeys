@@ -213,6 +213,17 @@ private func preparePlatformRegistrationRequest(challenge: Data,
          }
     }
 
+    if #available(iOS 18, *) {
+        if let prf = request.extensions?.prf {
+            platformKeyRegistrationRequest.prf = prf.eval.map { eval in
+              let first = Data(base64URLEncoded: eval.first)!
+              let second = eval.second.flatMap { Data(base64URLEncoded: $0) }
+              return .inputValues(ASAuthorizationPublicKeyCredentialPRFAssertionInput.InputValues(saltInput1: first, saltInput2: second))
+            } ?? .checkForSupport
+        }
+    }
+
+
     if let userVerificationPref = request.authenticatorSelection?.userVerification {
         platformKeyRegistrationRequest.userVerificationPreference = userVerificationPref.appleise()
     }
@@ -272,6 +283,14 @@ private func preparePlatformAssertionRequest(challenge: Data, request: PublicKey
             )
         }
     }
+
+     if #available(iOS 18, *) {
+        platformKeyAssertionRequest.prf = request.extensions?.prf?.eval.map { eval in
+            let first = Data(base64URLEncoded: eval.first)!
+            let second = eval.second.flatMap { Data(base64URLEncoded: $0) }
+            return .inputValues(ASAuthorizationPublicKeyCredentialPRFAssertionInput.InputValues(saltInput1: first, saltInput2: second))
+        }
+      }
     
     // TODO: integrate this
     // platformKeyAssertionRequest.shouldShowHybridTransport

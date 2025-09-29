@@ -57,8 +57,22 @@ class PasskeyDelegate: NSObject, ASAuthorizationControllerDelegate,
                 )
             }
 
+            var prf: AuthenticationExtensionsPRFOutputsJSON?
+            if #available(iOS 18.0, *) {
+                prf = credential.prf.flatMap { it in AuthenticationExtensionsPRFOutputsJSON(
+                    enabled: Field.init(wrappedValue: it.isSupported),
+                    results: Field.init(wrappedValue: it.first.map { first in AuthenticationExtensionsPRFValuesJSON(
+                        first: Field.init(wrappedValue: first.serialize()),
+                        second: Field.init(wrappedValue: it.second.serialize()))
+                      }
+                    )
+                  )
+                }
+            }
+
             let clientExtensionResults = AuthenticationExtensionsClientOutputsJSON(
-                largeBlob: Field.init(wrappedValue: largeBlob)
+                largeBlob: Field.init(wrappedValue: largeBlob),
+                prf: Field.init(wrappedValue: prf)
             )
 
             let response = AuthenticatorAttestationResponseJSON(
@@ -116,8 +130,22 @@ class PasskeyDelegate: NSObject, ASAuthorizationControllerDelegate,
                 }
             }
 
+            var prf: AuthenticationExtensionsPRFOutputsJSON?
+            if #available(iOS 18.0, *) {
+              prf = credential.prf.map { AuthenticationExtensionsPRFOutputsJSON(
+                results: Field.init(wrappedValue: AuthenticationExtensionsPRFValuesJSON(
+                      first: Field.init(wrappedValue: $0.first.serialize()),
+                      second: Field.init(wrappedValue: $0.second.serialize())
+                    )
+                  )
+                )
+              }
+            }
+
             let clientExtensionResults = AuthenticationExtensionsClientOutputsJSON(
-                largeBlob: Field.init(wrappedValue: largeBlob))
+                largeBlob: Field.init(wrappedValue: largeBlob),
+                prf: Field.init(wrappedValue: prf)
+            )
 
             let response = AuthenticatorAssertionResponseJSON(
                 authenticatorData: Field.init(

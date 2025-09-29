@@ -116,6 +116,13 @@ export interface AuthenticatorAssertionResponseJSON {
 }
 
 /**
+ * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsprfvalues
+ */
+export interface AuthenticationExtensionsPrfInputs {
+	eval?: { first: Base64URLString; second?: Base64URLString }
+}
+
+/**
  * TypeScript's types are behind the latest extensions spec, so we define them here.
  * Should eventually be replaced by TypeScript's when TypeScript gets updated to
  * know about it (sometime after 5.3)
@@ -125,6 +132,7 @@ export interface AuthenticatorAssertionResponseJSON {
 export interface AuthenticationExtensionsClientInputs
 	extends TypeScriptAuthenticationExtensionsClientInputs {
 	largeBlob?: AuthenticationExtensionsLargeBlobInputs;
+	prf?: AuthenticationExtensionsPrfInputs;
 }
 
 export type LargeBlobSupport = "preferred" | "required";

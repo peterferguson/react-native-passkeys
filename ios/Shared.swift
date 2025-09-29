@@ -1,5 +1,6 @@
 import ExpoModulesCore
 import AuthenticationServices
+import CryptoKit
 
 // - Enums 
 
@@ -248,6 +249,17 @@ internal struct AuthenticationExtensionsLargeBlobInputs: Record {
     var write: Base64URLString?
 }
 
+internal struct AuthenticationExtensionsPrfEvalInputs: Record {
+  @Field
+  var first: Base64URLString
+  @Field
+  var second: Base64URLString?
+}
+
+internal struct AuthenticationExtensionsPrfInputs: Record {
+  @Field
+  var eval: AuthenticationExtensionsPrfEvalInputs?
+}
 
 /**
     Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsclientinputs
@@ -256,6 +268,9 @@ internal struct AuthenticationExtensionsClientInputs: Record {
     
     @Field
     var largeBlob: AuthenticationExtensionsLargeBlobInputs?
+
+    @Field
+    var prf: AuthenticationExtensionsPrfInputs?
 }
 
 // ! There is only one webauthn extension currently supported on iOS as of iOS 17.0:
@@ -324,5 +339,19 @@ public extension Data {
         result = result.replacingOccurrences(of: "/", with: "_")
         result = result.replacingOccurrences(of: "=", with: "")
         return result
+    }
+}
+
+extension SymmetricKey {
+    func serialize() -> String {
+        return self.withUnsafeBytes { body in
+            Data(body).base64EncodedString()
+        }
+    }
+}
+
+extension SymmetricKey? {
+    func serialize() -> String? {
+      return self.map { $0.serialize() }
     }
 }

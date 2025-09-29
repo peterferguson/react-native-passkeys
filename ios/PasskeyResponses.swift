@@ -110,7 +110,9 @@ internal struct  AuthenticationExtensionsClientOutputsJSON: Record {
     // @available(iOS 17.0, *)
     @Field
     var largeBlob: AuthenticationExtensionsLargeBlobOutputsJSON?
-    
+
+    @Field
+    var prf: AuthenticationExtensionsPRFOutputsJSON?
 }
 
 /**
@@ -130,3 +132,22 @@ internal struct AuthenticationExtensionsLargeBlobOutputsJSON: Record {
     @Field
     var written: Bool?;
 };
+
+internal struct AuthenticationExtensionsPRFValuesJSON: Record {
+    @Field
+    var first: Base64URLString
+
+    @Field
+    var second: Base64URLString?
+}
+
+/**
+ Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsprfoutputs
+ */
+internal struct AuthenticationExtensionsPRFOutputsJSON: Record {
+    @Field
+    var enabled: Bool?
+
+    @Field
+    var results: AuthenticationExtensionsPRFValuesJSON?
+}
