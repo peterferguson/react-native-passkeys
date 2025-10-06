@@ -47,11 +47,16 @@ export function base64UrlToString(base64urlString: Base64URLString): string {
 }
 
 const bundleId = Application.applicationId?.split(".").reverse().join(".");
+
+// the example app is running on the web.app domain but the bundleId is com.web.react-native-passkeys
+// so we need to replace the last part of the bundleId with the domain
+const hostname = bundleId?.replaceAll("web.com", "web.app");
+
 const rp = {
 	id: Platform.select({
 		web: undefined,
-		ios: bundleId,
-		android: bundleId?.replaceAll("_", "-"),
+		ios: hostname,
+		android: hostname?.replaceAll("_", "-"),
 	}),
 	name: "ReactNativePasskeys",
 } satisfies PublicKeyCredentialRpEntity;
@@ -73,7 +78,7 @@ const authenticatorSelection = {
 export default function App() {
 	const insets = useSafeAreaInsets();
 
-	const [result, setResult] = React.useState<any>();
+	const [result, setResult] = React.useState();
 	const [creationResponse, setCreationResponse] = React.useState<
 		NonNullable<Awaited<ReturnType<typeof passkey.create>>>["response"] | null
 	>(null);
@@ -90,7 +95,7 @@ export default function App() {
 				...(Platform.OS !== "android" && {
 					extensions: {
 						largeBlob: { support: "required" },
-						prf: {}
+						prf: {},
 					},
 				}),
 			});
@@ -168,7 +173,9 @@ export default function App() {
 		const json = await passkey.get({
 			rpId: rp.id,
 			challenge,
-			extensions: { prf: { eval: { first: bufferToBase64URLString(utf8StringToBuffer('my derived key'))} } },
+			extensions: {
+				prf: { eval: { first: bufferToBase64URLString(utf8StringToBuffer("my derived key")) } },
+			},
 			...(credentialId && {
 				allowCredentials: [{ id: credentialId, type: "public-key" }],
 			}),
@@ -176,10 +183,9 @@ export default function App() {
 
 		console.log("derive key json -", json);
 
-
 		setResult({
 			clientExtensionResults: {
-				prf: json?.clientExtensionResults?.prf
+				prf: json?.clientExtensionResults?.prf,
 			},
 		});
 	};

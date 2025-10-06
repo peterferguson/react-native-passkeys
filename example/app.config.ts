@@ -4,7 +4,7 @@ import type { ExpoConfig } from "@expo/config-types";
 // if (!hostname) throw new Error("HOSTNAME environment variable must be set");
 const hostname = "web.app";
 const scheme = "react-native-passkeys";
-const bundleIdentifier = `${hostname.split(".").reverse().join(".")}.${scheme}`;
+const bundleIdentifier = `com.web.${scheme}`;
 
 const config = {
 	name: `${scheme}-example`,
@@ -43,7 +43,7 @@ const config = {
 		[
 			"expo-build-properties",
 			{
-				ios: { deploymentTarget: "15.0" },
+				ios: { deploymentTarget: "15.1" },
 				android: { compileSdkVersion: 34 },
 			},
 		],
