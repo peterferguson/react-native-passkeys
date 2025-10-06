@@ -56,3 +56,6 @@ yarn-error.log
 
 # Expo
 .expo/*
+
+# claude 
+.claude/*.local.json
