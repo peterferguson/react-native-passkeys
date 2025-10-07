@@ -33,6 +33,9 @@ class PublicKeyCredentialCreationOptions: Record {
     @Field
     var attestation: String? = null
 
+    @Field
+    var extensions: AuthenticationExtensionsClientInputs? = null
+
 }
 
 class AuthenticatorSelectionCriteria: Record {
@@ -79,6 +82,9 @@ class PublicKeyCredentialRequestOptions: Record {
 
     @Field
     var userVerification: String? = null
+
+    @Field
+    var extensions: AuthenticationExtensionsClientInputs? = null
 }
 
 class PublicKeyCredentialRpEntity: Record {
@@ -119,6 +125,55 @@ class PublicKeyCredentialDescriptor: Record {
 
     @Field
     var type: String = "public-key"
+}
+
+/**
+Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsclientinputs
+ */
+class AuthenticationExtensionsClientInputs: Record {
+
+    // Not supported on Android yet
+    // @Field
+    // var largeBlob: AuthenticationExtensionsLargeBlobInputs? = null
+
+    @Field
+    var prf: AuthenticationExtensionsPRFInputs? = null
+}
+
+// /**
+// Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargeblobinputs
+//  */
+// class AuthenticationExtensionsLargeBlobInputs: Record {
+
+//     @Field
+//     var support: String? = null
+
+//     @Field
+//     var read: Boolean? = null
+
+//     @Field
+//     var write: String? = null
+// }
+
+/**
+Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsprfinputs
+ */
+class AuthenticationExtensionsPRFInputs: Record {
+
+    @Field
+    var eval: AuthenticationExtensionsPRFValues? = null
+}
+
+/**
+Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsprfvalues
+ */
+class AuthenticationExtensionsPRFValues: Record {
+
+    @Field
+    var first: String = ""
+
+    @Field
+    var second: String? = null
 }
 
 class RegistrationResponseJSON: Record {
@@ -214,26 +269,50 @@ class AuthenticatorAssertionResponseJSON: Record {
 
 class AuthenticationExtensionsClientOutputsJSON: Record {
 
-    // ? this is only available in iOS 17 but I cannot set this here
-    // @available(iOS 17.0, *)
+    // Not supported on Android yet
+    // @Field
+    // var largeBlob: AuthenticationExtensionsLargeBlobOutputsJSON? = null
+
     @Field
-    var largeBlob: AuthenticationExtensionsLargeBlobOutputsJSON? = null
+    var prf: AuthenticationExtensionsPRFOutputsJSON? = null
 
 }
+
+// /**
+// Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargebloboutputs
+//  */
+// class AuthenticationExtensionsLargeBlobOutputsJSON: Record {
+
+//     @Field
+//     var supported: Boolean? = null;
+
+//     @Field
+//     var blob: String? = null;
+
+//     @Field
+//     var written: Boolean? = null;
+// };
+
 /**
-We convert this to `AuthenticationExtensionsLargeBlobOutputsJSON` instead of `AuthenticationExtensionsLargeBlobOutputs` for consistency
-and because it is what is actually returned to RN
-
-Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargebloboutputs
+Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsprfoutputs
  */
-class AuthenticationExtensionsLargeBlobOutputsJSON: Record {
+class AuthenticationExtensionsPRFOutputsJSON: Record {
 
     @Field
-    var supported: Boolean? = null;
+    var enabled: Boolean? = null;
 
     @Field
-    var blob: String? = null;
+    var results: AuthenticationExtensionsPRFValuesJSON? = null;
+}
+
+/**
+Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsprfvaluesjson
+ */
+class AuthenticationExtensionsPRFValuesJSON: Record {
 
     @Field
-    var written: Boolean? = null;
-};
+    var first: String = "";
+
+    @Field
+    var second: String? = null;
+}
