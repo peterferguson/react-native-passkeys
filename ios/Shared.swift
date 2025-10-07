@@ -1,12 +1,10 @@
-import ExpoModulesCore
 import AuthenticationServices
 import CryptoKit
+import ExpoModulesCore
 
-// - Enums 
+// - Enums
 
-/**
-    Specification reference: https://w3c.github.io/webauthn/#enum-transport
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#enum-transport
 internal enum AuthenticatorTransport: String, Enumerable {
     case ble
     case hybrid
@@ -15,20 +13,19 @@ internal enum AuthenticatorTransport: String, Enumerable {
     case internalTransport = "internal"
     case smartCard = "smart-card"
 
-
     func appleise() -> ASAuthorizationSecurityKeyPublicKeyCredentialDescriptor.Transport? {
         switch self {
-        case .ble: 
+        case .ble:
             return ASAuthorizationSecurityKeyPublicKeyCredentialDescriptor.Transport.bluetooth
-        case .nfc: 
+        case .nfc:
             return ASAuthorizationSecurityKeyPublicKeyCredentialDescriptor.Transport.nfc
-        case .usb: 
+        case .usb:
             return ASAuthorizationSecurityKeyPublicKeyCredentialDescriptor.Transport.usb
         // - including these to be clear that they are not yet supported on iOS although they exist in the spec
-        // case .hybrid: 
-        // case .internal: 
-        // case .smart-card: 
-        default: 
+        // case .hybrid:
+        // case .internal:
+        // case .smart-card:
+        default:
             // tODO: warn user
             return nil
         }
@@ -36,18 +33,14 @@ internal enum AuthenticatorTransport: String, Enumerable {
 
 }
 
-/**
-    Specification reference: https://w3c.github.io/webauthn/#enum-attachment
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#enum-attachment
 internal enum AuthenticatorAttachment: String, Enumerable {
     case platform
     // - cross-platform marks that the user wants to select a security key
     case crossPlatform = "cross-platform"
 }
 
-/**
-    Specification reference: https://w3c.github.io/webauthn/#enum-attestation-convey
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#enum-attestation-convey
 internal enum AttestationConveyancePreference: String, Enumerable {
     case direct
     case enterprise
@@ -70,22 +63,18 @@ internal enum AttestationConveyancePreference: String, Enumerable {
     }
 }
 
-/**
-    Specification reference: https://w3c.github.io/webauthn/#enum-credentialType
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#enum-credentialType
 internal enum PublicKeyCredentialType: String, Enumerable {
     case publicKey = "public-key"
 }
 
-/**
-    Specification reference: https://w3c.github.io/webauthn/#enum-userVerificationRequirement
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#enum-userVerificationRequirement
 internal enum UserVerificationRequirement: String, Enumerable {
     case discouraged
     case preferred
     case required
 
-    func appleise () -> ASAuthorizationPublicKeyCredentialUserVerificationPreference {
+    func appleise() -> ASAuthorizationPublicKeyCredentialUserVerificationPreference {
         switch self {
         case .discouraged:
             return ASAuthorizationPublicKeyCredentialUserVerificationPreference.discouraged
@@ -99,9 +88,7 @@ internal enum UserVerificationRequirement: String, Enumerable {
     }
 }
 
-/**
-    Specification reference: https://w3c.github.io/webauthn/#enum-residentKeyRequirement
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#enum-residentKeyRequirement
 internal enum ResidentKeyRequirement: String, Enumerable {
     case discouraged
     case preferred
@@ -117,13 +104,11 @@ internal enum ResidentKeyRequirement: String, Enumerable {
             return ASAuthorizationPublicKeyCredentialResidentKeyPreference.required
         default:
             return ASAuthorizationPublicKeyCredentialResidentKeyPreference.preferred
-    }
+        }
     }
 }
 
-/**
-    Specification reference: https://w3c.github.io/webauthn/#enumdef-largeblobsupport
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#enumdef-largeblobsupport
 internal enum LargeBlobSupport: String, Enumerable {
     case preferred
     case required
@@ -131,62 +116,53 @@ internal enum LargeBlobSupport: String, Enumerable {
 
 // - Structs
 
-/**
-    Specification reference: https://w3c.github.io/webauthn/#dictionary-authenticatorSelection
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#dictionary-authenticatorSelection
 internal struct AuthenticatorSelectionCriteria: Record {
     @Field
     var authenticatorAttachment: AuthenticatorAttachment?
-    
-    @Field
-    var residentKey: ResidentKeyRequirement?;
 
     @Field
-    var requireResidentKey: Bool? = false;
-    
+    var residentKey: ResidentKeyRequirement?
+
     @Field
-    var userVerification: UserVerificationRequirement? = UserVerificationRequirement.preferred;
+    var requireResidentKey: Bool? = false
+
+    @Field
+    var userVerification: UserVerificationRequirement? = UserVerificationRequirement.preferred
 }
 
-/**
-    Specification reference: https://w3c.github.io/webauthn/#dictionary-pkcredentialentity
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#dictionary-pkcredentialentity
 internal struct PublicKeyCredentialEntity: Record {
     @Field
     var name: String
 }
 
-/**
-    Specification reference: https://w3c.github.io/webauthn/#dictionary-credential-params
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#dictionary-credential-params
 internal struct PublicKeyCredentialParameters: Record {
     // ! the defaults here are NOT the standard but they are most widely supported & popular
     @Field
     var alg: COSEAlgorithmIdentifier = -7
-    
+
     @Field
     var type: PublicKeyCredentialType = .publicKey
-    
+
     func appleise() -> ASAuthorizationPublicKeyCredentialParameters {
-        return ASAuthorizationPublicKeyCredentialParameters.init(algorithm: ASCOSEAlgorithmIdentifier(rawValue: self.alg))
+        return ASAuthorizationPublicKeyCredentialParameters.init(
+            algorithm: ASCOSEAlgorithmIdentifier(rawValue: self.alg))
     }
 }
 
-/**
-    Specification reference: https://w3c.github.io/webauthn/#dictionary-rp-credential-params
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#dictionary-rp-credential-params
 internal struct PublicKeyCredentialRpEntity: Record {
-    
+
     @Field
     var name: String
-    
+
     @Field
     var id: String?
 }
 
-/**
-    Specification reference: https://w3c.github.io/webauthn/#dictdef-publickeycredentialuserentity
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#dictdef-publickeycredentialuserentity
 internal struct PublicKeyCredentialUserEntity: Record {
 
     @Field
@@ -199,10 +175,7 @@ internal struct PublicKeyCredentialUserEntity: Record {
     var id: Base64URLString
 }
 
-
-/**
-    Specification reference: https://w3c.github.io/webauthn/#dictdef-publickeycredentialdescriptor
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#dictdef-publickeycredentialdescriptor
 internal struct PublicKeyCredentialDescriptor: Record {
 
     @Field
@@ -215,57 +188,55 @@ internal struct PublicKeyCredentialDescriptor: Record {
     var type: PublicKeyCredentialType = .publicKey
 
     func getPlatformDescriptor() -> ASAuthorizationPlatformPublicKeyCredentialDescriptor {
-        return ASAuthorizationPlatformPublicKeyCredentialDescriptor.init(credentialID: Data(base64URLEncoded: self.id)!)
+        return ASAuthorizationPlatformPublicKeyCredentialDescriptor.init(
+            credentialID: Data(base64URLEncoded: self.id)!)
     }
-    
+
     func getCrossPlatformDescriptor() -> ASAuthorizationSecurityKeyPublicKeyCredentialDescriptor {
-        var transports = ASAuthorizationSecurityKeyPublicKeyCredentialDescriptor.Transport.allSupported
-        
+        var transports = ASAuthorizationSecurityKeyPublicKeyCredentialDescriptor.Transport
+            .allSupported
+
         if self.transports?.isEmpty == false {
             transports = self.transports!.compactMap { $0.appleise() }
         }
-        
-        return ASAuthorizationSecurityKeyPublicKeyCredentialDescriptor.init(credentialID: Data(base64URLEncoded: self.id)!,
-                                                                            transports: transports)
+
+        return ASAuthorizationSecurityKeyPublicKeyCredentialDescriptor.init(
+            credentialID: Data(base64URLEncoded: self.id)!,
+            transports: transports)
     }
 }
 
-
-/**
-    Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargeblobinputs
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargeblobinputs
 internal struct AuthenticationExtensionsLargeBlobInputs: Record {
     // - Only valid during registration.
     @Field
     var support: LargeBlobSupport?
-    
+
     // - A boolean that indicates that the Relying Party would like to fetch the previously-written blob associated with the asserted credential. Only valid during authentication.
     @Field
     var read: Bool?
-    
+
     // - An opaque byte string that the Relying Party wishes to store with the existing credential. Only valid during authentication.
     // - We impose that the data is passed as base64-url encoding to make better align the passing of data from RN to native code
     @Field
     var write: Base64URLString?
 }
 
-internal struct AuthenticationExtensionsPrfEvalInputs: Record {
-  @Field
-  var first: Base64URLString
-  @Field
-  var second: Base64URLString?
+internal struct AuthenticationExtensionsPRFValues: Record {
+    @Field
+    var first: Base64URLString
+    @Field
+    var second: Base64URLString?
 }
 
 internal struct AuthenticationExtensionsPrfInputs: Record {
-  @Field
-  var eval: AuthenticationExtensionsPrfEvalInputs?
+    @Field
+    var eval: AuthenticationExtensionsPRFValues?
 }
 
-/**
-    Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsclientinputs
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsclientinputs
 internal struct AuthenticationExtensionsClientInputs: Record {
-    
+
     @Field
     var largeBlob: AuthenticationExtensionsLargeBlobInputs?
 
@@ -273,38 +244,12 @@ internal struct AuthenticationExtensionsClientInputs: Record {
     var prf: AuthenticationExtensionsPrfInputs?
 }
 
-// ! There is only one webauthn extension currently supported on iOS as of iOS 17.0:
-// - largeBlob extension: https://w3c.github.io/webauthn/#sctn-large-blob-extension
-
-internal struct AuthenticationExtensionsClientOutputs {
-    
-    /**
-    Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargebloboutputs
-*/
-    internal struct AuthenticationExtensionsLargeBlobOutputs {
-        // - true if, and only if, the created credential supports storing large blobs. Only present in registration outputs.
-        let supported: Bool?;
-
-        // - The opaque byte string that was associated with the credential identified by rawId. Only valid if read was true.
-        let blob: Data?
-
-        // - A boolean that indicates that the contents of write were successfully stored on the authenticator, associated with the specified credential.
-        let  written: Bool?;
-    }
-    
-    let largeBlob: AuthenticationExtensionsLargeBlobOutputs?
-}
-
-/**
-    Branded types to make it clearer what the user should input
-*/
+/// Branded types to make it clearer what the user should input
 typealias COSEAlgorithmIdentifier = Int
 typealias BufferSource = Data
 typealias Base64URLString = String
 
-/**
-    String extension to help with base64-url encoding
-*/
+/// String extension to help with base64-url encoding
 extension String {
     // Encode a string to Base64 encoded string
     // Convert the string to data, then encode the data with base64EncodedString()
@@ -319,11 +264,9 @@ extension String {
         return String(data: data, encoding: .utf8)
     }
 }
-/**
-    Data extension to enable base64-url encoding & decoding
-*/
-public extension Data {
-    init?(base64URLEncoded input: String) {
+/// Data extension to enable base64-url encoding & decoding
+extension Data {
+    public init?(base64URLEncoded input: String) {
         var base64 = input
         base64 = base64.replacingOccurrences(of: "-", with: "+")
         base64 = base64.replacingOccurrences(of: "_", with: "/")
@@ -345,13 +288,13 @@ public extension Data {
 extension SymmetricKey {
     func serialize() -> String {
         return self.withUnsafeBytes { body in
-          Data(body).toBase64URLEncodedString()
+            Data(body).toBase64URLEncodedString()
         }
     }
 }
 
 extension SymmetricKey? {
     func serialize() -> String? {
-      return self.map { $0.serialize() }
+        return self.map { $0.serialize() }
     }
 }

@@ -1,13 +1,9 @@
 import ExpoModulesCore
 
-/** 
-    Specification reference: https://w3c.github.io/webauthn/#typedefdef-publickeycredentialjson
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#typedefdef-publickeycredentialjson
 typealias PublicKeyCredentialJSON = Either<RegistrationResponseJSON, AuthenticationResponseJSON>
 
-/**
-    Specification reference: https://w3c.github.io/webauthn/#dictdef-registrationresponsejson
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#dictdef-registrationresponsejson
 internal struct RegistrationResponseJSON: Record {
     @Field
     var id: Base64URLString
@@ -17,7 +13,7 @@ internal struct RegistrationResponseJSON: Record {
 
     @Field
     var response: AuthenticatorAttestationResponseJSON
-    
+
     @Field
     var authenticatorAttachment: AuthenticatorAttachment?
 
@@ -28,18 +24,16 @@ internal struct RegistrationResponseJSON: Record {
     var type: PublicKeyCredentialType = .publicKey
 }
 
-/**
-    Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticatorattestationresponsejson
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticatorattestationresponsejson
 internal struct AuthenticatorAttestationResponseJSON: Record {
-     
+
     @Field
     var clientDataJSON: Base64URLString
 
     // - Required in L3 but not in L2 so leaving optional as most have not adapted L3 yet
     @Field
     var authenticatorData: Base64URLString?
-   
+
     // - Required in L3 but not in L2 so leaving optional as most have not adapted L3 yet
     @Field
     var transports: [AuthenticatorTransport]?
@@ -49,19 +43,17 @@ internal struct AuthenticatorAttestationResponseJSON: Record {
 
     @Field
     var publicKey: Base64URLString?
-    
+
     @Field
     var attestationObject: Base64URLString
 }
 
-/**
-    Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationresponsejson
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationresponsejson
 internal struct AuthenticationResponseJSON: Record {
-    
+
     @Field
     var type: PublicKeyCredentialType = .publicKey
-    
+
     // - base64URL version of rawId
     @Field
     var id: Base64URLString
@@ -71,19 +63,17 @@ internal struct AuthenticationResponseJSON: Record {
 
     @Field
     var authenticatorAttachment: AuthenticatorAttachment?
-    
+
     @Field
     var response: AuthenticatorAssertionResponseJSON
-    
+
     @Field
     var clientExtensionResults: AuthenticationExtensionsClientOutputsJSON?
 }
 
-/**
-    Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticatorassertionresponsejson
-*/
+/// Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticatorassertionresponsejson
 internal struct AuthenticatorAssertionResponseJSON: Record {
-    
+
     @Field
     var authenticatorData: Base64URLString
 
@@ -92,19 +82,17 @@ internal struct AuthenticatorAssertionResponseJSON: Record {
 
     @Field
     var signature: Base64URLString
-    
+
     @Field
     var userHandle: Base64URLString?
 
     @Field
     var attestationObject: Base64URLString?
-    
+
 }
 
-/**
-    Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsclientoutputsjson
-*/
-internal struct  AuthenticationExtensionsClientOutputsJSON: Record {
+/// Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsclientoutputsjson
+internal struct AuthenticationExtensionsClientOutputsJSON: Record {
 
     // ? this is only available in iOS 17 but I cannot set this here
     // @available(iOS 17.0, *)
@@ -115,23 +103,21 @@ internal struct  AuthenticationExtensionsClientOutputsJSON: Record {
     var prf: AuthenticationExtensionsPRFOutputsJSON?
 }
 
-/**
- We convert this to `AuthenticationExtensionsLargeBlobOutputsJSON` instead of `AuthenticationExtensionsLargeBlobOutputs` for consistency
- and because it is what is actually returned to RN
-
- Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargebloboutputs
- */
+/// We convert this to `AuthenticationExtensionsLargeBlobOutputsJSON` instead of `AuthenticationExtensionsLargeBlobOutputs` for consistency
+/// and because it is what is actually returned to RN
+///
+/// Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionslargebloboutputsjson
 internal struct AuthenticationExtensionsLargeBlobOutputsJSON: Record {
 
     @Field
-    var supported: Bool?;
+    var supported: Bool?
 
     @Field
-    var blob: Base64URLString?;
+    var blob: Base64URLString?
 
     @Field
-    var written: Bool?;
-};
+    var written: Bool?
+}
 
 internal struct AuthenticationExtensionsPRFValuesJSON: Record {
     @Field
@@ -141,9 +127,7 @@ internal struct AuthenticationExtensionsPRFValuesJSON: Record {
     var second: Base64URLString?
 }
 
-/**
- Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsprfoutputs
- */
+/// Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsprfoutputsjson
 internal struct AuthenticationExtensionsPRFOutputsJSON: Record {
     @Field
     var enabled: Bool?

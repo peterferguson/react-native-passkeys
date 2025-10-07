@@ -1,11 +1,9 @@
-import ExpoModulesCore
 import AuthenticationServices
+import ExpoModulesCore
 
-/**
- navigator.credentials.create request options
- 
- Specification reference: https://w3c.github.io/webauthn/#dictionary-makecredentialoptions
-*/
+/// navigator.credentials.create request options
+///
+/// Specification reference: https://w3c.github.io/webauthn/#dictionary-makecredentialoptions
 internal struct PublicKeyCredentialCreationOptions: Record {
 
     @Field
@@ -34,15 +32,12 @@ internal struct PublicKeyCredentialCreationOptions: Record {
 
     @Field
     var extensions: AuthenticationExtensionsClientInputs?
-    // var extensions: JavaScriptObject?
 
 }
 
-/**
- navigator.credentials.get request options
- 
- Specification reference: https://w3c.github.io/webauthn/#dictionary-assertion-options
- */
+/// navigator.credentials.get request options
+///
+/// Specification reference: https://w3c.github.io/webauthn/#dictionary-assertion-options
 internal struct PublicKeyCredentialRequestOptions: Record {
     @Field
     var challenge: Base64URLString
