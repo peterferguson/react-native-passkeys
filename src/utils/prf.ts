@@ -26,6 +26,12 @@ export function normalizePRFInputs(request: PublicKeyCredentialCreationOptionsJS
 
 	// Handle evalByCredential (different inputs per credential)
 	if (prf.evalByCredential) {
+		// Validate that allowCredentials is specified per WebAuthn spec
+		const allowCredentials = 'allowCredentials' in request ? request.allowCredentials : undefined
+		if (!allowCredentials || allowCredentials.length === 0) {
+			throw new Error('evalByCredential requires allowCredentials to be specified')
+		}
+
 		result.evalByCredential = {}
 		for (const [credentialId, prfValues] of Object.entries(prf.evalByCredential)) {
 			result.evalByCredential[credentialId] = {

@@ -313,6 +313,11 @@ private func preparePlatformAssertionRequest(challenge: Data, request: PublicKey
             }
             // Handle evalByCredential (different inputs per credential)
             else if let evalByCredential = prfInputs.evalByCredential {
+                // Validate that allowCredentials is specified per WebAuthn spec
+                guard let allowCredentials = request.allowCredentials, !allowCredentials.isEmpty else {
+                    throw InvalidPRFInputException(name: "InvalidPRFInput", description: "evalByCredential requires allowCredentials to be specified")
+                }
+
                 var perCredentialInputs: [Data: ASAuthorizationPublicKeyCredentialPRFAssertionInput.InputValues] = [:]
 
                 for (credentialIdBase64, prfValues) in evalByCredential {
