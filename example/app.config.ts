@@ -44,7 +44,7 @@ const config = {
 			"expo-build-properties",
 			{
 				ios: { deploymentTarget: "15.1" },
-				android: { compileSdkVersion: 34 },
+				android: { compileSdkVersion: 36 },
 			},
 		],
 	],
