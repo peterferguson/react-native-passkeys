@@ -3,9 +3,7 @@ import { NotSupportedError } from "./errors";
 
 import type {
 	PublicKeyCredentialCreationOptionsJSON,
-	RegistrationResponseJSON,
-	PublicKeyCredentialRequestOptionsJSON,
-	AuthenticationResponseJSON,
+	CreationResponse,
 } from "./ReactNativePasskeys.types";
 
 // It loads the native module object from the JSI or falls back to
@@ -15,9 +13,7 @@ const passkeys = requireNativeModule("ReactNativePasskeys");
 export default {
 	...passkeys,
 
-	async create(
-		request: PublicKeyCredentialCreationOptionsJSON,
-	): Promise<RegistrationResponseJSON | null> {
+	async create(request: PublicKeyCredentialCreationOptionsJSON): Promise<CreationResponse | null> {
 		if (!this.isSupported) throw new NotSupportedError();
 
 		const credential = await passkeys.create(request);

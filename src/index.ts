@@ -9,6 +9,7 @@ import type {
 	PublicKeyCredentialRequestOptionsJSON,
 	RegistrationCredential,
 	RegistrationResponseJSON,
+	CreationResponse,
 } from "./ReactNativePasskeys.types";
 
 // Import the native module. On web, it will be resolved to ReactNativePasskeys.web.ts
@@ -32,7 +33,7 @@ export async function create(
 			prf?: AuthenticationExtensionsPrfInputs;
 		};
 	} & Pick<CredentialCreationOptions, "signal">,
-): Promise<RegistrationResponseJSON | null> {
+): Promise<CreationResponse | null> {
 	return await ReactNativePasskeysModule.create(request);
 }
 

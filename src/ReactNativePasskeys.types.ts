@@ -212,9 +212,9 @@ export interface AuthenticationExtensionsPRFOutputsJSON {
 export interface CreationResponse extends Omit<RegistrationResponseJSON, "response"> {
 	response: RegistrationResponseJSON["response"] & {
 		/**
-		 * This operation returns an ArrayBuffer containing the DER SubjectPublicKeyInfo of the new credential, or null if this is not available.
+		 * This operation returns an Base64URLString containing the DER SubjectPublicKeyInfo of the new credential, or null if this is not available.
 		 * https://w3c.github.io/webauthn/#dom-authenticatorattestationresponse-getpublickey
 		 */
-		getPublicKey(): ArrayBuffer | null;
+		getPublicKey(): Base64URLString | null;
 	};
 }
