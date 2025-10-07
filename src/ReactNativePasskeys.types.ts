@@ -170,6 +170,7 @@ export interface AuthenticationExtensionsClientOutputs {
 		blob?: ArrayBuffer;
 	};
 	prf?: Omit<AuthenticationExtensionsPRFOutputsJSON, "results"> & {
+		// ArrayBuffer representation for internal use to match web behavior; JSON variant uses Base64URLString
 		results: {
 			first: ArrayBuffer;
 			second?: ArrayBuffer;
