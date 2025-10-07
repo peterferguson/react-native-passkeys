@@ -188,6 +188,33 @@ export default function App() {
 		setResult(json);
 	};
 
+	const deriveKeyByCredential = async () => {
+		if (!credentialId) {
+			alert("No credential", "Create a passkey first");
+			return;
+		}
+
+		// Example: derive different keys for different credentials
+		const json = await passkey.get({
+			rpId: rp.id,
+			challenge,
+			extensions: {
+				prf: {
+					evalByCredential: {
+						[credentialId]: {
+							first: bufferToBase64URLString(utf8StringToBuffer("credential-specific-key")),
+						},
+					},
+				},
+			},
+			allowCredentials: [{ id: credentialId, type: "public-key" }],
+		});
+
+		console.log("derive key by credential json -", json);
+
+		setResult(json);
+	};
+
 	return (
 		<View style={{ flex: 1 }}>
 			<ScrollView
@@ -219,6 +246,9 @@ export default function App() {
 					</Pressable>
 					<Pressable style={styles.button} onPress={deriveKey}>
 						<Text>Derive Key (PRF)</Text>
+					</Pressable>
+					<Pressable style={styles.button} onPress={deriveKeyByCredential}>
+						<Text>PRF evalByCredential</Text>
 					</Pressable>
 					{creationResponse && (
 						<Pressable
