@@ -3,9 +3,9 @@ import expo.modules.kotlin.records.Record
 
 
 /**
-navigator.credentials.get request options
+navigator.credentials.create request options
 
-Specification reference: https://w3c.github.io/webauthn/#dictionary-assertion-options
+Specification reference: https://w3c.github.io/webauthn/#dictionary-makecredentialoptions
  */
 class PublicKeyCredentialCreationOptions: Record {
 
