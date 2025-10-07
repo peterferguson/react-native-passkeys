@@ -11,14 +11,29 @@ export function normalizePRFInputs(request: PublicKeyCredentialCreationOptionsJS
 		return
 	}
 
-	if (!prf.eval) {
-		return {}
-	}
+	const result: {
+		eval?: { first: ArrayBuffer; second?: ArrayBuffer };
+		evalByCredential?: Record<string, { first: ArrayBuffer; second?: ArrayBuffer }>;
+	} = {}
 
-	return {
-		eval: {
+	// Handle eval (single input)
+	if (prf.eval) {
+		result.eval = {
 			first: base64URLStringToBuffer(prf.eval.first),
-			second: prf.eval.second ? base64URLStringToBuffer(prf.eval?.second) : undefined
+			second: prf.eval.second ? base64URLStringToBuffer(prf.eval.second) : undefined
 		}
 	}
+
+	// Handle evalByCredential (different inputs per credential)
+	if (prf.evalByCredential) {
+		result.evalByCredential = {}
+		for (const [credentialId, prfValues] of Object.entries(prf.evalByCredential)) {
+			result.evalByCredential[credentialId] = {
+				first: base64URLStringToBuffer(prfValues.first),
+				second: prfValues.second ? base64URLStringToBuffer(prfValues.second) : undefined
+			}
+		}
+	}
+
+	return Object.keys(result).length > 0 ? result : undefined
 }
