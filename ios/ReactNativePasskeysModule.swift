@@ -295,19 +295,47 @@ private func preparePlatformAssertionRequest(challenge: Data, request: PublicKey
     }
 
      if #available(iOS 18, *) {
-        platformKeyAssertionRequest.prf = try request.extensions?.prf?.eval.map { eval in
-            guard let first = Data(base64URLEncoded: eval.first) else {
-              throw InvalidPRFInputException(name: "InvalidFirstPRFInput", description: "Incorrect base64url encoding")
+        if let prfInputs = request.extensions?.prf {
+            // Handle eval (single input for selected credential)
+            if let eval = prfInputs.eval {
+                guard let first = Data(base64URLEncoded: eval.first) else {
+                    throw InvalidPRFInputException(name: "InvalidFirstPRFInput", description: "Incorrect base64url encoding")
+                }
+
+                let second = try eval.second.map {
+                    guard let data = Data(base64URLEncoded: $0) else {
+                        throw InvalidPRFInputException(name: "InvalidSecondPRFInput", description: "Incorrect base64url encoding")
+                    }
+                    return data
+                }
+
+                platformKeyAssertionRequest.prf = .inputValues(ASAuthorizationPublicKeyCredentialPRFAssertionInput.InputValues(saltInput1: first, saltInput2: second))
             }
-          
-            let second = try eval.second.map {
-              guard let data = Data(base64URLEncoded: $0) else {
-                throw InvalidPRFInputException(name: "InvalidSecondPRFInput", description: "Incorrect base64url encoding")
-              }
-              return data
+            // Handle evalByCredential (different inputs per credential)
+            else if let evalByCredential = prfInputs.evalByCredential {
+                var perCredentialInputs: [Data: ASAuthorizationPublicKeyCredentialPRFAssertionInput.InputValues] = [:]
+
+                for (credentialIdBase64, prfValues) in evalByCredential {
+                    guard let credentialId = Data(base64URLEncoded: credentialIdBase64) else {
+                        throw InvalidPRFInputException(name: "InvalidCredentialId", description: "Credential ID is not valid base64url")
+                    }
+
+                    guard let first = Data(base64URLEncoded: prfValues.first) else {
+                        throw InvalidPRFInputException(name: "InvalidFirstPRFInput", description: "Incorrect base64url encoding for credential \(credentialIdBase64)")
+                    }
+
+                    let second = try prfValues.second.map {
+                        guard let data = Data(base64URLEncoded: $0) else {
+                            throw InvalidPRFInputException(name: "InvalidSecondPRFInput", description: "Incorrect base64url encoding for credential \(credentialIdBase64)")
+                        }
+                        return data
+                    }
+
+                    perCredentialInputs[credentialId] = ASAuthorizationPublicKeyCredentialPRFAssertionInput.InputValues(saltInput1: first, saltInput2: second)
+                }
+
+                platformKeyAssertionRequest.prf = .perCredentialInputValues(perCredentialInputs)
             }
-          
-            return .inputValues(ASAuthorizationPublicKeyCredentialPRFAssertionInput.InputValues(saltInput1: first, saltInput2: second))
         }
       }
     

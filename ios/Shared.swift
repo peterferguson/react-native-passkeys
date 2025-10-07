@@ -232,6 +232,9 @@ internal struct AuthenticationExtensionsPRFValues: Record {
 internal struct AuthenticationExtensionsPrfInputs: Record {
     @Field
     var eval: AuthenticationExtensionsPRFValues?
+
+    @Field
+    var evalByCredential: [Base64URLString: AuthenticationExtensionsPRFValues]?
 }
 
 /// Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsclientinputs
