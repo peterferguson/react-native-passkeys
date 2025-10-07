@@ -1,6 +1,5 @@
 import AuthenticationServices
 import ExpoModulesCore
-// ! adapted from https://github.com/f-23/react-native-passkey/blob/fdcf7cf297debb247ada6317337767072158629c/ios/PasskeyDelegate.swift
 import Foundation
 
 protocol PasskeyResultHandler {
@@ -59,14 +58,17 @@ class PasskeyDelegate: NSObject, ASAuthorizationControllerDelegate,
 
             var prf: AuthenticationExtensionsPRFOutputsJSON?
             if #available(iOS 18.0, *) {
-                prf = credential.prf.flatMap { it in AuthenticationExtensionsPRFOutputsJSON(
-                    enabled: Field.init(wrappedValue: it.isSupported),
-                    results: Field.init(wrappedValue: it.first.map { first in AuthenticationExtensionsPRFValuesJSON(
-                        first: Field.init(wrappedValue: first.serialize()),
-                        second: Field.init(wrappedValue: it.second.serialize()))
-                      }
+                prf = credential.prf.flatMap { it in
+                    AuthenticationExtensionsPRFOutputsJSON(
+                        enabled: Field.init(wrappedValue: it.isSupported),
+                        results: Field.init(
+                            wrappedValue: it.first.map { first in
+                                AuthenticationExtensionsPRFValuesJSON(
+                                    first: Field.init(wrappedValue: first.serialize()),
+                                    second: Field.init(wrappedValue: it.second.serialize()))
+                            }
+                        )
                     )
-                  )
                 }
             }
 
@@ -132,14 +134,16 @@ class PasskeyDelegate: NSObject, ASAuthorizationControllerDelegate,
 
             var prf: AuthenticationExtensionsPRFOutputsJSON?
             if #available(iOS 18.0, *) {
-              prf = credential.prf.map { AuthenticationExtensionsPRFOutputsJSON(
-                results: Field.init(wrappedValue: AuthenticationExtensionsPRFValuesJSON(
-                      first: Field.init(wrappedValue: $0.first.serialize()),
-                      second: Field.init(wrappedValue: $0.second.serialize())
+                prf = credential.prf.map {
+                    AuthenticationExtensionsPRFOutputsJSON(
+                        results: Field.init(
+                            wrappedValue: AuthenticationExtensionsPRFValuesJSON(
+                                first: Field.init(wrappedValue: $0.first.serialize()),
+                                second: Field.init(wrappedValue: $0.second.serialize())
+                            )
+                        )
                     )
-                  )
-                )
-              }
+                }
             }
 
             let clientExtensionResults = AuthenticationExtensionsClientOutputsJSON(
@@ -189,5 +193,3 @@ class PasskeyDelegate: NSObject, ASAuthorizationControllerDelegate,
         }
     }
 }
-
-

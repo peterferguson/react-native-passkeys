@@ -118,8 +118,18 @@ export interface AuthenticatorAssertionResponseJSON {
 /**
  * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsprfinputs
  */
-export interface AuthenticationExtensionsPrfInputs {
-	eval?: { first: Base64URLString; second?: Base64URLString }
+export interface AuthenticationExtensionsPRFInputs {
+	/**
+	 * A single set of PRF inputs to evaluate for the selected credential.
+	 */
+	eval?: { first: Base64URLString; second?: Base64URLString };
+
+	/**
+	 * A record mapping base64url-encoded credential IDs to PRF inputs.
+	 * Only valid during authentication when allowCredentials is specified.
+	 * Each credential can have different PRF inputs evaluated.
+	 */
+	evalByCredential?: Record<Base64URLString, { first: Base64URLString; second?: Base64URLString }>;
 }
 
 /**
@@ -132,7 +142,7 @@ export interface AuthenticationExtensionsPrfInputs {
 export interface AuthenticationExtensionsClientInputs
 	extends TypeScriptAuthenticationExtensionsClientInputs {
 	largeBlob?: AuthenticationExtensionsLargeBlobInputs;
-	prf?: AuthenticationExtensionsPrfInputs;
+	prf?: AuthenticationExtensionsPRFInputs;
 }
 
 export type LargeBlobSupport = "preferred" | "required";
@@ -154,22 +164,30 @@ export interface AuthenticationExtensionsLargeBlobInputs {
 
 // - largeBlob extension: https://w3c.github.io/webauthn/#sctn-large-blob-extension
 // - prf extension: https://w3c.github.io/webauthn/#prf-extension
+// - credProps extension: https://w3c.github.io/webauthn/#sctn-authenticator-credential-properties-extension
 export interface AuthenticationExtensionsClientOutputs {
 	largeBlob?: Omit<AuthenticationExtensionsLargeBlobOutputs, "blob"> & {
 		blob?: ArrayBuffer;
 	};
 	prf?: Omit<AuthenticationExtensionsPRFOutputsJSON, "results"> & {
+		// ArrayBuffer representation for internal use to match web behavior; JSON variant uses Base64URLString
 		results: {
 			first: ArrayBuffer;
 			second?: ArrayBuffer;
-		}
+		};
 	};
+	credProps?: CredentialPropertiesOutput;
 }
 
-// - largeBlob extension: https://w3c.github.io/webauthn/#sctn-large-blob-extension
 export interface AuthenticationExtensionsClientOutputsJSON {
+	// - largeBlob extension: https://w3c.github.io/webauthn/#sctn-large-blob-extension
 	largeBlob?: AuthenticationExtensionsLargeBlobOutputs;
+
+	// - prf extension: https://w3c.github.io/webauthn/#prf-extension
 	prf?: AuthenticationExtensionsPRFOutputsJSON;
+
+	// - credProps extension: https://w3c.github.io/webauthn/#sctn-authenticator-credential-properties-extension
+	credProps?: CredentialPropertiesOutput;
 }
 
 /**
@@ -186,6 +204,21 @@ export interface AuthenticationExtensionsLargeBlobOutputs {
 	written?: boolean;
 }
 
+/**
+ * - Specification reference: https://w3c.github.io/webauthn/#dictdef-credentialpropertiesoutput
+ */
+export interface CredentialPropertiesOutput {
+	/**
+	 * This OPTIONAL property, known abstractly as the resident key credential property (i.e., client-side
+	 * discoverable credential property), is a Boolean value indicating whether the PublicKeyCredential
+	 * returned as a result of a registration ceremony is a client-side discoverable credential (passkey).
+	 *
+	 * If rk is true, the credential is a discoverable credential (resident key/passkey).
+	 * If rk is false, the credential is a server-side credential.
+	 * If rk is not present, it is not known whether the credential is a discoverable credential or not.
+	 */
+	rk?: boolean;
+}
 
 /**
  * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsprfvalues
@@ -212,9 +245,14 @@ export interface AuthenticationExtensionsPRFOutputsJSON {
 export interface CreationResponse extends Omit<RegistrationResponseJSON, "response"> {
 	response: RegistrationResponseJSON["response"] & {
 		/**
-		 * This operation returns an ArrayBuffer containing the DER SubjectPublicKeyInfo of the new credential, or null if this is not available.
-		 * https://w3c.github.io/webauthn/#dom-authenticatorattestationresponse-getpublickey
+		 * This operation returns a Base64URLString containing the DER SubjectPublicKeyInfo of the new credential, or null if this is not available.
+		 *
+		 * **Note:** This deviates from the standard Web Authentication API, which returns `ArrayBuffer | null` on web browsers.
+		 * For cross-platform consistency, this library converts the ArrayBuffer to Base64URLString on web platforms,
+		 * matching the native iOS/Android behavior where binary data is transmitted as Base64URL-encoded strings.
+		 *
+		 * @see https://w3c.github.io/webauthn/#dom-authenticatorattestationresponse-getpublickey
 		 */
-		getPublicKey(): ArrayBuffer | null;
+		getPublicKey(): Base64URLString | null;
 	};
 }

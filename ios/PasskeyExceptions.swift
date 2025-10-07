@@ -54,13 +54,11 @@ internal class PasskeyRequestFailedException: Exception {
   }
 }
 
-
 internal class PasskeyAuthorizationFailedException: Exception {
   override var reason: String {
     "The passkey authorization failed"
   }
 }
-
 
 internal class InvalidPRFInputException: Exception {
   override var reason: String {
@@ -68,9 +66,14 @@ internal class InvalidPRFInputException: Exception {
   }
 }
 
-
 internal class UnknownException: Exception {
   override var reason: String {
     "An unknown exception occured"
+  }
+}
+
+internal class InvalidLargeBlobWriteInputException: Exception {
+  override var reason: String {
+    "The provided large blob write input was invalid"
   }
 }

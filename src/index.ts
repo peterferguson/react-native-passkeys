@@ -1,14 +1,10 @@
 import type {
-	AuthenticationCredential,
 	AuthenticationExtensionsLargeBlobInputs,
-	AuthenticationExtensionsLargeBlobOutputs,
-	AuthenticationExtensionsPrfInputs,
+	AuthenticationExtensionsPRFInputs,
 	AuthenticationResponseJSON,
-	Base64URLString,
 	PublicKeyCredentialCreationOptionsJSON,
 	PublicKeyCredentialRequestOptionsJSON,
-	RegistrationCredential,
-	RegistrationResponseJSON,
+	CreationResponse,
 } from "./ReactNativePasskeys.types";
 
 // Import the native module. On web, it will be resolved to ReactNativePasskeys.web.ts
@@ -25,19 +21,31 @@ export function isAutoFillAvalilable(): boolean {
 
 export async function create(
 	request: Omit<PublicKeyCredentialCreationOptionsJSON, "extensions"> & {
-		// - only largeBlob is supported currently on iOS
-		// - no extensions are currently supported on Android
-		extensions?: { largeBlob?: AuthenticationExtensionsLargeBlobInputs, prf?: AuthenticationExtensionsPrfInputs };
+		// Platform support:
+		// - iOS: largeBlob (iOS 17+), prf (iOS 18+)
+		// - Android: prf
+		// - Web: largeBlob, prf
+		extensions?: {
+			largeBlob?: AuthenticationExtensionsLargeBlobInputs;
+			prf?: AuthenticationExtensionsPRFInputs;
+			// Request credProps on registration to learn discoverability.
+			credProps?: boolean;
+		};
 	} & Pick<CredentialCreationOptions, "signal">,
-): Promise<RegistrationResponseJSON | null> {
+): Promise<CreationResponse | null> {
 	return await ReactNativePasskeysModule.create(request);
 }
 
 export async function get(
 	request: Omit<PublicKeyCredentialRequestOptionsJSON, "extensions"> & {
-		// - only largeBlob is supported currently on iOS
-		// - no extensions are currently supported on Android
-		extensions?: { largeBlob?: AuthenticationExtensionsLargeBlobInputs, prf?: AuthenticationExtensionsPrfInputs };
+		// Platform support:
+		// - iOS: largeBlob (iOS 17+), prf (iOS 18+)
+		// - Android: prf
+		// - Web: largeBlob, prf
+		extensions?: {
+			largeBlob?: AuthenticationExtensionsLargeBlobInputs;
+			prf?: AuthenticationExtensionsPRFInputs;
+		};
 	},
 ): Promise<AuthenticationResponseJSON | null> {
 	return await ReactNativePasskeysModule.get(request);

@@ -85,9 +85,9 @@ class ReactNativePasskeysModule : Module() {
                     }
                     val response =
                         result?.credential?.data?.getString("androidx.credentials.BUNDLE_KEY_AUTHENTICATION_RESPONSE_JSON")
-                    val createCredentialResponse =
+                    val getCredentialResponse =
                         Gson().fromJson(response, AuthenticationResponseJSON::class.java)
-                    promise.resolve(createCredentialResponse)
+                    promise.resolve(getCredentialResponse)
                 } catch (e: GetCredentialException) {
                     promise.reject("Passkey Get", getAuthenticationException(e), e)
                 }
