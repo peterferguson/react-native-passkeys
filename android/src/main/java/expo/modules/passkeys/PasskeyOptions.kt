@@ -276,6 +276,9 @@ class AuthenticationExtensionsClientOutputsJSON: Record {
     @Field
     var prf: AuthenticationExtensionsPRFOutputsJSON? = null
 
+    @Field
+    var credProps: CredentialPropertiesOutput? = null
+
 }
 
 // /**
@@ -292,6 +295,24 @@ class AuthenticationExtensionsClientOutputsJSON: Record {
 //     @Field
 //     var written: Boolean? = null;
 // };
+
+/**
+Specification reference: https://w3c.github.io/webauthn/#dictdef-credentialpropertiesoutput
+ */
+class CredentialPropertiesOutput: Record {
+
+    /**
+     * This OPTIONAL property, known abstractly as the resident key credential property (i.e., client-side
+     * discoverable credential property), is a Boolean value indicating whether the PublicKeyCredential
+     * returned as a result of a registration ceremony is a client-side discoverable credential (passkey).
+     * 
+     * If rk is true, the credential is a discoverable credential (resident key/passkey).
+     * If rk is false, the credential is a server-side credential.
+     * If rk is not present, it is not known whether the credential is a discoverable credential or not.
+     */
+    @Field
+    var rk: Boolean? = null
+}
 
 /**
 Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsprfoutputs
