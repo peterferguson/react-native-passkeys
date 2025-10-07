@@ -4,8 +4,8 @@ import * as Application from "expo-application";
 import * as passkey from "react-native-passkeys";
 import alert from "../utils/alert";
 import React from "react";
-import base64 from "@hexagon/base64";
-import {
+import { base64 } from "@hexagon/base64";
+import type {
 	Base64URLString,
 	PublicKeyCredentialUserEntityJSON,
 } from "@simplewebauthn/typescript-types";
@@ -36,7 +36,7 @@ export function bufferToBase64URLString(buffer: ArrayBuffer): string {
  * authenticator will expect.
  */
 export function utf8StringToBuffer(value: string): ArrayBuffer {
-	return new TextEncoder().encode(value);
+	return new TextEncoder().encode(value).buffer;
 }
 
 /**
@@ -50,13 +50,13 @@ const bundleId = Application.applicationId?.split(".").reverse().join(".");
 
 // the example app is running on the web.app domain but the bundleId is com.web.react-native-passkeys
 // so we need to replace the last part of the bundleId with the domain
-const hostname = bundleId?.replaceAll("web.com", "web.app");
+const hostname = bundleId?.replaceAll("web.com", "web.app")?.replaceAll("_", "-");
 
 const rp = {
 	id: Platform.select({
 		web: undefined,
 		ios: hostname,
-		android: hostname?.replaceAll("_", "-"),
+		android: hostname,
 	}),
 	name: "ReactNativePasskeys",
 } satisfies PublicKeyCredentialRpEntity;
@@ -75,12 +75,16 @@ const authenticatorSelection = {
 	residentKey: "required",
 } satisfies AuthenticatorSelectionCriteria;
 
+type CreationResponse = NonNullable<Awaited<ReturnType<typeof passkey.create>>>;
+type GetResponse = NonNullable<Awaited<ReturnType<typeof passkey.get>>>;
+type Result = CreationResponse | GetResponse | null;
+
 export default function App() {
 	const insets = useSafeAreaInsets();
 
-	const [result, setResult] = React.useState();
+	const [result, setResult] = React.useState<Result>(null);
 	const [creationResponse, setCreationResponse] = React.useState<
-		NonNullable<Awaited<ReturnType<typeof passkey.create>>>["response"] | null
+		CreationResponse["response"] | null
 	>(null);
 	const [credentialId, setCredentialId] = React.useState("");
 
@@ -92,12 +96,10 @@ export default function App() {
 				rp,
 				user,
 				authenticatorSelection,
-				...(Platform.OS !== "android" && {
-					extensions: {
-						largeBlob: { support: "required" },
-						prf: {},
-					},
-				}),
+				extensions: {
+					...(Platform.OS !== "android" && { largeBlob: { support: "required" } }),
+					prf: {},
+				},
 			});
 
 			console.log("creation json -", json);
@@ -183,22 +185,20 @@ export default function App() {
 
 		console.log("derive key json -", json);
 
-		setResult({
-			clientExtensionResults: {
-				prf: json?.clientExtensionResults?.prf,
-			},
-		});
+		setResult(json);
 	};
 
 	return (
 		<View style={{ flex: 1 }}>
 			<ScrollView
 				style={{
-					paddingTop: insets.top,
+					flex: 1,
 					backgroundColor: "#fccefe",
-					paddingBottom: insets.bottom,
 				}}
-				contentContainerStyle={styles.scrollContainer}
+				contentContainerStyle={[
+					styles.scrollContainer,
+					{ paddingTop: insets.top, paddingBottom: insets.bottom + 60 },
+				]}
 			>
 				<Text style={styles.title}>Testing Passkeys</Text>
 				<Text>Application ID: {Application.applicationId}</Text>
@@ -224,7 +224,9 @@ export default function App() {
 						<Pressable
 							style={styles.button}
 							onPress={() => {
-								alert("Public Key", creationResponse?.getPublicKey() as Uint8Array);
+								const publicKey = creationResponse.getPublicKey();
+								if (!publicKey) alert("No public key found");
+								else alert("Public Key", publicKey);
 							}}
 						>
 							<Text>Get PublicKey</Text>
@@ -256,7 +258,7 @@ export default function App() {
 
 const styles = StyleSheet.create({
 	scrollContainer: {
-		flex: 1,
+		flexGrow: 1,
 		alignItems: "center",
 		justifyContent: "center",
 	},

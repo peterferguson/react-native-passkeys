@@ -7,27 +7,27 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0D5D38D61CD3A2CF25545D91 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 4BCC720953AF14051D0EB810 /* PrivacyInfo.xcprivacy */; };
-		0E43410C83B9EC741DB9486B /* libPods-reactnativepasskeysexample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 177358B904485DD025723996 /* libPods-reactnativepasskeysexample.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		2CAC07F8A4F4ABE0390435D1 /* libPods-reactnativepasskeysexample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6337F2644881829DD857FE9A /* libPods-reactnativepasskeysexample.a */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
+		588C0A4CD41E01D352E0CBFF /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E4E8652D252E7660156D2B /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
+		E0F485F1B148D5BC653F41A7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 2F300AF3B6961030D362EA9C /* PrivacyInfo.xcprivacy */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
-		F2F1EFC61E2B2614A1451A9C /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F029341E53599CFDFCF6CDCC /* ExpoModulesProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		13B07F961A680F5B00A75B9A /* reactnativepasskeysexample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = reactnativepasskeysexample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = reactnativepasskeysexample/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = reactnativepasskeysexample/Info.plist; sourceTree = "<group>"; };
-		177358B904485DD025723996 /* libPods-reactnativepasskeysexample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-reactnativepasskeysexample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		33794B405D83D73FC4154604 /* Pods-reactnativepasskeysexample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-reactnativepasskeysexample.debug.xcconfig"; path = "Target Support Files/Pods-reactnativepasskeysexample/Pods-reactnativepasskeysexample.debug.xcconfig"; sourceTree = "<group>"; };
-		4BCC720953AF14051D0EB810 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = reactnativepasskeysexample/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		8447692F2612DE01AEE8FAFA /* Pods-reactnativepasskeysexample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-reactnativepasskeysexample.release.xcconfig"; path = "Target Support Files/Pods-reactnativepasskeysexample/Pods-reactnativepasskeysexample.release.xcconfig"; sourceTree = "<group>"; };
+		2F300AF3B6961030D362EA9C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = reactnativepasskeysexample/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		3A30A928EA88D8814AE03E21 /* Pods-reactnativepasskeysexample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-reactnativepasskeysexample.release.xcconfig"; path = "Target Support Files/Pods-reactnativepasskeysexample/Pods-reactnativepasskeysexample.release.xcconfig"; sourceTree = "<group>"; };
+		6337F2644881829DD857FE9A /* libPods-reactnativepasskeysexample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-reactnativepasskeysexample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		920430AB794AD12F1B40DF22 /* Pods-reactnativepasskeysexample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-reactnativepasskeysexample.debug.xcconfig"; path = "Target Support Files/Pods-reactnativepasskeysexample/Pods-reactnativepasskeysexample.debug.xcconfig"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = reactnativepasskeysexample/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
+		D4E4E8652D252E7660156D2B /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-reactnativepasskeysexample/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F029341E53599CFDFCF6CDCC /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-reactnativepasskeysexample/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = reactnativepasskeysexample/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* reactnativepasskeysexample-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "reactnativepasskeysexample-Bridging-Header.h"; path = "reactnativepasskeysexample/reactnativepasskeysexample-Bridging-Header.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -37,23 +37,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0E43410C83B9EC741DB9486B /* libPods-reactnativepasskeysexample.a in Frameworks */,
+				2CAC07F8A4F4ABE0390435D1 /* libPods-reactnativepasskeysexample.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0F139032352E51AE33335127 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				33794B405D83D73FC4154604 /* Pods-reactnativepasskeysexample.debug.xcconfig */,
-				8447692F2612DE01AEE8FAFA /* Pods-reactnativepasskeysexample.release.xcconfig */,
-			);
-			name = Pods;
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		13B07FAE1A68108700A75B9A /* reactnativepasskeysexample */ = {
 			isa = PBXGroup;
 			children = (
@@ -63,7 +53,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				4BCC720953AF14051D0EB810 /* PrivacyInfo.xcprivacy */,
+				2F300AF3B6961030D362EA9C /* PrivacyInfo.xcprivacy */,
 			);
 			name = reactnativepasskeysexample;
 			sourceTree = "<group>";
@@ -72,17 +62,17 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				177358B904485DD025723996 /* libPods-reactnativepasskeysexample.a */,
+				6337F2644881829DD857FE9A /* libPods-reactnativepasskeysexample.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		6E8EDF1073806DC2F02C74D3 /* reactnativepasskeysexample */ = {
+		6602BA50A29AEBB34DA03407 /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				F029341E53599CFDFCF6CDCC /* ExpoModulesProvider.swift */,
+				A262330C3573B827136D203A /* reactnativepasskeysexample */,
 			);
-			name = reactnativepasskeysexample;
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -99,8 +89,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				0F139032352E51AE33335127 /* Pods */,
-				A5B459D3B83B9A1ECED2DF3B /* ExpoModulesProviders */,
+				F25C4FE67BE82D9982DC3C19 /* Pods */,
+				6602BA50A29AEBB34DA03407 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -115,12 +105,12 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A5B459D3B83B9A1ECED2DF3B /* ExpoModulesProviders */ = {
+		A262330C3573B827136D203A /* reactnativepasskeysexample */ = {
 			isa = PBXGroup;
 			children = (
-				6E8EDF1073806DC2F02C74D3 /* reactnativepasskeysexample */,
+				D4E4E8652D252E7660156D2B /* ExpoModulesProvider.swift */,
 			);
-			name = ExpoModulesProviders;
+			name = reactnativepasskeysexample;
 			sourceTree = "<group>";
 		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
@@ -132,6 +122,16 @@
 			path = reactnativepasskeysexample/Supporting;
 			sourceTree = "<group>";
 		};
+		F25C4FE67BE82D9982DC3C19 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				920430AB794AD12F1B40DF22 /* Pods-reactnativepasskeysexample.debug.xcconfig */,
+				3A30A928EA88D8814AE03E21 /* Pods-reactnativepasskeysexample.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -140,13 +140,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "reactnativepasskeysexample" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				29E7F80C1B77A5E8629B279E /* [Expo] Configure project */,
+				55BB0D6B63F062A781FB3599 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				56EAA663788F6C80FEFF68EC /* [CP] Embed Pods Frameworks */,
+				B2CA844834A09599037E3C58 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -198,7 +198,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				0D5D38D61CD3A2CF25545D91 /* PrivacyInfo.xcprivacy in Resources */,
+				E0F485F1B148D5BC653F41A7 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -244,7 +244,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		29E7F80C1B77A5E8629B279E /* [Expo] Configure project */ = {
+		55BB0D6B63F062A781FB3599 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -267,28 +267,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-reactnativepasskeysexample/expo-configure-project.sh\"\n";
-		};
-		56EAA663788F6C80FEFF68EC /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-reactnativepasskeysexample/Pods-reactnativepasskeysexample-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-reactnativepasskeysexample/Pods-reactnativepasskeysexample-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -322,6 +300,28 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-reactnativepasskeysexample/Pods-reactnativepasskeysexample-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		B2CA844834A09599037E3C58 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-reactnativepasskeysexample/Pods-reactnativepasskeysexample-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-reactnativepasskeysexample/Pods-reactnativepasskeysexample-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -330,7 +330,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				F2F1EFC61E2B2614A1451A9C /* ExpoModulesProvider.swift in Sources */,
+				588C0A4CD41E01D352E0CBFF /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -339,7 +339,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 33794B405D83D73FC4154604 /* Pods-reactnativepasskeysexample.debug.xcconfig */;
+			baseConfigurationReference = 920430AB794AD12F1B40DF22 /* Pods-reactnativepasskeysexample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -378,7 +378,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8447692F2612DE01AEE8FAFA /* Pods-reactnativepasskeysexample.release.xcconfig */;
+			baseConfigurationReference = 3A30A928EA88D8814AE03E21 /* Pods-reactnativepasskeysexample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
