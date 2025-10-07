@@ -162,6 +162,9 @@ class AuthenticationExtensionsPRFInputs: Record {
 
     @Field
     var eval: AuthenticationExtensionsPRFValues? = null
+
+    @Field
+    var evalByCredential: Map<String, AuthenticationExtensionsPRFValues>? = null
 }
 
 /**
