@@ -34,7 +34,7 @@ export default {
 		...request
 	}: PublicKeyCredentialCreationOptionsJSON &
 		Pick<CredentialCreationOptions, "signal">): Promise<CreationResponse | null> {
-		if (!this.isSupported) throw new NotSupportedError();
+		if (!this.isSupported()) throw new NotSupportedError();
 
 		const credential = (await navigator.credentials.create({
 			signal,
@@ -70,7 +70,10 @@ export default {
 				clientDataJSON: bufferToBase64URLString(credential.response.clientDataJSON),
 				attestationObject: bufferToBase64URLString(credential.response.attestationObject),
 				getPublicKey() {
-					return credential.response.getPublicKey();
+					// Note: The standard web API returns ArrayBuffer | null, but we convert to Base64URLString
+					// for cross-platform consistency with iOS/Android implementations
+					const publicKey = credential.response.getPublicKey();
+					return publicKey ? bufferToBase64URLString(publicKey) : null;
 				},
 			},
 			authenticatorAttachment: undefined,

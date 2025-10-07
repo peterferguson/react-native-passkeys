@@ -244,8 +244,13 @@ export interface AuthenticationExtensionsPRFOutputsJSON {
 export interface CreationResponse extends Omit<RegistrationResponseJSON, "response"> {
 	response: RegistrationResponseJSON["response"] & {
 		/**
-		 * This operation returns an Base64URLString containing the DER SubjectPublicKeyInfo of the new credential, or null if this is not available.
-		 * https://w3c.github.io/webauthn/#dom-authenticatorattestationresponse-getpublickey
+		 * This operation returns a Base64URLString containing the DER SubjectPublicKeyInfo of the new credential, or null if this is not available.
+		 *
+		 * **Note:** This deviates from the standard Web Authentication API, which returns `ArrayBuffer | null` on web browsers.
+		 * For cross-platform consistency, this library converts the ArrayBuffer to Base64URLString on web platforms,
+		 * matching the native iOS/Android behavior where binary data is transmitted as Base64URL-encoded strings.
+		 *
+		 * @see https://w3c.github.io/webauthn/#dom-authenticatorattestationresponse-getpublickey
 		 */
 		getPublicKey(): Base64URLString | null;
 	};
