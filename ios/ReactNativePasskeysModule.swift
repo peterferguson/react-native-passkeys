@@ -339,70 +339,75 @@ private func preparePlatformAssertionRequest(
 
     if #available(iOS 18, *) {
         if let prfInputs = request.extensions?.prf {
-            // Handle eval (single input for selected credential)
-            if let eval = prfInputs.eval {
-                guard let first = Data(base64URLEncoded: eval.first) else {
+            /// Helper function to decode PRF values
+            func decodePRFValues(
+                _ values: AuthenticationExtensionsPRFValues,
+                credentialId: String?
+            ) throws -> ASAuthorizationPublicKeyCredentialPRFAssertionInput.InputValues {
+                guard let first = Data(base64URLEncoded: values.first) else {
                     throw InvalidPRFInputException(
-                        name: "InvalidFirstPRFInput", description: "Incorrect base64url encoding")
+                        name: "InvalidFirstPRFInput",
+                        description: credentialId.map {
+                            "Incorrect base64url encoding for credential \($0)"
+                        } ?? "Incorrect base64url encoding")
                 }
 
-                let second = try eval.second.map {
+                let second = try values.second.map {
                     guard let data = Data(base64URLEncoded: $0) else {
                         throw InvalidPRFInputException(
                             name: "InvalidSecondPRFInput",
-                            description: "Incorrect base64url encoding")
+                            description: credentialId.map {
+                                "Incorrect base64url encoding for credential \($0)"
+                            } ?? "Incorrect base64url encoding")
                     }
                     return data
                 }
 
-                platformKeyAssertionRequest.prf = .inputValues(
-                    ASAuthorizationPublicKeyCredentialPRFAssertionInput.InputValues(
-                        saltInput1: first, saltInput2: second))
+                return ASAuthorizationPublicKeyCredentialPRFAssertionInput.InputValues(
+                    saltInput1: first,
+                    saltInput2: second
+                )
             }
-            // Handle evalByCredential (different inputs per credential)
-            else if let evalByCredential = prfInputs.evalByCredential {
+
+            // Handle evalByCredential first (per WebAuthn spec: evalByCredential takes precedence, eval is fallback)
+            if let evalByCredential = prfInputs.evalByCredential, !evalByCredential.isEmpty {
                 // Validate that allowCredentials is specified per WebAuthn spec
                 guard let allowCredentials = request.allowCredentials, !allowCredentials.isEmpty
                 else {
                     throw InvalidPRFInputException(
-                        name: "InvalidPRFInput",
+                        name: "NotSupportedError",
                         description: "evalByCredential requires allowCredentials to be specified")
                 }
 
                 var perCredentialInputs:
                     [Data: ASAuthorizationPublicKeyCredentialPRFAssertionInput.InputValues] = [:]
 
-                for (credentialIdBase64, prfValues) in evalByCredential {
-                    guard let credentialId = Data(base64URLEncoded: credentialIdBase64) else {
+                // Process each credential in allowCredentials
+                for descriptor in allowCredentials {
+                    guard let credentialIdData = Data(base64URLEncoded: descriptor.id) else {
                         throw InvalidPRFInputException(
-                            name: "InvalidCredentialId",
+                            name: "SyntaxError",
                             description: "Credential ID is not valid base64url")
                     }
 
-                    guard let first = Data(base64URLEncoded: prfValues.first) else {
+                    // Check if there's a specific entry in evalByCredential for this credential
+                    // If not, use eval as fallback (per WebAuthn spec)
+                    guard let values = evalByCredential[descriptor.id] ?? prfInputs.eval else {
                         throw InvalidPRFInputException(
-                            name: "InvalidFirstPRFInput",
-                            description:
-                                "Incorrect base64url encoding for credential \(credentialIdBase64)")
+                            name: "MissingPRFInput",
+                            description: "No PRF input provided for credential \(descriptor.id)")
                     }
 
-                    let second = try prfValues.second.map {
-                        guard let data = Data(base64URLEncoded: $0) else {
-                            throw InvalidPRFInputException(
-                                name: "InvalidSecondPRFInput",
-                                description:
-                                    "Incorrect base64url encoding for credential \(credentialIdBase64)"
-                            )
-                        }
-                        return data
-                    }
-
-                    perCredentialInputs[credentialId] =
-                        ASAuthorizationPublicKeyCredentialPRFAssertionInput.InputValues(
-                            saltInput1: first, saltInput2: second)
+                    perCredentialInputs[credentialIdData] = try decodePRFValues(
+                        values, credentialId: descriptor.id)
                 }
 
                 platformKeyAssertionRequest.prf = .perCredentialInputValues(perCredentialInputs)
+            }
+            // Handle eval only (single input for selected credential)
+            else if let eval = prfInputs.eval {
+                platformKeyAssertionRequest.prf = .inputValues(
+                    try decodePRFValues(eval, credentialId: nil))
             }
         }
     }
