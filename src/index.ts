@@ -2,6 +2,7 @@ import type {
 	AuthenticationCredential,
 	AuthenticationExtensionsLargeBlobInputs,
 	AuthenticationExtensionsLargeBlobOutputs,
+	AuthenticationExtensionsPrfInputs,
 	AuthenticationResponseJSON,
 	Base64URLString,
 	PublicKeyCredentialCreationOptionsJSON,
@@ -26,7 +27,7 @@ export async function create(
 	request: Omit<PublicKeyCredentialCreationOptionsJSON, "extensions"> & {
 		// - only largeBlob is supported currently on iOS
 		// - no extensions are currently supported on Android
-		extensions?: { largeBlob?: AuthenticationExtensionsLargeBlobInputs };
+		extensions?: { largeBlob?: AuthenticationExtensionsLargeBlobInputs, prf?: AuthenticationExtensionsPrfInputs };
 	} & Pick<CredentialCreationOptions, "signal">,
 ): Promise<RegistrationResponseJSON | null> {
 	return await ReactNativePasskeysModule.create(request);
@@ -36,7 +37,7 @@ export async function get(
 	request: Omit<PublicKeyCredentialRequestOptionsJSON, "extensions"> & {
 		// - only largeBlob is supported currently on iOS
 		// - no extensions are currently supported on Android
-		extensions?: { largeBlob?: AuthenticationExtensionsLargeBlobInputs };
+		extensions?: { largeBlob?: AuthenticationExtensionsLargeBlobInputs, prf?: AuthenticationExtensionsPrfInputs };
 	},
 ): Promise<AuthenticationResponseJSON | null> {
 	return await ReactNativePasskeysModule.get(request);

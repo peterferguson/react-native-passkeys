@@ -11,8 +11,9 @@ import type {
 	PublicKeyCredentialRequestOptionsJSON,
 	RegistrationCredential,
 	RegistrationResponseJSON,
-	CreationReponse,
+	CreationResponse,
 } from "./ReactNativePasskeys.types";
+import { normalizePRFInputs } from './utils/prf'
 
 export default {
 	get name(): string {
@@ -33,7 +34,7 @@ export default {
 		signal,
 		...request
 	}: PublicKeyCredentialCreationOptionsJSON &
-		Pick<CredentialCreationOptions, "signal">): Promise<CreationReponse | null> {
+		Pick<CredentialCreationOptions, "signal">): Promise<CreationResponse | null> {
 		if (!this.isSupported) throw new NotSupportedError();
 
 		const credential = (await navigator.credentials.create({
@@ -48,6 +49,10 @@ export default {
 					// TODO: remove the override when typescript has updated webauthn types
 					transports: (credential.transports ?? undefined) as AuthenticatorTransport[] | undefined,
 				})),
+				extensions: {
+					...request.extensions,
+					prf: normalizePRFInputs(request)
+				}
 			},
 		})) as RegistrationCredential;
 
@@ -55,7 +60,7 @@ export default {
 		const extensions =
 			credential?.getClientExtensionResults() as AuthenticationExtensionsClientOutputs;
 		warnUserOfMissingWebauthnExtensions(request.extensions, extensions);
-		const { largeBlob, ...clientExtensionResults } = extensions;
+		const { largeBlob, prf, ...clientExtensionResults } = extensions;
 
 		if (!credential) return null;
 
@@ -79,6 +84,13 @@ export default {
 						blob: largeBlob?.blob ? bufferToBase64URLString(largeBlob.blob) : undefined,
 					},
 				}),
+				...(prf?.results && { prf: {
+						enabled: prf.enabled,
+						results: {
+							first: bufferToBase64URLString(prf.results.first),
+							second: prf.results.second ? bufferToBase64URLString(prf.results.second) : undefined
+						}
+					}})
 			} satisfies AuthenticationExtensionsClientOutputsJSON,
 		};
 	},
@@ -99,6 +111,7 @@ export default {
 				...request,
 				extensions: {
 					...request.extensions,
+					prf: normalizePRFInputs(request),
 					/**
 					 * the navigator interface doesn't have a largeBlob property
 					 * as it may not be supported by all browsers
@@ -127,7 +140,7 @@ export default {
 		const extensions =
 			credential?.getClientExtensionResults() as AuthenticationExtensionsClientOutputs;
 		warnUserOfMissingWebauthnExtensions(request.extensions, extensions);
-		const { largeBlob, ...clientExtensionResults } = extensions;
+		const { largeBlob, prf, ...clientExtensionResults } = extensions;
 
 		if (!credential) return null;
 
@@ -151,6 +164,12 @@ export default {
 						blob: largeBlob?.blob ? bufferToBase64URLString(largeBlob.blob) : undefined,
 					},
 				}),
+				...(prf?.results && { prf: {
+					results: {
+						first: bufferToBase64URLString(prf.results.first),
+						second: prf.results.second ? bufferToBase64URLString(prf.results.second) : undefined
+					}
+				}})
 			} satisfies AuthenticationExtensionsClientOutputsJSON,
 			type: "public-key",
 		};
