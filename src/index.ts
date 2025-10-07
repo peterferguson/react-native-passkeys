@@ -2,7 +2,7 @@ import type {
 	AuthenticationCredential,
 	AuthenticationExtensionsLargeBlobInputs,
 	AuthenticationExtensionsLargeBlobOutputs,
-	AuthenticationExtensionsPrfInputs,
+	AuthenticationExtensionsPRFInputs,
 	AuthenticationResponseJSON,
 	Base64URLString,
 	PublicKeyCredentialCreationOptionsJSON,
@@ -30,7 +30,7 @@ export async function create(
 		// - no extensions are currently supported on Android
 		extensions?: {
 			largeBlob?: AuthenticationExtensionsLargeBlobInputs;
-			prf?: AuthenticationExtensionsPrfInputs;
+			prf?: AuthenticationExtensionsPRFInputs;
 		};
 	} & Pick<CredentialCreationOptions, "signal">,
 ): Promise<CreationResponse | null> {
@@ -43,7 +43,7 @@ export async function get(
 		// - no extensions are currently supported on Android
 		extensions?: {
 			largeBlob?: AuthenticationExtensionsLargeBlobInputs;
-			prf?: AuthenticationExtensionsPrfInputs;
+			prf?: AuthenticationExtensionsPRFInputs;
 		};
 	},
 ): Promise<AuthenticationResponseJSON | null> {

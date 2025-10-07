@@ -10,10 +10,9 @@ import type {
 	PublicKeyCredentialCreationOptionsJSON,
 	PublicKeyCredentialRequestOptionsJSON,
 	RegistrationCredential,
-	RegistrationResponseJSON,
 	CreationResponse,
 } from "./ReactNativePasskeys.types";
-import { normalizePRFInputs } from './utils/prf'
+import { normalizePRFInputs } from "./utils/prf";
 
 export default {
 	get name(): string {
@@ -51,8 +50,8 @@ export default {
 				})),
 				extensions: {
 					...request.extensions,
-					prf: normalizePRFInputs(request)
-				}
+					prf: normalizePRFInputs(request),
+				},
 			},
 		})) as RegistrationCredential;
 
@@ -60,7 +59,7 @@ export default {
 		const extensions =
 			credential?.getClientExtensionResults() as AuthenticationExtensionsClientOutputs;
 		warnUserOfMissingWebauthnExtensions(request.extensions, extensions);
-		const { largeBlob, prf, ...clientExtensionResults } = extensions;
+		const { largeBlob, prf, credProps, ...clientExtensionResults } = extensions;
 
 		if (!credential) return null;
 
@@ -84,13 +83,16 @@ export default {
 						blob: largeBlob?.blob ? bufferToBase64URLString(largeBlob.blob) : undefined,
 					},
 				}),
-				...(prf?.results && { prf: {
+				...(prf?.results && {
+					prf: {
 						enabled: prf.enabled,
 						results: {
 							first: bufferToBase64URLString(prf.results.first),
-							second: prf.results.second ? bufferToBase64URLString(prf.results.second) : undefined
-						}
-					}})
+							second: prf.results.second ? bufferToBase64URLString(prf.results.second) : undefined,
+						},
+					},
+				}),
+				...(credProps && { credProps }),
 			} satisfies AuthenticationExtensionsClientOutputsJSON,
 		};
 	},
@@ -140,7 +142,7 @@ export default {
 		const extensions =
 			credential?.getClientExtensionResults() as AuthenticationExtensionsClientOutputs;
 		warnUserOfMissingWebauthnExtensions(request.extensions, extensions);
-		const { largeBlob, prf, ...clientExtensionResults } = extensions;
+		const { largeBlob, prf, credProps, ...clientExtensionResults } = extensions;
 
 		if (!credential) return null;
 
@@ -164,12 +166,15 @@ export default {
 						blob: largeBlob?.blob ? bufferToBase64URLString(largeBlob.blob) : undefined,
 					},
 				}),
-				...(prf?.results && { prf: {
-					results: {
-						first: bufferToBase64URLString(prf.results.first),
-						second: prf.results.second ? bufferToBase64URLString(prf.results.second) : undefined
-					}
-				}})
+				...(prf?.results && {
+					prf: {
+						results: {
+							first: bufferToBase64URLString(prf.results.first),
+							second: prf.results.second ? bufferToBase64URLString(prf.results.second) : undefined,
+						},
+					},
+				}),
+				...(credProps && { credProps }),
 			} satisfies AuthenticationExtensionsClientOutputsJSON,
 			type: "public-key",
 		};

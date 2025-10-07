@@ -118,8 +118,8 @@ export interface AuthenticatorAssertionResponseJSON {
 /**
  * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsprfinputs
  */
-export interface AuthenticationExtensionsPrfInputs {
-	eval?: { first: Base64URLString; second?: Base64URLString }
+export interface AuthenticationExtensionsPRFInputs {
+	eval?: { first: Base64URLString; second?: Base64URLString };
 }
 
 /**
@@ -132,7 +132,7 @@ export interface AuthenticationExtensionsPrfInputs {
 export interface AuthenticationExtensionsClientInputs
 	extends TypeScriptAuthenticationExtensionsClientInputs {
 	largeBlob?: AuthenticationExtensionsLargeBlobInputs;
-	prf?: AuthenticationExtensionsPrfInputs;
+	prf?: AuthenticationExtensionsPRFInputs;
 }
 
 export type LargeBlobSupport = "preferred" | "required";
@@ -154,6 +154,7 @@ export interface AuthenticationExtensionsLargeBlobInputs {
 
 // - largeBlob extension: https://w3c.github.io/webauthn/#sctn-large-blob-extension
 // - prf extension: https://w3c.github.io/webauthn/#prf-extension
+// - credProps extension: https://w3c.github.io/webauthn/#sctn-authenticator-credential-properties-extension
 export interface AuthenticationExtensionsClientOutputs {
 	largeBlob?: Omit<AuthenticationExtensionsLargeBlobOutputs, "blob"> & {
 		blob?: ArrayBuffer;
@@ -162,14 +163,20 @@ export interface AuthenticationExtensionsClientOutputs {
 		results: {
 			first: ArrayBuffer;
 			second?: ArrayBuffer;
-		}
+		};
 	};
+	credProps?: CredentialPropertiesOutput;
 }
 
-// - largeBlob extension: https://w3c.github.io/webauthn/#sctn-large-blob-extension
 export interface AuthenticationExtensionsClientOutputsJSON {
+	// - largeBlob extension: https://w3c.github.io/webauthn/#sctn-large-blob-extension
 	largeBlob?: AuthenticationExtensionsLargeBlobOutputs;
+
+	// - prf extension: https://w3c.github.io/webauthn/#prf-extension
 	prf?: AuthenticationExtensionsPRFOutputsJSON;
+
+	// - credProps extension: https://w3c.github.io/webauthn/#sctn-authenticator-credential-properties-extension
+	credProps?: CredentialPropertiesOutput;
 }
 
 /**
@@ -186,6 +193,21 @@ export interface AuthenticationExtensionsLargeBlobOutputs {
 	written?: boolean;
 }
 
+/**
+ * - Specification reference: https://w3c.github.io/webauthn/#dictdef-credentialpropertiesoutput
+ */
+export interface CredentialPropertiesOutput {
+	/**
+	 * This OPTIONAL property, known abstractly as the resident key credential property (i.e., client-side
+	 * discoverable credential property), is a Boolean value indicating whether the PublicKeyCredential
+	 * returned as a result of a registration ceremony is a client-side discoverable credential (passkey).
+	 *
+	 * If rk is true, the credential is a discoverable credential (resident key/passkey).
+	 * If rk is false, the credential is a server-side credential.
+	 * If rk is not present, it is not known whether the credential is a discoverable credential or not.
+	 */
+	rk?: boolean;
+}
 
 /**
  * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsprfvalues
