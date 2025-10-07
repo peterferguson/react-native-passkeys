@@ -119,7 +119,17 @@ export interface AuthenticatorAssertionResponseJSON {
  * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsprfinputs
  */
 export interface AuthenticationExtensionsPRFInputs {
+	/**
+	 * A single set of PRF inputs to evaluate for the selected credential.
+	 */
 	eval?: { first: Base64URLString; second?: Base64URLString };
+
+	/**
+	 * A record mapping base64url-encoded credential IDs to PRF inputs.
+	 * Only valid during authentication when allowCredentials is specified.
+	 * Each credential can have different PRF inputs evaluated.
+	 */
+	evalByCredential?: Record<Base64URLString, { first: Base64URLString; second?: Base64URLString }>;
 }
 
 /**
