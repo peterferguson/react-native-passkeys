@@ -98,7 +98,9 @@ class ReactNativePasskeysModule : Module() {
     private fun getRegistrationException(e: CreateCredentialException) =
         when (e) {
             is CreatePublicKeyCredentialDomException -> {
-                e.domError.toString()
+                val errorType = e.domError.javaClass.simpleName
+                val errorMessage = e.message ?: "Unknown error"
+                "DomError: $errorType - $errorMessage"
             }
 
             is CreateCredentialCancellationException -> {
@@ -127,7 +129,9 @@ class ReactNativePasskeysModule : Module() {
     private fun getAuthenticationException(e: GetCredentialException) =
         when (e) {
             is GetPublicKeyCredentialDomException -> {
-                e.domError.toString()
+                val errorType = e.domError.javaClass.simpleName
+                val errorMessage = e.message ?: "Unknown error"
+                "DomError: $errorType - $errorMessage"
             }
 
             is GetCredentialCancellationException -> {
