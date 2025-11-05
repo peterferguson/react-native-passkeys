@@ -1,18 +1,17 @@
 import { NotSupportedError } from "./errors";
-import { base64URLStringToBuffer, bufferToBase64URLString } from "./utils/base64";
+import { bufferToBase64URLString } from "./utils/base64";
 
 import type {
 	AuthenticationCredential,
-	AuthenticationExtensionsClientInputs,
 	AuthenticationExtensionsClientOutputs,
-	AuthenticationExtensionsClientOutputsJSON,
 	AuthenticationResponseJSON,
 	PublicKeyCredentialCreationOptionsJSON,
 	PublicKeyCredentialRequestOptionsJSON,
 	RegistrationCredential,
 	CreationResponse,
 } from "./ReactNativePasskeys.types";
-import { normalizePRFInputs } from "./utils/prf";
+import { authenticationExtensionsClientOutputsToJSON } from "./utils/json";
+import { warnUserOfMissingWebauthnExtensions } from "./utils/warn-user-of-missing-webauthn-extensions";
 
 export default {
 	get name(): string {
@@ -20,7 +19,7 @@ export default {
 	},
 
 	isAutoFillAvalilable(): Promise<boolean> {
-		return window.PublicKeyCredential.isConditionalMediationAvailable?.() ?? Promise.resolve(false);
+		return PublicKeyCredential.isConditionalMediationAvailable?.() ?? Promise.resolve(false);
 	},
 
 	isSupported() {
@@ -38,28 +37,13 @@ export default {
 
 		const credential = (await navigator.credentials.create({
 			signal,
-			publicKey: {
-				...request,
-				challenge: base64URLStringToBuffer(request.challenge),
-				user: { ...request.user, id: base64URLStringToBuffer(request.user.id) },
-				excludeCredentials: request.excludeCredentials?.map((credential) => ({
-					...credential,
-					id: base64URLStringToBuffer(credential.id),
-					// TODO: remove the override when typescript has updated webauthn types
-					transports: (credential.transports ?? undefined) as AuthenticatorTransport[] | undefined,
-				})),
-				extensions: {
-					...request.extensions,
-					prf: normalizePRFInputs(request),
-				},
-			},
+			publicKey: PublicKeyCredential.parseCreationOptionsFromJSON(request),
 		})) as RegistrationCredential;
 
 		// TODO: remove the override when typescript has updated webauthn types
 		const extensions =
 			credential?.getClientExtensionResults() as AuthenticationExtensionsClientOutputs;
 		warnUserOfMissingWebauthnExtensions(request.extensions, extensions);
-		const { largeBlob, prf, credProps, ...clientExtensionResults } = extensions;
 
 		if (!credential) return null;
 
@@ -78,25 +62,7 @@ export default {
 			},
 			authenticatorAttachment: undefined,
 			type: "public-key",
-			clientExtensionResults: {
-				...clientExtensionResults,
-				...(largeBlob && {
-					largeBlob: {
-						...largeBlob,
-						blob: largeBlob?.blob ? bufferToBase64URLString(largeBlob.blob) : undefined,
-					},
-				}),
-				...(prf?.results && {
-					prf: {
-						enabled: prf.enabled,
-						results: {
-							first: bufferToBase64URLString(prf.results.first),
-							second: prf.results.second ? bufferToBase64URLString(prf.results.second) : undefined,
-						},
-					},
-				}),
-				...(credProps && { credProps }),
-			} satisfies AuthenticationExtensionsClientOutputsJSON,
+			clientExtensionResults: authenticationExtensionsClientOutputsToJSON(extensions),
 		};
 	},
 
@@ -112,42 +78,17 @@ export default {
 		const credential = (await navigator.credentials.get({
 			mediation,
 			signal,
-			publicKey: {
-				...request,
-				extensions: {
-					...request.extensions,
-					prf: normalizePRFInputs(request),
-					/**
-					 * the navigator interface doesn't have a largeBlob property
-					 * as it may not be supported by all browsers
-					 *
-					 * browsers that do not support the extension will just ignore the property so it's safe to include it
-					 *
-					 * @ts-expect-error:*/
-					largeBlob: request.extensions?.largeBlob?.write
-						? {
-								...request.extensions?.largeBlob,
-								write: base64URLStringToBuffer(request.extensions.largeBlob.write),
-							}
-						: request.extensions?.largeBlob,
-				},
-				challenge: base64URLStringToBuffer(request.challenge),
-				allowCredentials: request.allowCredentials?.map((credential) => ({
-					...credential,
-					id: base64URLStringToBuffer(credential.id),
-					// TODO: remove the override when typescript has updated webauthn types
-					transports: (credential.transports ?? undefined) as AuthenticatorTransport[] | undefined,
-				})),
-			},
+			publicKey: PublicKeyCredential.parseRequestOptionsFromJSON(request),
 		})) as AuthenticationCredential;
 
 		// TODO: remove the override when typescript has updated webauthn types
 		const extensions =
 			credential?.getClientExtensionResults() as AuthenticationExtensionsClientOutputs;
 		warnUserOfMissingWebauthnExtensions(request.extensions, extensions);
-		const { largeBlob, prf, credProps, ...clientExtensionResults } = extensions;
 
 		if (!credential) return null;
+
+		if (credential.toJSON) return credential.toJSON() as AuthenticationResponseJSON;
 
 		return {
 			id: credential.id,
@@ -161,43 +102,8 @@ export default {
 					: undefined,
 			},
 			authenticatorAttachment: undefined,
-			clientExtensionResults: {
-				...clientExtensionResults,
-				...(largeBlob && {
-					largeBlob: {
-						...largeBlob,
-						blob: largeBlob?.blob ? bufferToBase64URLString(largeBlob.blob) : undefined,
-					},
-				}),
-				...(prf?.results && {
-					prf: {
-						results: {
-							first: bufferToBase64URLString(prf.results.first),
-							second: prf.results.second ? bufferToBase64URLString(prf.results.second) : undefined,
-						},
-					},
-				}),
-				...(credProps && { credProps }),
-			} satisfies AuthenticationExtensionsClientOutputsJSON,
+			clientExtensionResults: authenticationExtensionsClientOutputsToJSON(extensions),
 			type: "public-key",
 		};
 	},
-};
-
-/**
- *  warn the user about extensions that they tried to use that are not supported
- */
-const warnUserOfMissingWebauthnExtensions = (
-	requestedExtensions: AuthenticationExtensionsClientInputs | undefined,
-	clientExtensionResults: AuthenticationExtensionsClientOutputs | undefined,
-) => {
-	if (clientExtensionResults) {
-		for (const key in requestedExtensions) {
-			if (typeof clientExtensionResults[key] === "undefined") {
-				alert(
-					`Webauthn extension ${key} is undefined -- your browser probably doesn't know about it`,
-				);
-			}
-		}
-	}
 };
