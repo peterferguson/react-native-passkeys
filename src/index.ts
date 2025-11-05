@@ -50,3 +50,9 @@ export async function get(
 ): Promise<AuthenticationResponseJSON | null> {
 	return await ReactNativePasskeysModule.get(request);
 }
+
+// Export JSON conversion utilities for cross-platform use
+export {
+	publicKeyCredentialCreationOptionsFromJSON as parseCreationOptionsFromJSON,
+	publicKeyCredentialRequestOptionsFromJSON as parseRequestOptionsFromJSON,
+} from './utils/json';
