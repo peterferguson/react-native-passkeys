@@ -215,6 +215,29 @@ export default function App() {
 		setResult(json);
 	};
 
+	const testExcludeCredentials = async () => {
+		if (!credentialId) {
+			alert("No credential", "Create a passkey first to test excludeCredentials");
+			return;
+		}
+
+		try {
+			// Attempt to create a new passkey with the existing credential in excludeCredentials
+			// This should fail with InvalidStateError
+			const json = await passkey.create({
+				...createOptions,
+				excludeCredentials: [{ id: credentialId, type: "public-key" }],
+			});
+
+			console.log("excludeCredentials test result -", json);
+			alert("Unexpected Success", "This should have failed with InvalidStateError");
+			setResult(json);
+		} catch (e) {
+			console.error("excludeCredentials error (expected) -", e);
+			alert("Expected Error (Issue #45)", JSON.stringify(e, null, 2));
+		}
+	};
+
 	return (
 		<View style={{ flex: 1 }}>
 			<ScrollView
@@ -237,6 +260,9 @@ export default function App() {
 					</Pressable>
 					<Pressable style={styles.button} onPress={authenticatePasskey}>
 						<Text>Authenticate</Text>
+					</Pressable>
+					<Pressable style={styles.button} onPress={testExcludeCredentials}>
+						<Text>Test excludeCredentials</Text>
 					</Pressable>
 					<Pressable style={styles.button} onPress={writeBlob}>
 						<Text>Add Blob</Text>

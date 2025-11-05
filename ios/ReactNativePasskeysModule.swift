@@ -431,18 +431,82 @@ private func preparePlatformAssertionRequest(
 }
 
 func handleASAuthorizationError(errorCode: Int, localizedDescription: String = "") -> Exception {
+    // Helper to check if iOS gave us a generic/useless error message
+    func isGenericErrorMessage(_ description: String) -> Bool {
+        let isEmpty = description.isEmpty
+        let hasNull = description.contains("(null)")
+
+        // Remove all non-alphabetic characters and check for the key phrase
+        let alphaOnly = description.filter { $0.isLetter || $0.isWhitespace }
+        let hasOperationNotCompleted = alphaOnly.contains("The operation couldnt be completed")
+
+        return isEmpty || hasNull || hasOperationNotCompleted
+    }
+
     switch errorCode {
+    case 1000:
+        // ASAuthorizationErrorUnknown
+        let message =
+            isGenericErrorMessage(localizedDescription)
+            ? "The authorization attempt failed for an unknown reason."
+            : localizedDescription
+        return UnknownException(name: "UnknownError", description: message)
+
     case 1001:
-        return UserCancelledException(
-            name: "UserCancelledException", description: localizedDescription)
+        // ASAuthorizationErrorCanceled - maps to WebAuthn NotAllowedError
+        let message =
+            isGenericErrorMessage(localizedDescription)
+            ? "The user canceled the authorization attempt."
+            : localizedDescription
+        return UserCancelledException(name: "NotAllowedError", description: message)
+
+    case 1002:
+        // ASAuthorizationErrorInvalidResponse - maps to WebAuthn EncodingError
+        let message =
+            isGenericErrorMessage(localizedDescription)
+            ? "The authorization request received an invalid response."
+            : localizedDescription
+        return InvalidResponseException(name: "EncodingError", description: message)
+
+    case 1003:
+        // ASAuthorizationErrorNotHandled - maps to WebAuthn NotSupportedError
+        let message =
+            isGenericErrorMessage(localizedDescription)
+            ? "The authorization request was not handled."
+            : localizedDescription
+        return NotHandledException(name: "NotSupportedError", description: message)
+
     case 1004:
-        return PasskeyRequestFailedException(
-            name: "PasskeyRequestFailedException", description: localizedDescription)
-    case 4004:
-        return NotConfiguredException(
-            name: "NotConfiguredException", description: localizedDescription)
+        // ASAuthorizationErrorFailed - maps to WebAuthn OperationError
+        let message =
+            isGenericErrorMessage(localizedDescription)
+            ? "The authorization attempt failed."
+            : localizedDescription
+        return PasskeyRequestFailedException(name: "OperationError", description: message)
+
+    case 1005:
+        // ASAuthorizationErrorNotInteractive - maps to WebAuthn InvalidStateError
+        let message =
+            isGenericErrorMessage(localizedDescription)
+            ? "The authorization request cannot be interactive."
+            : localizedDescription
+        return NotInteractiveException(name: "InvalidStateError", description: message)
+
+    case 1006:
+        // ASAuthorizationErrorMatchedExcludedCredential (iOS 18.0+) - maps to WebAuthn InvalidStateError
+        let message =
+            isGenericErrorMessage(localizedDescription)
+            ? "The user attempted to register an authenticator that contains one of the credentials already registered with the relying party."
+            : localizedDescription
+        return MatchedExcludedCredentialException(name: "InvalidStateError", description: message)
+
     default:
-        return UnknownException(name: "UnknownException", description: localizedDescription)
+        // Unknown error code
+        let message =
+            isGenericErrorMessage(localizedDescription)
+            ? "An unknown authorization error occurred (code: \(errorCode))."
+            : localizedDescription
+        return UnknownException(name: "UnknownError", description: message)
     }
 }
 
