@@ -2,21 +2,31 @@
 "react-native-passkeys": minor
 ---
 
-Add support for parsing JSON credential options on web platform
+Add support for parseCreationOptionsFromJSON and parseRequestOptionsFromJSON across all platforms
 
-This change implements support for the browser's native `parseCreationOptionsFromJSON` and `parseRequestOptionsFromJSON` static methods introduced in WebAuthn Level 3, enabling seamless conversion between JSON representations and WebAuthn credential options.
+This change exports `parseCreationOptionsFromJSON` and `parseRequestOptionsFromJSON` functions, enabling cross-platform JSON-to-WebAuthn conversion following the WebAuthn Level 3 specification.
 
-Changes:
+**New Exports:**
+- `parseCreationOptionsFromJSON(json)` - Converts PublicKeyCredentialCreationOptionsJSON to native format
+- `parseRequestOptionsFromJSON(json)` - Converts PublicKeyCredentialRequestOptionsJSON to native format
+
+**Implementation:**
 - Added comprehensive JSON conversion utilities matching Chromium's implementation (`src/utils/json.ts`)
-- Refactored web module to use `PublicKeyCredential.parseCreationOptionsFromJSON` and `PublicKeyCredential.parseRequestOptionsFromJSON`
-- Simplified extension handling by leveraging native JSON parsing
-- Added utility to detect JSON format vs binary format for future compatibility
-- Extracted extension warning logic to separate module for better code organization
+- Web platform uses browser's native `PublicKeyCredential.parseCreationOptionsFromJSON` and `parseRequestOptionsFromJSON`
+- Native platforms (iOS/Android) already accept JSON format, these utilities provide validation and type safety
+- Handles all credential fields including challenge, user, excludeCredentials, allowCredentials
+- Supports all WebAuthn extensions (PRF, largeBlob, credProps)
+- Proper base64url encoding/decoding for ArrayBuffer fields
 
-Benefits:
-- Cleaner, more maintainable code with ~100 fewer lines in the web module
-- Better compliance with WebAuthn Level 3 specification
-- Proper handling of base64url encoding/decoding for all credential fields
-- Improved extension support (PRF, largeBlob, credProps)
+**Additional utilities:**
+- Added `isJSONFormat` utility to detect JSON vs binary format
+- Extracted extension warning logic to separate module
+
+**Benefits:**
+- ✨ Cross-platform API consistency
+- 📋 WebAuthn Level 3 spec compliance
+- 🔧 Type-safe JSON conversion with helpful error messages
+- 🎯 ~100 fewer lines in web module through code consolidation
+- 🚀 Native browser methods on web for optimal performance
 
 Fixes #39
