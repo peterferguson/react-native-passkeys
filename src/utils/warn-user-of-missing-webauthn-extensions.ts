@@ -12,7 +12,7 @@ export const warnUserOfMissingWebauthnExtensions = (
 ) => {
 	if (clientExtensionResults) {
 		for (const key in requestedExtensions) {
-			if (typeof clientExtensionResults[key] === "undefined") {
+			if (typeof (clientExtensionResults as Record<string, unknown>)[key] === "undefined") {
 				alert(
 					`Webauthn extension ${key} is undefined -- your browser probably doesn't know about it`,
 				);

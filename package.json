@@ -44,7 +44,7 @@
     "@changesets/cli": "^2.26.2",
     "@simplewebauthn/typescript-types": "^8.0.0",
     "@types/react": "^18.0.25",
-    "expo-module-scripts": "^3.4.1",
+    "expo-module-scripts": "^4.1.10",
     "expo-modules-core": "^1.11.9",
     "typescript": "^5.2.2"
   },
@@ -52,5 +52,6 @@
     "expo": ">=48.0.0",
     "react": "*",
     "react-native": ">=0.71.0"
-  }
+  },
+  "packageManager": "pnpm@9.11.0+sha256.1c0e33f70e5df9eede84a357bdfa0b1f9dba6e58194628d48a1055756f553754"
 }
