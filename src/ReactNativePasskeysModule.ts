@@ -1,9 +1,11 @@
-import { requireNativeModule } from "expo-modules-core";
+import { Platform, requireNativeModule } from "expo-modules-core";
 import { NotSupportedError } from "./errors";
 
 import type {
 	PublicKeyCredentialCreationOptionsJSON,
+	PublicKeyCredentialRequestOptionsJSON,
 	CreationResponse,
+	AuthenticationResponseJSON,
 } from "./ReactNativePasskeys.types";
 
 // It loads the native module object from the JSI or falls back to
@@ -13,10 +15,17 @@ const passkeys = requireNativeModule("ReactNativePasskeys");
 export default {
 	...passkeys,
 
-	async create(request: PublicKeyCredentialCreationOptionsJSON): Promise<CreationResponse | null> {
+	async create(
+		request: PublicKeyCredentialCreationOptionsJSON,
+		requireBiometrics: boolean,
+	): Promise<CreationResponse | null> {
 		if (!this.isSupported) throw new NotSupportedError();
 
-		const credential = await passkeys.create(request);
+		const credential =
+			Platform.OS === "ios"
+				? await passkeys.create(request, requireBiometrics)
+				: await passkeys.create(request);
+
 		return {
 			...credential,
 			response: {
@@ -26,5 +35,14 @@ export default {
 				},
 			},
 		};
+	},
+
+	async get(
+		request: PublicKeyCredentialRequestOptionsJSON,
+		requireBiometrics: boolean,
+	): Promise<AuthenticationResponseJSON | null> {
+		return Platform.OS === "ios"
+			? await passkeys.get(request, requireBiometrics)
+			: await passkeys.get(request);
 	},
 };

@@ -2,15 +2,15 @@ import { NotSupportedError } from "./errors";
 import { base64URLStringToBuffer, bufferToBase64URLString } from "./utils/base64";
 
 import type {
-	AuthenticationCredential,
-	AuthenticationExtensionsClientInputs,
-	AuthenticationExtensionsClientOutputs,
-	AuthenticationExtensionsClientOutputsJSON,
-	AuthenticationResponseJSON,
-	PublicKeyCredentialCreationOptionsJSON,
-	PublicKeyCredentialRequestOptionsJSON,
-	RegistrationCredential,
-	CreationResponse,
+    AuthenticationCredential,
+    AuthenticationExtensionsClientInputs,
+    AuthenticationExtensionsClientOutputs,
+    AuthenticationExtensionsClientOutputsJSON,
+    AuthenticationResponseJSON,
+    CreationResponse,
+    PublicKeyCredentialCreationOptionsJSON,
+    PublicKeyCredentialRequestOptionsJSON,
+    RegistrationCredential,
 } from "./ReactNativePasskeys.types";
 import { normalizePRFInputs } from "./utils/prf";
 
@@ -193,7 +193,7 @@ const warnUserOfMissingWebauthnExtensions = (
 ) => {
 	if (clientExtensionResults) {
 		for (const key in requestedExtensions) {
-			if (typeof clientExtensionResults[key] === "undefined") {
+			if (typeof (clientExtensionResults)[key] === "undefined") {
 				alert(
 					`Webauthn extension ${key} is undefined -- your browser probably doesn't know about it`,
 				);
