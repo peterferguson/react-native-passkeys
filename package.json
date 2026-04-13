@@ -7,11 +7,13 @@
   "scripts": {
     "build": "expo-module build",
     "check-exports": "attw --pack .",
-    "ci": "pnpm run lint && pnpm run format && pnpm run prepare && pnpm run check-exports",
+    "ci": "pnpm run lint && pnpm run format:check && pnpm run prepare && pnpm run check-exports",
     "clean": "expo-module clean",
     "expo-module": "expo-module",
-    "format": "pnpx @biomejs/biome format --write ./src",
-    "lint": "pnpx @biomejs/biome lint --write ./src",
+    "format": "oxfmt --write ./src",
+    "format:check": "oxfmt --check ./src",
+    "lint": "oxlint ./src",
+    "lint:fix": "oxlint --fix ./src",
     "open:ios": "open -a \"Xcode\" example/ios",
     "open:android": "open -a \"Android Studio\" example/android",
     "prepare": "expo-module prepare",
@@ -40,12 +42,13 @@
   "homepage": "https://github.com/peterferguson/react-native-passkeys#readme",
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.4",
-    "@biomejs/biome": "1.9.4",
     "@changesets/cli": "^2.26.2",
     "@simplewebauthn/typescript-types": "^8.0.0",
     "@types/react": "^18.0.25",
     "expo-module-scripts": "^3.4.1",
     "expo-modules-core": "^1.11.9",
+    "oxfmt": "^0.45.0",
+    "oxlint": "^1.60.0",
     "typescript": "^5.2.2"
   },
   "peerDependencies": {

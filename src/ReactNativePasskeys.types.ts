@@ -139,8 +139,7 @@ export interface AuthenticationExtensionsPRFInputs {
  *
  * - Specification reference: https://w3c.github.io/webauthn/#dictdef-authenticationextensionsclientinputs
  */
-export interface AuthenticationExtensionsClientInputs
-	extends TypeScriptAuthenticationExtensionsClientInputs {
+export interface AuthenticationExtensionsClientInputs extends TypeScriptAuthenticationExtensionsClientInputs {
 	largeBlob?: AuthenticationExtensionsLargeBlobInputs;
 	prf?: AuthenticationExtensionsPRFInputs;
 }

@@ -1,3 +1,7 @@
+// Import the native module. On web, it will be resolved to ReactNativePasskeys.web.ts
+// and on native platforms to ReactNativePasskeys.ts
+import ReactNativePasskeysModule from "./ReactNativePasskeysModule";
+
 import type {
 	AuthenticationExtensionsLargeBlobInputs,
 	AuthenticationExtensionsPRFInputs,
@@ -6,10 +10,6 @@ import type {
 	PublicKeyCredentialRequestOptionsJSON,
 	CreationResponse,
 } from "./ReactNativePasskeys.types";
-
-// Import the native module. On web, it will be resolved to ReactNativePasskeys.web.ts
-// and on native platforms to ReactNativePasskeys.ts
-import ReactNativePasskeysModule from "./ReactNativePasskeysModule";
 
 export function isSupported(): boolean {
 	return ReactNativePasskeysModule.isSupported();

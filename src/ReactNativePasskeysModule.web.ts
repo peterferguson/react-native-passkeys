@@ -1,5 +1,6 @@
 import { NotSupportedError } from "./errors";
 import { base64URLStringToBuffer, bufferToBase64URLString } from "./utils/base64";
+import { normalizePRFInputs } from "./utils/prf";
 
 import type {
 	AuthenticationCredential,
@@ -12,7 +13,6 @@ import type {
 	RegistrationCredential,
 	CreationResponse,
 } from "./ReactNativePasskeys.types";
-import { normalizePRFInputs } from "./utils/prf";
 
 export default {
 	get name(): string {
@@ -42,11 +42,11 @@ export default {
 				...request,
 				challenge: base64URLStringToBuffer(request.challenge),
 				user: { ...request.user, id: base64URLStringToBuffer(request.user.id) },
-				excludeCredentials: request.excludeCredentials?.map((credential) => ({
-					...credential,
-					id: base64URLStringToBuffer(credential.id),
+				excludeCredentials: request.excludeCredentials?.map((cred) => ({
+					...cred,
+					id: base64URLStringToBuffer(cred.id),
 					// TODO: remove the override when typescript has updated webauthn types
-					transports: (credential.transports ?? undefined) as AuthenticatorTransport[] | undefined,
+					transports: (cred.transports ?? undefined) as AuthenticatorTransport[] | undefined,
 				})),
 				extensions: {
 					...request.extensions,
@@ -132,11 +132,11 @@ export default {
 						: request.extensions?.largeBlob,
 				},
 				challenge: base64URLStringToBuffer(request.challenge),
-				allowCredentials: request.allowCredentials?.map((credential) => ({
-					...credential,
-					id: base64URLStringToBuffer(credential.id),
+				allowCredentials: request.allowCredentials?.map((cred) => ({
+					...cred,
+					id: base64URLStringToBuffer(cred.id),
 					// TODO: remove the override when typescript has updated webauthn types
-					transports: (credential.transports ?? undefined) as AuthenticatorTransport[] | undefined,
+					transports: (cred.transports ?? undefined) as AuthenticatorTransport[] | undefined,
 				})),
 			},
 		})) as AuthenticationCredential;

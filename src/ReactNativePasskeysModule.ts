@@ -1,4 +1,5 @@
 import { requireNativeModule } from "expo-modules-core";
+
 import { NotSupportedError } from "./errors";
 
 import type {
