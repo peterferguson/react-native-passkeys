@@ -16,7 +16,7 @@
     "lint:fix": "oxlint --fix ./src",
     "open:ios": "open -a \"Xcode\" example/ios",
     "open:android": "open -a \"Android Studio\" example/android",
-    "prepare": "expo-module prepare",
+    "prepare": "echo \"[mono-pin] prepare skipped (for CF Workers Builds consumption only)\"",
     "prepublishOnly": "expo-module prepublishOnly",
     "test": "expo-module test"
   },
