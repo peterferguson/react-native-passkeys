@@ -1,13 +1,13 @@
 {
-  "name": "react-native-passkeys",
-  "version": "0.4.1",
+  "name": "@officialunofficial/react-native-passkeys",
+  "version": "0.4.2",
   "description": "A library for using (webauthn) passkeys on iOS, Android & web with a single api",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
     "build": "expo-module build",
     "check-exports": "attw --pack .",
-    "ci": "pnpm run lint && pnpm run format:check && pnpm run prepare && pnpm run check-exports",
+    "ci": "pnpm run lint && pnpm run format:check && pnpm run build && pnpm run check-exports",
     "clean": "expo-module clean",
     "expo-module": "expo-module",
     "format": "oxfmt --write ./src",
@@ -16,8 +16,6 @@
     "lint:fix": "oxlint --fix ./src",
     "open:ios": "open -a \"Xcode\" example/ios",
     "open:android": "open -a \"Android Studio\" example/android",
-    "prepare": "expo-module prepare",
-    "prepublishOnly": "expo-module prepublishOnly",
     "test": "expo-module test"
   },
   "keywords": [
@@ -32,14 +30,21 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/peterferguson/react-native-passkeys.git"
+    "url": "git+https://github.com/officialunofficial/react-native-passkeys.git"
   },
   "bugs": {
-    "url": "https://github.com/peterferguson/react-native-passkeys/issues"
+    "url": "https://github.com/officialunofficial/react-native-passkeys/issues"
   },
   "author": "Peter Ferguson <peterferguson95@gmail.com> (https://github.com/peterferguson)",
+  "contributors": [
+    "officialunofficial <https://github.com/officialunofficial>"
+  ],
   "license": "MIT",
-  "homepage": "https://github.com/peterferguson/react-native-passkeys#readme",
+  "homepage": "https://github.com/officialunofficial/react-native-passkeys#readme",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "files": [
     "build",
     "src",

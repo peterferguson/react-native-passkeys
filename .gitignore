@@ -6,9 +6,12 @@
 .vscode/
 jsconfig.json
 
-# Xcode
+# Xcode — only ignore the iOS Xcode build dir, not the root `build/` (which is
+# our TypeScript output; committed so consumers don't re-run `expo-module build`
+# on install — avoids CF Workers Builds' yarn-via-corepack quirk).
 #
-build/
+ios/build/
+example/ios/build/
 *.pbxuser
 !default.pbxuser
 *.mode1v3

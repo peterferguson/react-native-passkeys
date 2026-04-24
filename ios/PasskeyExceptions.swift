@@ -18,6 +18,12 @@ internal class NotSupportedException: Exception {
   }
 }
 
+internal class FastAccountCreationNotSupportedException: Exception {
+  override var reason: String {
+    "Fast account creation with passkeys requires iOS 26 or above"
+  }
+}
+
 internal class BiometricException: Exception {
   override var reason: String {
     "Biometrics must be enabled"
@@ -27,6 +33,18 @@ internal class BiometricException: Exception {
 internal class UserCancelledException: Exception {
   override var reason: String {
     "User cancelled the passkey interaction"
+  }
+}
+
+internal class DeviceNotConfiguredForPasskeyCreationException: Exception {
+  override var reason: String {
+    "The device is not configured to create passkeys right now"
+  }
+}
+
+internal class PreferSignInWithAppleException: Exception {
+  override var reason: String {
+    "The user chose to continue with Sign in with Apple instead"
   }
 }
 

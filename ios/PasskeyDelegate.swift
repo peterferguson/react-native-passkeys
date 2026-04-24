@@ -3,7 +3,9 @@ import ExpoModulesCore
 import Foundation
 
 protocol PasskeyResultHandler {
-    func onSuccess(_ data: PublicKeyCredentialJSON)
+    func onSuccessRegistration(_ data: RegistrationResponseJSON)
+    func onSuccessAccountCreation(_ data: AccountCreationResponseJSON)
+    func onSuccessAuthentication(_ data: AuthenticationResponseJSON)
     func onFailure(_ error: Error)
 }
 
@@ -42,63 +44,46 @@ class PasskeyDelegate: NSObject, ASAuthorizationControllerDelegate,
         controller: ASAuthorizationController,
         didCompleteWithAuthorization authorization: ASAuthorization
     ) {
+        if #available(iOS 26.0, *),
+            let credential =
+                authorization.credential as? ASAuthorizationAccountCreationPlatformPublicKeyCredential
+        {
+            guard let registrationResult = createPlatformRegistrationResult(
+                from: credential.credentialRegistration)
+            else {
+                return
+            }
+
+            let accountCreationResult = AccountCreationResponseJSON(
+                id: Field.init(wrappedValue: registrationResult.id),
+                rawId: Field.init(wrappedValue: registrationResult.rawId),
+                response: Field.init(wrappedValue: registrationResult.response),
+                account: Field.init(
+                    wrappedValue: AccountCreationDetailsJSON(
+                        contactIdentifier: Field.init(
+                            wrappedValue: getContactIdentifier(from: credential.contactIdentifier)),
+                        name: Field.init(wrappedValue: getName(from: credential.name))
+                    )),
+                clientExtensionResults: Field.init(
+                    wrappedValue: registrationResult.clientExtensionResults)
+            )
+
+            handler.onSuccessAccountCreation(accountCreationResult)
+            return
+        }
 
         switch authorization.credential {
         case let credential as ASAuthorizationPlatformPublicKeyCredentialRegistration:
-            if credential.rawAttestationObject == nil {
-                handler.onFailure((ASAuthorizationError(ASAuthorizationError.Code.failed)))
+            guard let result = createPlatformRegistrationResult(from: credential) else {
+                return
             }
 
-            var largeBlob: AuthenticationExtensionsLargeBlobOutputsJSON?
-            if #available(iOS 17.0, *) {
-                largeBlob = AuthenticationExtensionsLargeBlobOutputsJSON(
-                    supported: Field.init(wrappedValue: credential.largeBlob?.isSupported)
-                )
-            }
-
-            var prf: AuthenticationExtensionsPRFOutputsJSON?
-            if #available(iOS 18.0, *) {
-                prf = credential.prf.flatMap { it in
-                    AuthenticationExtensionsPRFOutputsJSON(
-                        enabled: Field.init(wrappedValue: it.isSupported),
-                        results: Field.init(
-                            wrappedValue: it.first.map { first in
-                                AuthenticationExtensionsPRFValuesJSON(
-                                    first: Field.init(wrappedValue: first.serialize()),
-                                    second: Field.init(wrappedValue: it.second.serialize()))
-                            }
-                        )
-                    )
-                }
-            }
-
-            let clientExtensionResults = AuthenticationExtensionsClientOutputsJSON(
-                largeBlob: Field.init(wrappedValue: largeBlob),
-                prf: Field.init(wrappedValue: prf)
-            )
-
-            let response = AuthenticatorAttestationResponseJSON(
-                clientDataJSON: Field.init(
-                    wrappedValue: credential.rawClientDataJSON.toBase64URLEncodedString()),
-                publicKey: Field.init(
-                    wrappedValue: getPublicKey(from: credential.rawAttestationObject!)?
-                        .toBase64URLEncodedString()),
-                attestationObject: Field.init(
-                    wrappedValue: credential.rawAttestationObject!.toBase64URLEncodedString())
-            )
-
-            let registrationResult = RegistrationResponseJSON(
-                id: Field.init(wrappedValue: credential.credentialID.toBase64URLEncodedString()),
-                rawId: Field.init(wrappedValue: credential.credentialID.toBase64URLEncodedString()),
-                response: Field.init(wrappedValue: response),
-                clientExtensionResults: Field.init(wrappedValue: clientExtensionResults)
-            )
-
-            handler.onSuccess(Either(registrationResult))
+            handler.onSuccessRegistration(result)
 
         case let credential as ASAuthorizationSecurityKeyPublicKeyCredentialRegistration:
-            if credential.rawAttestationObject == nil {
+            guard credential.rawAttestationObject != nil else {
                 handler.onFailure((ASAuthorizationError(ASAuthorizationError.Code.failed)))
+                return
             }
 
             let response = AuthenticatorAttestationResponseJSON(
@@ -117,7 +102,7 @@ class PasskeyDelegate: NSObject, ASAuthorizationControllerDelegate,
                 response: Field.init(wrappedValue: response)
             )
 
-            handler.onSuccess(Either(registrationResult))
+            handler.onSuccessRegistration(registrationResult)
 
         case let credential as ASAuthorizationPlatformPublicKeyCredentialAssertion:
             var largeBlob: AuthenticationExtensionsLargeBlobOutputsJSON? =
@@ -168,7 +153,7 @@ class PasskeyDelegate: NSObject, ASAuthorizationControllerDelegate,
                 clientExtensionResults: Field.init(wrappedValue: clientExtensionResults)
             )
 
-            handler.onSuccess(Either(assertionResult))
+            handler.onSuccessAuthentication(assertionResult)
 
         case let credential as ASAuthorizationSecurityKeyPublicKeyCredentialAssertion:
             let response = AuthenticatorAssertionResponseJSON(
@@ -187,9 +172,99 @@ class PasskeyDelegate: NSObject, ASAuthorizationControllerDelegate,
                 response: Field.init(wrappedValue: response)
             )
 
-            handler.onSuccess(Either(assertionResult))
+            handler.onSuccessAuthentication(assertionResult)
         default:
             handler.onFailure((ASAuthorizationError(ASAuthorizationError.Code.failed)))
         }
+    }
+
+    @available(iOS 15.0, *)
+    private func createPlatformRegistrationResult(
+        from credential: ASAuthorizationPlatformPublicKeyCredentialRegistration
+    ) -> RegistrationResponseJSON? {
+        guard let attestationObject = credential.rawAttestationObject else {
+            handler.onFailure((ASAuthorizationError(ASAuthorizationError.Code.failed)))
+            return nil
+        }
+
+        var largeBlob: AuthenticationExtensionsLargeBlobOutputsJSON?
+        if #available(iOS 17.0, *) {
+            largeBlob = AuthenticationExtensionsLargeBlobOutputsJSON(
+                supported: Field.init(wrappedValue: credential.largeBlob?.isSupported)
+            )
+        }
+
+        var prf: AuthenticationExtensionsPRFOutputsJSON?
+        if #available(iOS 18.0, *) {
+            prf = credential.prf.flatMap { it in
+                AuthenticationExtensionsPRFOutputsJSON(
+                    enabled: Field.init(wrappedValue: it.isSupported),
+                    results: Field.init(
+                        wrappedValue: it.first.map { first in
+                            AuthenticationExtensionsPRFValuesJSON(
+                                first: Field.init(wrappedValue: first.serialize()),
+                                second: Field.init(wrappedValue: it.second.serialize()))
+                        }
+                    )
+                )
+            }
+        }
+
+        let clientExtensionResults = AuthenticationExtensionsClientOutputsJSON(
+            largeBlob: Field.init(wrappedValue: largeBlob),
+            prf: Field.init(wrappedValue: prf)
+        )
+
+        let response = AuthenticatorAttestationResponseJSON(
+            clientDataJSON: Field.init(
+                wrappedValue: credential.rawClientDataJSON.toBase64URLEncodedString()),
+            publicKey: Field.init(
+                wrappedValue: getPublicKey(from: attestationObject)?.toBase64URLEncodedString()),
+            attestationObject: Field.init(
+                wrappedValue: attestationObject.toBase64URLEncodedString())
+        )
+
+        return RegistrationResponseJSON(
+            id: Field.init(wrappedValue: credential.credentialID.toBase64URLEncodedString()),
+            rawId: Field.init(wrappedValue: credential.credentialID.toBase64URLEncodedString()),
+            response: Field.init(wrappedValue: response),
+            clientExtensionResults: Field.init(wrappedValue: clientExtensionResults)
+        )
+    }
+
+    @available(iOS 26.0, *)
+    private func getContactIdentifier(
+        from identifier: ASContactIdentifier
+    ) -> AccountCreationContactIdentifierJSON {
+        switch identifier {
+        case .email(let email):
+            return AccountCreationContactIdentifierJSON(
+                type: Field.init(wrappedValue: "email"),
+                value: Field.init(wrappedValue: email.value)
+            )
+        case .phoneNumber(let phoneNumber):
+            return AccountCreationContactIdentifierJSON(
+                type: Field.init(wrappedValue: "phoneNumber"),
+                value: Field.init(wrappedValue: phoneNumber.value)
+            )
+        }
+    }
+
+    @available(iOS 26.0, *)
+    private func getName(
+        from name: PersonNameComponents?
+    ) -> PersonNameComponentsJSON? {
+        guard let name else {
+            return nil
+        }
+
+        return PersonNameComponentsJSON(
+            namePrefix: Field.init(wrappedValue: name.namePrefix),
+            givenName: Field.init(wrappedValue: name.givenName),
+            middleName: Field.init(wrappedValue: name.middleName),
+            familyName: Field.init(wrappedValue: name.familyName),
+            nameSuffix: Field.init(wrappedValue: name.nameSuffix),
+            nickname: Field.init(wrappedValue: name.nickname)
+        )
     }
 }

@@ -72,6 +72,35 @@ export interface PublicKeyCredentialRequestOptionsJSON {
 	extensions?: AuthenticationExtensionsClientInputs;
 }
 
+export type AccountCreationContactIdentifierType = "email" | "phoneNumber";
+
+export interface FastAccountCreationOptions {
+	acceptedContactIdentifiers: AccountCreationContactIdentifierType[];
+	challenge: Base64URLString;
+	rpId: string;
+	shouldRequestName?: boolean;
+	userId: Base64URLString;
+}
+
+export interface PersonNameComponentsJSON {
+	namePrefix?: string;
+	givenName?: string;
+	middleName?: string;
+	familyName?: string;
+	nameSuffix?: string;
+	nickname?: string;
+}
+
+export interface AccountCreationContactIdentifier {
+	type: AccountCreationContactIdentifierType;
+	value: string;
+}
+
+export interface AccountCreationDetails {
+	contactIdentifier: AccountCreationContactIdentifier;
+	name?: PersonNameComponentsJSON;
+}
+
 /**
  * A slightly-modified RegistrationCredential to simplify working with ArrayBuffers that
  * are Base64URL-encoded so that they can be sent as JSON.
@@ -254,4 +283,8 @@ export interface CreationResponse extends Omit<RegistrationResponseJSON, "respon
 		 */
 		getPublicKey(): Base64URLString | null;
 	};
+}
+
+export interface AccountCreationResponse extends Omit<CreationResponse, "account"> {
+	account: AccountCreationDetails;
 }

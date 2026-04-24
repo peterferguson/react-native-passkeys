@@ -58,3 +58,20 @@ internal struct PublicKeyCredentialRequestOptions: Record {
     @Field
     var extensions: AuthenticationExtensionsClientInputs?
 }
+
+internal struct FastAccountCreationOptions: Record {
+    @Field
+    var acceptedContactIdentifiers: [AccountCreationContactIdentifierType]
+
+    @Field
+    var challenge: Base64URLString
+
+    @Field
+    var rpId: String
+
+    @Field
+    var shouldRequestName: Bool? = false
+
+    @Field
+    var userId: Base64URLString
+}

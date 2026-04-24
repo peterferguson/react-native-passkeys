@@ -114,6 +114,21 @@ internal enum LargeBlobSupport: String, Enumerable {
     case required
 }
 
+internal enum AccountCreationContactIdentifierType: String, Enumerable {
+    case email
+    case phoneNumber
+
+    @available(iOS 26.0, *)
+    func appleise() -> ASContactIdentifierRequest {
+        switch self {
+        case .email:
+            return .email
+        case .phoneNumber:
+            return .phoneNumber
+        }
+    }
+}
+
 // - Structs
 
 /// Specification reference: https://w3c.github.io/webauthn/#dictionary-authenticatorSelection

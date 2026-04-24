@@ -3,9 +3,11 @@
 import ReactNativePasskeysModule from "./ReactNativePasskeysModule";
 
 import type {
+	AccountCreationResponse,
 	AuthenticationExtensionsLargeBlobInputs,
 	AuthenticationExtensionsPRFInputs,
 	AuthenticationResponseJSON,
+	FastAccountCreationOptions,
 	PublicKeyCredentialCreationOptionsJSON,
 	PublicKeyCredentialRequestOptionsJSON,
 	CreationResponse,
@@ -17,6 +19,10 @@ export function isSupported(): boolean {
 
 export function isAutoFillAvalilable(): boolean {
 	return ReactNativePasskeysModule.isAutoFillAvalilable();
+}
+
+export function isAccountCreationSupported(): boolean {
+	return ReactNativePasskeysModule.isAccountCreationSupported();
 }
 
 export async function create(
@@ -49,4 +55,10 @@ export async function get(
 	},
 ): Promise<AuthenticationResponseJSON | null> {
 	return await ReactNativePasskeysModule.get(request);
+}
+
+export async function createAccount(
+	request: FastAccountCreationOptions,
+): Promise<AccountCreationResponse | null> {
+	return await ReactNativePasskeysModule.createAccount(request);
 }

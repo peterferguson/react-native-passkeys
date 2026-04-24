@@ -25,12 +25,18 @@ final public class ReactNativePasskeysModule: Module, PasskeyResultHandler {
             return false
         }
 
+        Function("isAccountCreationSupported") { () -> Bool in
+            if #available(iOS 26.0, *) {
+                return true
+            } else {
+                return false
+            }
+        }
+
         AsyncFunction("get") {
             (request: PublicKeyCredentialRequestOptions, promise: Promise) throws in
             do {
-                // - all the throws are already in the helper `isAvailable` so we don't need to do anything
-                // ? this seems like a code smell ... what is the best way to do this
-                let _ = try isAvailable()
+                try ensureStandardPasskeysAvailable()
             } catch let error {
                 throw error
             }
@@ -56,9 +62,7 @@ final public class ReactNativePasskeysModule: Module, PasskeyResultHandler {
         AsyncFunction("create") {
             (request: PublicKeyCredentialCreationOptions, promise: Promise) throws in
             do {
-                // - all the throws are already in the helper `isAvailable` so we don't need to do anything
-                // ? this seems like a code smell ... what is the best way to do this
-                let _ = try isAvailable()
+                try ensureStandardPasskeysAvailable()
             } catch let error {
                 throw error
             }
@@ -110,40 +114,104 @@ final public class ReactNativePasskeysModule: Module, PasskeyResultHandler {
             context.passkeyDelegate.performAuthForController(controller: authController)
         }.runOnQueue(.main)
 
+        AsyncFunction("createAccount") {
+            (request: FastAccountCreationOptions, promise: Promise) throws in
+            do {
+                try ensureFastAccountCreationAvailable()
+            } catch let error {
+                throw error
+            }
+
+            let passkeyDelegate = PasskeyDelegate(handler: self)
+            let context = PasskeyContext(passkeyDelegate: passkeyDelegate, promise: promise)
+
+            guard let challengeData: Data = Data(base64URLEncoded: request.challenge) else {
+                throw InvalidChallengeException()
+            }
+
+            guard let userId: Data = Data(base64URLEncoded: request.userId) else {
+                throw InvalidUserIdException()
+            }
+
+            let authController: ASAuthorizationController
+
+            if #available(iOS 26.0, *) {
+                let provider = ASAuthorizationAccountCreationProvider()
+                let accountCreationRequest =
+                    provider.createPlatformPublicKeyCredentialRegistrationRequest(
+                        acceptedContactIdentifiers: request.acceptedContactIdentifiers.map({
+                            $0.appleise()
+                        }),
+                        shouldRequestName: request.shouldRequestName ?? false,
+                        relyingPartyIdentifier: request.rpId,
+                        challenge: challengeData,
+                        userID: userId)
+
+                authController = ASAuthorizationController(authorizationRequests: [
+                    accountCreationRequest
+                ])
+            } else {
+                throw FastAccountCreationNotSupportedException()
+            }
+
+            passkeyContext = context
+
+            context.passkeyDelegate.performAuthForController(controller: authController)
+        }.runOnQueue(.main)
+
     }
 
-    private func isAvailable() throws -> Bool {
+    private func ensureRequestCanStart() throws {
+        if passkeyContext != nil {
+            throw PendingPasskeyRequestException()
+        }
+    }
+
+    private func ensureStandardPasskeysAvailable() throws {
         if #unavailable(iOS 15.0) {
             throw NotSupportedException()
         }
 
-        if passkeyContext != nil {
-            throw PendingPasskeyRequestException()
-        }
+        try ensureRequestCanStart()
 
         if LAContext().biometricType == .none {
             throw BiometricException()
         }
-
-        return true
     }
 
-    internal func onSuccess(_ data: PublicKeyCredentialJSON) {
+    private func ensureFastAccountCreationAvailable() throws {
+        if #unavailable(iOS 26.0) {
+            throw FastAccountCreationNotSupportedException()
+        }
+
+        try ensureRequestCanStart()
+    }
+
+    internal func onSuccessRegistration(_ data: RegistrationResponseJSON) {
         guard let promise = passkeyContext?.promise else {
             log.error("Passkey context has been lost")
             return
         }
         passkeyContext = nil
+        promise.resolve(data)
+    }
 
-        if let registrationResult: RegistrationResponseJSON = data.get() {
-            promise.resolve(registrationResult)
+    internal func onSuccessAccountCreation(_ data: AccountCreationResponseJSON) {
+        guard let promise = passkeyContext?.promise else {
+            log.error("Passkey context has been lost")
             return
         }
+        passkeyContext = nil
+        promise.resolve(data)
+    }
 
-        if let assertionResult: AuthenticationResponseJSON = data.get() {
-            promise.resolve(assertionResult)
+    internal func onSuccessAuthentication(_ data: AuthenticationResponseJSON) {
+        guard let promise = passkeyContext?.promise else {
+            log.error("Passkey context has been lost")
             return
         }
+        passkeyContext = nil
+        promise.resolve(data)
     }
 
     internal func onFailure(_ error: Error) {
@@ -431,13 +499,32 @@ private func preparePlatformAssertionRequest(
 }
 
 func handleASAuthorizationError(errorCode: Int, localizedDescription: String = "") -> Exception {
+    if let code = ASAuthorizationError.Code(rawValue: errorCode) {
+        switch code {
+        case .canceled:
+            return UserCancelledException(
+                name: "UserCancelledException", description: localizedDescription)
+        case .failed:
+            return PasskeyRequestFailedException(
+                name: "PasskeyRequestFailedException", description: localizedDescription)
+        default:
+            if #available(iOS 26.0, *) {
+                switch code {
+                case .deviceNotConfiguredForPasskeyCreation:
+                    return DeviceNotConfiguredForPasskeyCreationException(
+                        name: "DeviceNotConfiguredForPasskeyCreationException",
+                        description: localizedDescription)
+                case .preferSignInWithApple:
+                    return PreferSignInWithAppleException(
+                        name: "PreferSignInWithAppleException", description: localizedDescription)
+                default:
+                    break
+                }
+            }
+        }
+    }
+
     switch errorCode {
-    case 1001:
-        return UserCancelledException(
-            name: "UserCancelledException", description: localizedDescription)
-    case 1004:
-        return PasskeyRequestFailedException(
-            name: "PasskeyRequestFailedException", description: localizedDescription)
     case 4004:
         return NotConfiguredException(
             name: "NotConfiguredException", description: localizedDescription)

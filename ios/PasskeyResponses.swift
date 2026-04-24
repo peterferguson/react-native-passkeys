@@ -3,6 +3,42 @@ import ExpoModulesCore
 /// Specification reference: https://w3c.github.io/webauthn/#typedefdef-publickeycredentialjson
 typealias PublicKeyCredentialJSON = Either<RegistrationResponseJSON, AuthenticationResponseJSON>
 
+internal struct AccountCreationContactIdentifierJSON: Record {
+    @Field
+    var type: String
+
+    @Field
+    var value: String
+}
+
+internal struct PersonNameComponentsJSON: Record {
+    @Field
+    var namePrefix: String?
+
+    @Field
+    var givenName: String?
+
+    @Field
+    var middleName: String?
+
+    @Field
+    var familyName: String?
+
+    @Field
+    var nameSuffix: String?
+
+    @Field
+    var nickname: String?
+}
+
+internal struct AccountCreationDetailsJSON: Record {
+    @Field
+    var contactIdentifier: AccountCreationContactIdentifierJSON
+
+    @Field
+    var name: PersonNameComponentsJSON?
+}
+
 /// Specification reference: https://w3c.github.io/webauthn/#dictdef-registrationresponsejson
 internal struct RegistrationResponseJSON: Record {
     @Field
@@ -13,6 +49,29 @@ internal struct RegistrationResponseJSON: Record {
 
     @Field
     var response: AuthenticatorAttestationResponseJSON
+
+    @Field
+    var authenticatorAttachment: AuthenticatorAttachment?
+
+    @Field
+    var clientExtensionResults: AuthenticationExtensionsClientOutputsJSON?
+
+    @Field
+    var type: PublicKeyCredentialType = .publicKey
+}
+
+internal struct AccountCreationResponseJSON: Record {
+    @Field
+    var id: Base64URLString
+
+    @Field
+    var rawId: Base64URLString
+
+    @Field
+    var response: AuthenticatorAttestationResponseJSON
+
+    @Field
+    var account: AccountCreationDetailsJSON
 
     @Field
     var authenticatorAttachment: AuthenticatorAttachment?

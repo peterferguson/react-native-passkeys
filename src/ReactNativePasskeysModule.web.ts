@@ -3,11 +3,13 @@ import { base64URLStringToBuffer, bufferToBase64URLString } from "./utils/base64
 import { normalizePRFInputs } from "./utils/prf";
 
 import type {
+	AccountCreationResponse,
 	AuthenticationCredential,
 	AuthenticationExtensionsClientInputs,
 	AuthenticationExtensionsClientOutputs,
 	AuthenticationExtensionsClientOutputsJSON,
 	AuthenticationResponseJSON,
+	FastAccountCreationOptions,
 	PublicKeyCredentialCreationOptionsJSON,
 	PublicKeyCredentialRequestOptionsJSON,
 	RegistrationCredential,
@@ -27,6 +29,10 @@ export default {
 		return (
 			window?.PublicKeyCredential !== undefined && typeof window.PublicKeyCredential === "function"
 		);
+	},
+
+	isAccountCreationSupported() {
+		return false;
 	},
 
 	async create({
@@ -181,6 +187,14 @@ export default {
 			} satisfies AuthenticationExtensionsClientOutputsJSON,
 			type: "public-key",
 		};
+	},
+
+	async createAccount(
+		_request: FastAccountCreationOptions,
+	): Promise<AccountCreationResponse | null> {
+		throw new NotSupportedError(
+			"Fast account creation with passkeys is only available through the native iOS API.",
+		);
 	},
 };
 

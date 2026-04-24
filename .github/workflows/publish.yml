@@ -1,0 +1,74 @@
+name: Publish to npm
+
+# Manual-only for now. Flip to a tag-push or version-bump trigger once we have
+# a release cadence we like. `workflow_dispatch` keeps the first publish (and
+# any future one-offs) under human control.
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run npm publish with --dry-run (no registry write).'
+        required: false
+        default: false
+        type: boolean
+
+# Package-name-scoped concurrency: one publish at a time, never cancelled
+# mid-flight (npm publishes aren't safely interruptable).
+concurrency:
+  group: publish-npm
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  # OIDC: npm exchanges this token for a short-lived publish credential via
+  # the Trusted Publisher configured on `@officialunofficial/react-native-passkeys`.
+  # No NPM_TOKEN secret needed; every publish also gets a signed provenance
+  # attestation in sigstore's transparency log.
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: '10'
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          # Node 22 ships with npm 11, which has native Trusted Publisher
+          # OIDC support. On Node 20's npm 10, `npm publish` can't exchange
+          # the GH OIDC token for a publish credential and falls through to
+          # unauthenticated → 404.
+          node-version: '22'
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@officialunofficial'
+
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Check exports (types)
+        run: pnpm run check-exports
+
+      # Trusted Publisher OIDC requires npm >= 11.5.1. Node 22 ships npm 10,
+      # so we run the latest npm ephemerally via `npx`. This avoids the
+      # `npm install -g npm@latest` self-upgrade bug (missing promise-retry
+      # in the reify path) while still getting OIDC support per publish.
+      - name: Publish
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            npx -y npm@latest publish --provenance --access public --dry-run
+          else
+            npx -y npm@latest publish --provenance --access public
+          fi
