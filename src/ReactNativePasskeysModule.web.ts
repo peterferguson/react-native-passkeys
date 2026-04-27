@@ -19,7 +19,12 @@ export default {
 		return "ReactNativePasskeys";
 	},
 
+	/** @deprecated use `isAutoFillAvailable` */
 	isAutoFillAvalilable(): Promise<boolean> {
+		return this.isAutoFillAvailable();
+	},
+
+	isAutoFillAvailable(): Promise<boolean> {
 		return window.PublicKeyCredential.isConditionalMediationAvailable?.() ?? Promise.resolve(false);
 	},
 
