@@ -79,31 +79,35 @@ final public class ReactNativePasskeysModule: Module, PasskeyResultHandler {
             var platformKeyRegistrationRequest:
                 ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest?
 
-            if request.authenticatorSelection?.authenticatorAttachment
-                == AuthenticatorAttachment.crossPlatform
-            {
+            // Present both providers when the request does not set authenticatorAttachment, the same
+            // way get() does, so iOS shows a combined sheet and the user can register a platform
+            // passkey or a security key. This matches navigator.credentials.create() on the web. When
+            // the request sets an attachment, keep the single-provider behaviour.
+            let attachment = request.authenticatorSelection?.authenticatorAttachment
+
+            if attachment != AuthenticatorAttachment.platform {
                 crossPlatformKeyRegistrationRequest = prepareCrossPlatformRegistrationRequest(
                     challenge: challengeData,
                     userId: userId,
                     request: request)
-            } else {
+            }
+            if attachment != AuthenticatorAttachment.crossPlatform {
                 platformKeyRegistrationRequest = try preparePlatformRegistrationRequest(
                     challenge: challengeData,
                     userId: userId,
                     request: request)
             }
 
-            let authController: ASAuthorizationController
-
-            if platformKeyRegistrationRequest != nil {
-                authController = ASAuthorizationController(authorizationRequests: [
-                    platformKeyRegistrationRequest!
-                ])
-            } else {
-                authController = ASAuthorizationController(authorizationRequests: [
-                    crossPlatformKeyRegistrationRequest!
-                ])
+            var registrationRequests: [ASAuthorizationRequest] = []
+            if let platformKeyRegistrationRequest {
+                registrationRequests.append(platformKeyRegistrationRequest)
             }
+            if let crossPlatformKeyRegistrationRequest {
+                registrationRequests.append(crossPlatformKeyRegistrationRequest)
+            }
+
+            let authController = ASAuthorizationController(
+                authorizationRequests: registrationRequests)
 
             passkeyContext = context
 
