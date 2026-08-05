@@ -15,7 +15,7 @@ export default {
 	...passkeys,
 
 	async create(request: PublicKeyCredentialCreationOptionsJSON): Promise<CreationResponse | null> {
-		if (!this.isSupported) throw new NotSupportedError();
+		if (!this.isSupported()) throw new NotSupportedError();
 
 		const credential = await passkeys.create(request);
 		return {
