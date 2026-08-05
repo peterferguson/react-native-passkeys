@@ -15,8 +15,13 @@ export function isSupported(): boolean {
 	return ReactNativePasskeysModule.isSupported();
 }
 
+export function isAutoFillAvailable(): boolean {
+	return ReactNativePasskeysModule.isAutoFillAvailable();
+}
+
+/** @deprecated use `isAutoFillAvailable` */
 export function isAutoFillAvalilable(): boolean {
-	return ReactNativePasskeysModule.isAutoFillAvalilable();
+	return isAutoFillAvailable();
 }
 
 export async function create(
