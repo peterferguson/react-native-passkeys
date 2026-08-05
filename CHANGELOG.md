@@ -1,5 +1,11 @@
 # react-native-passkeys
 
+## 0.4.2
+
+### Patch Changes
+
+- 052cbc5: - fix(android): call `isSupported()` before passkey creation so unsupported Android devices receive `NotSupportedError` (thanks @ncarthy, #66).
+
 ## 0.4.1
 
 ### Patch Changes
