@@ -25,9 +25,8 @@ internal class BiometricException: Exception {
 }
 
 internal class UserCancelledException: Exception {
-  override var reason: String {
-    "User cancelled the passkey interaction"
-  }
+  // Don't override reason - use the description passed to the initializer
+  // Maps to WebAuthn NotAllowedError
 }
 
 internal class InvalidChallengeException: Exception {
@@ -67,13 +66,32 @@ internal class InvalidPRFInputException: Exception {
 }
 
 internal class UnknownException: Exception {
-  override var reason: String {
-    "An unknown exception occured"
-  }
+  // Don't override reason - use the description passed to the initializer
+  // This allows propagating the actual error message from ASAuthorizationError
 }
 
 internal class InvalidLargeBlobWriteInputException: Exception {
   override var reason: String {
     "The provided large blob write input was invalid"
   }
+}
+
+internal class MatchedExcludedCredentialException: Exception {
+  // Don't override reason - use the description passed to the initializer
+  // This will contain the localized message from iOS about the matched credential
+}
+
+internal class InvalidResponseException: Exception {
+  // Don't override reason - use the description passed to the initializer
+  // Maps to WebAuthn EncodingError
+}
+
+internal class NotHandledException: Exception {
+  // Don't override reason - use the description passed to the initializer
+  // Maps to WebAuthn NotSupportedError
+}
+
+internal class NotInteractiveException: Exception {
+  // Don't override reason - use the description passed to the initializer
+  // Maps to WebAuthn InvalidStateError
 }
