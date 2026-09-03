@@ -19,7 +19,7 @@ export default {
 		return "ReactNativePasskeys";
 	},
 
-	isAutoFillAvalilable(): Promise<boolean> {
+	isAutoFillAvailable(): Promise<boolean> {
 		return window.PublicKeyCredential.isConditionalMediationAvailable?.() ?? Promise.resolve(false);
 	},
 
