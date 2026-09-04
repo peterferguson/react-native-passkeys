@@ -1,0 +1,1 @@
+{"version":3,"file":"warn-user-of-missing-webauthn-extensions.d.ts","sourceRoot":"","sources":["../../src/utils/warn-user-of-missing-webauthn-extensions.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EACX,oCAAoC,EACpC,qCAAqC,EACrC,MAAM,8BAA8B,CAAC;AAEtC;;GAEG;AACH,eAAO,MAAM,mCAAmC,GAC/C,qBAAqB,oCAAoC,GAAG,SAAS,EACrE,wBAAwB,qCAAqC,GAAG,SAAS,SAWzE,CAAC"}
