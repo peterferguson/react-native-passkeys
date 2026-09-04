@@ -54,7 +54,7 @@ export async function create(
 	} & Pick<CredentialCreationOptions, "signal">,
 	options?: PasskeysCreateOptions,
 ): Promise<CreationResponse | null> {
-	return await ReactNativePasskeysModule.create(request, options?.ios?.requireBiometrics ?? true);
+	return await ReactNativePasskeysModule.create(request, options?.ios?.requireBiometrics ?? false);
 }
 
 export interface PasskeysGetOptions extends PasskeysConfig {}
@@ -72,5 +72,5 @@ export async function get(
 	},
 	options?: PasskeysGetOptions,
 ): Promise<AuthenticationResponseJSON | null> {
-	return await ReactNativePasskeysModule.get(request, options?.ios?.requireBiometrics ?? true);
+	return await ReactNativePasskeysModule.get(request, options?.ios?.requireBiometrics ?? false);
 }
