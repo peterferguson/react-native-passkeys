@@ -19,6 +19,26 @@ export function isAutoFillAvalilable(): boolean {
 	return ReactNativePasskeysModule.isAutoFillAvalilable();
 }
 
+export interface PasskeysConfig {
+	/**
+	 * Options and configuration specific to the iOS platform.
+	 */
+	ios?: {
+		/**
+		 * Defines the [local authentication policy](https://developer.apple.com/documentation/localauthentication/lapolicy) to use:
+		 * - `true`: Use the `deviceOwnerAuthenticationWithBiometrics` policy.
+		 * - `false`: Use the `deviceOwnerAuthentication` policy.
+		 * Defaults to `true`.
+		 *
+		 * @see {@linkcode https://developer.apple.com/documentation/localauthentication/lapolicy/deviceownerauthenticationwithbiometrics|LAPolicy.deviceOwnerAuthenticationWithBiometrics}
+		 * @see {@linkcode https://developer.apple.com/documentation/localauthentication/lapolicy/deviceownerauthentication|LAPolicy.deviceOwnerAuthentication}
+		 */
+		requireBiometrics?: boolean;
+	};
+}
+
+export interface PasskeysCreateOptions extends PasskeysConfig {}
+
 export async function create(
 	request: Omit<PublicKeyCredentialCreationOptionsJSON, "extensions"> & {
 		// Platform support:
@@ -32,9 +52,12 @@ export async function create(
 			credProps?: boolean;
 		};
 	} & Pick<CredentialCreationOptions, "signal">,
+	options?: PasskeysCreateOptions,
 ): Promise<CreationResponse | null> {
-	return await ReactNativePasskeysModule.create(request);
+	return await ReactNativePasskeysModule.create(request, options?.ios?.requireBiometrics ?? true);
 }
+
+export interface PasskeysGetOptions extends PasskeysConfig {}
 
 export async function get(
 	request: Omit<PublicKeyCredentialRequestOptionsJSON, "extensions"> & {
@@ -47,6 +70,7 @@ export async function get(
 			prf?: AuthenticationExtensionsPRFInputs;
 		};
 	},
+	options?: PasskeysGetOptions,
 ): Promise<AuthenticationResponseJSON | null> {
-	return await ReactNativePasskeysModule.get(request);
+	return await ReactNativePasskeysModule.get(request, options?.ios?.requireBiometrics ?? true);
 }
